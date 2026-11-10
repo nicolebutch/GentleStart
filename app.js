@@ -503,39 +503,49 @@
   var PLN=5;
   function plPool(){return rank(function(t){return !t.nr}).list.map(function(x){return x.t})}
   function plSample(list){var a=list.slice(),o=[];while(a.length&&o.length<PLN){o.push(a.splice(Math.floor(Math.random()*a.length),1)[0])}return o}
+  /* a dense field of pegs, whatever the number of slots. Positions are whole multiples of 15px (u = x/15); row s allows u with (u+s) even. */
+  var PLR=9,PLH=15,PLY0=24,PLDY=17.5,PLPEG=2.8,PLOFF=10,PLFLOOR=212,PLTR=6;
+  function plOK(s,u){return u>=1&&u<=19&&((u+s)%2===0)}
+  function plSlotOf(n,u){return Math.floor(u*PLH*n/300)}
   function plPath(n,k){
-    /* pick the landing slot first (so every task is equally likely), then shuffle the lefts and rights that lead there */
-    var st=[],i;for(i=0;i<n-1;i++)st.push(i<k?1:0);
-    for(i=st.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=st[i];st[i]=st[j];st[j]=t}
-    return st;
+    /* the landing slot is picked first (so every task is equally likely); then a random walk is drawn uniformly from all the walks that end there */
+    var f=[],s,u,path=[];
+    for(s=0;s<=PLR;s++)f.push([]);
+    for(u=0;u<=20;u++)f[PLR][u]=plSlotOf(n,u)===k?1:0;
+    for(s=PLR-1;s>=0;s--)for(u=0;u<=20;u++)f[s][u]=plOK(s,u)?(f[s+1][u-1]||0)+(f[s+1][u+1]||0):0;
+    u=10;
+    for(s=0;s<PLR;s++){var l=f[s+1][u-1]||0,r=f[s+1][u+1]||0,go=Math.random()*(l+r)<r?1:0;path.push(go);u+=go?1:-1}
+    return path;
   }
-  function plGeo(n,path){
-    var dx=150/n,rows=n-1,y0=34,gap=rows>1?150/(rows-1):0,pegs=[],way=[[150,8]],x=150,s,j;
-    for(s=0;s<rows;s++){for(j=0;j<=s;j++)pegs.push([150+(2*j-s)*dx,y0+s*gap])}
-    for(s=0;s<rows&&path&&path.length;s++){way.push([x,y0+s*gap-8]);x+=(path[s]?1:-1)*dx}
-    if(path&&path.length)way.push([x,212]);
-    return {dx:dx,pegs:pegs,way:way};
+  function plFinal(n,path,k){
+    var u=10;path.forEach(function(g){u+=g?1:-1});
+    var x=u*PLH,L=300*k/n,R=300*(k+1)/n;return Math.min(Math.max(x,L+10),R-10);
   }
-  function plDrop(){var P=S.pl,n=P.ids.length;P.k=Math.floor(Math.random()*n);P.path=plPath(n,P.k);P.phase='fall';P.drops=(P.drops||0)+1}
+  function plGeo(){
+    var pegs=[],idx={},s,u;
+    for(s=0;s<PLR;s++)for(u=1;u<=19;u++)if(plOK(s,u)){idx[s+':'+u]=pegs.length;pegs.push([u*PLH,PLY0+s*PLDY])}
+    return {pegs:pegs,idx:idx};
+  }
+  function plDrop(){var P=S.pl,n=P.ids.length;P.k=Math.floor(Math.random()*n);P.path=plPath(n,P.k);P.xf=plFinal(n,P.path,P.k);P.phase='fall';P.drops=(P.drops||0)+1}
   function plLand(){if(!S.pl)return;plAnimate.id++;S.pl.phase='done';render()}
   /* the ball itself, drawn around 0,0: a glossy ball, or an acorn in Little mammal mode */
-  var ACORN='<g transform="scale(1.02)"><path d="M0 -10.5L.6 -14 L2 -14.7" fill="none" stroke="#4F3319" stroke-width="1.7" stroke-linecap="round"/><path d="M-6.2 -1.5C-6.7 5 -3.6 9.6 0 11.2C3.6 9.6 6.7 5 6.2 -1.5Z" fill="#BE8548" stroke="#6B4423" stroke-width="1.2" stroke-linejoin="round"/><path d="M-3.6 1.2C-3.9 4.2 -2.6 6.7 -1 8.2" fill="none" stroke="#E6BC85" stroke-width="1.3" stroke-linecap="round" opacity=".8"/><path d="M-7.4 -1.3C-7.7 -8.4 -3.6 -10.6 0 -10.6C3.6 -10.6 7.7 -8.4 7.4 -1.3C3.6 -.1 -3.6 -.1 -7.4 -1.3Z" fill="#7C5430" stroke="#4F3319" stroke-width="1.2" stroke-linejoin="round"/><path d="M-5.2 -2.6L-1.4 -8.6M-1.6 -1.2L2.4 -9.4M2.4 -1.2L6 -6.6M-5.6 -6L-2.4 -1.6M-1.6 -9.6L2.2 -1.4M2.6 -9.4L6 -2.6" fill="none" stroke="#4F3319" stroke-width=".7" opacity=".55"/></g>';
-  function plBallArt(){return creature()?ACORN:'<circle r="8" style="fill:var(--accent);stroke:var(--ink);stroke-width:1.3"/><circle cx="-2.7" cy="-2.9" r="2.7" style="fill:#fff;opacity:.5"/>'}
-  var PLTR=6,PLOFF=11,PLFLOOR=212;
+  var ACORN='<g transform="scale(.86)"><path d="M0 -10.5L.6 -14 L2 -14.7" fill="none" stroke="#4F3319" stroke-width="1.7" stroke-linecap="round"/><path d="M-6.2 -1.5C-6.7 5 -3.6 9.6 0 11.2C3.6 9.6 6.7 5 6.2 -1.5Z" fill="#BE8548" stroke="#6B4423" stroke-width="1.2" stroke-linejoin="round"/><path d="M-3.6 1.2C-3.9 4.2 -2.6 6.7 -1 8.2" fill="none" stroke="#E6BC85" stroke-width="1.3" stroke-linecap="round" opacity=".8"/><path d="M-7.4 -1.3C-7.7 -8.4 -3.6 -10.6 0 -10.6C3.6 -10.6 7.7 -8.4 7.4 -1.3C3.6 -.1 -3.6 -.1 -7.4 -1.3Z" fill="#7C5430" stroke="#4F3319" stroke-width="1.2" stroke-linejoin="round"/><path d="M-5.2 -2.6L-1.4 -8.6M-1.6 -1.2L2.4 -9.4M2.4 -1.2L6 -6.6M-5.6 -6L-2.4 -1.6M-1.6 -9.6L2.2 -1.4M2.6 -9.4L6 -2.6" fill="none" stroke="#4F3319" stroke-width=".7" opacity=".55"/></g>';
+  function plBallArt(){return creature()?ACORN:'<circle r="6.6" style="fill:var(--accent);stroke:var(--ink);stroke-width:1.1"/><circle cx="-2.2" cy="-2.4" r="2.2" style="fill:#fff;opacity:.55"/>'}
   /* a hop-by-hop timeline: the outcome is already decided, this only makes the fall look physical */
   function plTimeline(n,path,k){
-    var rows=n-1,dx=150/n,gap=rows>1?150/(rows-1):0,ph=[],x=150,j=0,s,rot=0,rnd=Math.random;
-    ph.push({d:300,a:[150,-10],c:[150,34-PLOFF],g:1,H:0,r0:0,r1:0});
-    for(s=0;s<rows;s++){
-      var dir=path[s]?1:-1,x2=x+dir*dx,last=s===rows-1,dr=dir*(45+rnd()*50);
-      ph.push({d:Math.max(240,350-20*s),a:[x,34+s*gap-PLOFF],c:[x2,last?PLFLOOR:34+(s+1)*gap-PLOFF],H:8+rnd()*5,r0:rot,r1:rot+dr,hit:s*(s+1)/2+j});
-      rot+=dr;j+=path[s]?1:0;x=x2;
+    var ph=[],u=10,rot=0,rnd=Math.random,s,cx=150,G=plGeo();
+    ph.push({d:240,a:[150,-10],c:[150,PLY0-PLOFF],g:1,H:0,r0:0,r1:0});
+    for(s=0;s<PLR;s++){
+      var dir=path[s]?1:-1,last=s===PLR-1,hit=G.idx[s+':'+u],nu=u+dir,tx,ty,dr=dir*(100+rnd()*110);
+      if(last){tx=plFinal(n,path,k);ty=PLFLOOR}else{tx=nu*PLH+(rnd()-.5)*4;ty=PLY0+(s+1)*PLDY-PLOFF}
+      ph.push({d:Math.max(190,235-7*s),a:[cx,PLY0+s*PLDY-PLOFF],c:[tx,ty],H:15+rnd()*9,r0:rot,r1:rot+dr,hit:hit});
+      rot+=dr;u=nu;cx=tx;
     }
     var up=Math.round(rot/360)*360;
-    [[300,12],[200,5],[140,2]].forEach(function(b,q){ph.push({d:b[0],a:[x,PLFLOOR],c:[x,PLFLOOR],H:b[1],r0:q===0?rot:up,r1:up,land:q===0,sq:1})});
-    ph.push({d:520,a:[x,PLFLOOR],c:[x,PLFLOOR],H:0,r0:up,r1:up});
+    [[340,24],[250,11],[180,5],[130,2]].forEach(function(b,q){ph.push({d:b[0],a:[cx,PLFLOOR],c:[cx,PLFLOOR],H:b[1],r0:q===0?rot:up,r1:up,land:q===0,sq:1})});
+    ph.push({d:520,a:[cx,PLFLOOR],c:[cx,PLFLOOR],H:0,r0:up,r1:up});
     var t=0;ph.forEach(function(p){p.t0=t;t+=p.d});
-    return {ph:ph,total:t,xf:x};
+    return {ph:ph,total:t,xf:cx};
   }
   function plAnimate(){
     var P=S.pl;if(!P||P.phase!=='fall')return;
@@ -560,14 +570,14 @@
       /* trail */
       if(!hist.length||ts-hist[0].ts>26){hist.unshift({x:x,y:y,ts:ts});if(hist.length>PLTR)hist.pop()}
       for(q=0;q<PLTR;q++){var c=document.getElementById('pltr'+q),h=hist[q+1];if(!c)continue;
-        if(h&&t<landT){c.setAttribute('cx',h.x.toFixed(1));c.setAttribute('cy',h.y.toFixed(1));c.setAttribute('r',(6.2-q*.8).toFixed(1));c.setAttribute('opacity',(.26-q*.04).toFixed(2))}else c.setAttribute('opacity','0')}
+        if(h&&t<landT){c.setAttribute('cx',h.x.toFixed(1));c.setAttribute('cy',h.y.toFixed(1));c.setAttribute('r',(5-q*.65).toFixed(1));c.setAttribute('opacity',(.26-q*.04).toFixed(2))}else c.setAttribute('opacity','0')}
       /* pegs: bump and ripple after a hit */
       hits.forEach(function(hh){
         var age=t-hh.t;if(age<0)return;
         var pg=document.getElementById('plpeg'+hh.i),rp=document.getElementById('plrp'+hh.i);if(!pg||!rp)return;
-        if(age<460){var e=age/460;pg.setAttribute('r',(3.4+2*Math.max(0,1-age/200)).toFixed(2));pg.style.fill='var(--accent)';
-          rp.setAttribute('r',(4+e*13).toFixed(1));rp.setAttribute('opacity',(.7*(1-e)).toFixed(2))}
-        else if(!hh.done){hh.done=1;pg.setAttribute('r','3.4');pg.style.fill='var(--ink2)';rp.setAttribute('opacity','0')}
+        if(age<460){var e=age/460;pg.setAttribute('r',(PLPEG+1.8*Math.max(0,1-age/200)).toFixed(2));pg.style.fill='var(--accent)';
+          rp.setAttribute('r',(3+e*11).toFixed(1));rp.setAttribute('opacity',(.7*(1-e)).toFixed(2))}
+        else if(!hh.done){hh.done=1;pg.setAttribute('r',PLPEG);pg.style.fill='var(--ink2)';rp.setAttribute('opacity','0')}
       });
       /* landing: slot glows, sparkles burst */
       if(t>=landT){
@@ -592,16 +602,16 @@
   }
   function plSheet(){
     var P=S.pl;if(!P)return '';
-    var u=U(),n=P.ids.length,g=plGeo(n,P.path),tasks=P.ids.map(taskById).filter(Boolean),done=P.phase==='done',i;
+    var u=U(),n=P.ids.length,g=plGeo(),tasks=P.ids.map(taskById).filter(Boolean),done=P.phase==='done',i;
     var h='<div class="backdrop" data-a="plbg"><div class="sheet plsheet" role="dialog" aria-modal="true" aria-label="'+esc(u.plinko)+'"><div class="between"><h2 style="font-size:24px">'+esc(u.plinko)+'</h2><button class="x" data-a="plclose" aria-label="Close">&times;</button></div>';
     h+='<p class="small">'+(done?'Landed. These all fit the time you have, so any of them is a fine pick.':'Everything on the board fits the time you have right now. Tap the board to skip the wait.')+'</p>';
     h+='<div class="plboard"'+(done?'':' data-a="plskip"')+'><svg viewBox="0 0 300 260" role="img" aria-label="Plinko board with '+n+' slots">';
     for(i=0;i<n;i++){h+='<rect id="plslot'+i+'" x="'+(300*i/n+2)+'" y="200" width="'+(300/n-4)+'" height="52" rx="8" style="fill:var(--c'+i+');opacity:'+(done&&P.k===i?'.9':'.28')+'"/><text x="'+(300*(i+.5)/n)+'" y="246" text-anchor="middle" style="fill:var(--ink);font:700 15px var(--font-body)">'+(i+1)+'</text>'}
     for(i=1;i<n;i++){h+='<rect x="'+(300*i/n-1.5)+'" y="198" width="3" height="54" rx="1.5" style="fill:var(--ink2);opacity:.45"/>'}
-    g.pegs.forEach(function(p,q){h+='<circle id="plpeg'+q+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.4" style="fill:var(--ink2)"/><circle id="plrp'+q+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4" fill="none" opacity="0" style="stroke:var(--accent)" stroke-width="1.6"/>'});
+    g.pegs.forEach(function(p,q){h+='<circle id="plpeg'+q+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.8" style="fill:var(--ink2)"/><circle id="plrp'+q+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4" fill="none" opacity="0" style="stroke:var(--accent)" stroke-width="1.6"/>'});
     if(!done)for(i=0;i<6;i++)h+='<circle id="pltr'+i+'" r="5" opacity="0" style="fill:'+(creature()?'#B27A40':'var(--accent)')+'"/>';
     h+='<g id="plfx"></g>';
-    var bx=done?300*(P.k+.5)/n:150,by=done?PLFLOOR:6;
+    var bx=done?P.xf:150,by=done?PLFLOOR:6;
     h+='<g id="plball" transform="translate('+bx+' '+by+')">'+plBallArt()+'</g></svg></div>';
     h+='<ol class="plleg">';
     tasks.forEach(function(t,j){h+='<li'+(done&&P.k===j?' class="win"':'')+'><i style="background:var(--c'+j+')">'+(j+1)+'</i><span>'+esc(t.title)+'</span></li>'});
