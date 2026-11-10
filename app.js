@@ -270,7 +270,7 @@
   S.look=load('gs-look','original');if(S.look==='greenhouse')S.look='original';if(!LOOKS[S.look])S.look='original';
   S.cw=load('gs-cw',null);if(!CWS[S.cw])S.cw=LOOKS[S.look].cw;
   function lookKey(){return S.logic==='mammal'?'creature':S.look}
-  function applyLook(){var r=document.documentElement,c=S.logic==='mammal';r.setAttribute('data-look',c?'creature':S.look);r.setAttribute('data-cw',c?'creature':S.cw);if(c){r.setAttribute('data-season',curSeason());r.setAttribute('data-mood',S.mood)}else{r.removeAttribute('data-season');r.removeAttribute('data-mood')}}
+  function applyLook(){var r=document.documentElement,c=S.logic==='mammal';r.setAttribute('data-look',c?'creature':S.look);r.setAttribute('data-cw',c?'creature':S.cw);if(c){r.setAttribute('data-season',curSeason());r.setAttribute('data-mood',S.mood)}else{r.removeAttribute('data-season');r.removeAttribute('data-mood')};var ap=S.appear||'auto';if(ap==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',ap);try{var m=document.querySelector('meta[name=theme-color]');if(m){var bg=getComputedStyle(r).getPropertyValue('--bg').trim();if(bg)m.setAttribute('content',bg)}}catch(e){}}
   try{applyLook()}catch(e){}
 
 
@@ -347,7 +347,7 @@
   var TIMES={dailymeds:[540,5],teeth:[545,10],clothes:[555,10],muffin:[565,10],water:[575,5],meal:[580,30],lunch:[750,45],jobs:[810,20],pt:[840,30],muffinpm:[1050,10],dinner:[1080,45],tidy:[1140,10],tomorrow:[1160,10]};
   var LOWSTEPS={morning:FLOOR,afternoon:['lunch'],evening:['muffinpm','dinner']};
   S.logic=load('gs-logic','gentle');if(!LOGICS[S.logic])S.logic='gentle';
-  S.mt='colorways';S.shift=0;S.noAI=false;
+  S.mt='themes';S.appear=load('gs-appear','auto');if(['auto','light','dark'].indexOf(S.appear)<0)S.appear='auto';S.shift=0;S.noAI=false;
   S.chat={open:false,msgs:[],busy:false,err:'',retry:''};
 
 
@@ -1105,22 +1105,24 @@
     if(!S.menu)return '';
     var h='<div class="backdrop" data-a="mbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="Menu"><div class="between"><h2 style="font-size:24px">Menu</h2><button class="x" data-a="mclose" aria-label="Close menu">&times;</button></div>';
     h+='<div class="subtabs" role="group" aria-label="Menu sections">';
-    [['colorways','Colorways'],['themes','Themes'],['logic','Logic'],['data','You']].forEach(function(t){h+='<button data-a="mt" data-v="'+t[0]+'" aria-pressed="'+(S.mt===t[0])+'">'+t[1]+'</button>'});
+    [['themes','Themes'],['logic','Logic'],['data','You']].forEach(function(t){h+='<button data-a="mt" data-v="'+t[0]+'" aria-pressed="'+(S.mt===t[0])+'">'+t[1]+'</button>'});
     h+='</div>';
     var paused=creature()&&S.mt!=='logic'?'<div class="note">Little mammal has its own storybook look, so themes and colorways are paused while it is on.</div>':'';
-    if(S.mt==='colorways'){
-      h+=paused+'<div class="grp"><div class="lab">Colorway</div><div class="cws">';
+    if(S.mt==='themes'){
+      h+='<p class="small">Picking a theme switches to its own colorway. Then try any other colorway on top, further down.</p>'+paused;
+      h+='<div class="grp"><div class="lab">Appearance</div><div class="chips sm" role="group" aria-label="Light or dark">';
+      [['auto','Auto'],['light','Light'],['dark','Dark']].forEach(function(t){h+='<button data-a="appear" data-v="'+t[0]+'" aria-pressed="'+(S.appear===t[0])+'">'+t[1]+'</button>'});
+      h+='</div><p class="small">Auto follows your phone.</p></div>';
+      h+='<div class="grp"><div class="lab">Theme</div>';
+      Object.keys(LOOKS).forEach(function(k){
+        h+='<button class="opt" data-a="look" data-v="'+k+'" aria-pressed="'+(S.look===k)+'">'+SVGO.replace('class="sprig"','class="mini"')+MOTIFS[k]+'</svg><span><b>'+esc(LOOKS[k].name)+'</b><span class="small">'+esc(LOOKS[k].blurb)+'</span></span></button>';
+      });
+      h+='</div><div class="grp"><div class="lab">Colorway</div><div class="cws">';
       Object.keys(CWS).forEach(function(k){
         var sw='';CWS[k].sw.forEach(function(c){sw+='<i style="background:'+c+'"></i>'});
         h+='<button class="cw" data-a="cw" data-v="'+k+'" aria-pressed="'+(S.cw===k)+'"><span class="sws">'+sw+'</span>'+esc(CWS[k].name)+'</button>';
       });
       h+='</div><p class="small">Colorways only change the colors, and they work with any theme.</p></div>';
-    }else if(S.mt==='themes'){
-      h+='<p class="small">Picking a theme switches to its own colorway. Then try any other colorway on top, in the Colorways tab.</p>'+paused+'<div class="grp"><div class="lab">Theme</div>';
-      Object.keys(LOOKS).forEach(function(k){
-        h+='<button class="opt" data-a="look" data-v="'+k+'" aria-pressed="'+(S.look===k)+'">'+SVGO.replace('class="sprig"','class="mini"')+MOTIFS[k]+'</svg><span><b>'+esc(LOOKS[k].name)+'</b><span class="small">'+esc(LOOKS[k].blurb)+'</span></span></button>';
-      });
-      h+='</div>';
     }else if(S.mt==='data'){
       h+='<form id="profform" class="grp" style="display:flex;flex-direction:column;gap:4px"><div class="lab">About you</div>'+nameFields(PROF)+'<button class="btn alt" type="submit" style="margin-top:10px">Save names</button></form>';
       h+='<div class="grp"><div class="lab">Back up your data</div><p class="small">Everything lives on this device only for now. A backup is one small file with your tasks, plans, lists, log and settings. Keep it somewhere safe, or use it to move to a new phone.</p><button class="btn" data-a="dexport">Save a backup</button></div>';
@@ -1183,6 +1185,7 @@
   function closeSheets(){S.menu=false;S.rp=null;S.ev=null;S.ns=null;S.tk=null;S.pl=null}
 
   var A={
+    appear:function(b){keepSheet(function(){S.appear=b.dataset.v;save('gs-appear',S.appear);applyLook();render()})},
     mt:function(b){keepSheet(function(){S.mt=b.dataset.v;render()})},
     logic:function(b){keepSheet(function(){S.logic=b.dataset.v;S.shift=0;S.skipPark=[];save('gs-logic',S.logic);applyLook();render()})},
     slide:function(){S.shift+=15;render();toast('Everything after this moved 15 minutes later.')},
@@ -1604,6 +1607,7 @@
   }
   document.addEventListener('touchend',swEnd);document.addEventListener('touchcancel',swEnd);
   document.addEventListener('keydown',function(e){if(e.key!=='Escape')return;if(D&&D.active){endDrag(false);return}if(S.chat.open){chatClose();return}if(S.pl){A.plclose();return}if(S.rp||S.menu||S.ev||S.ns||S.tk){closeSheets();render();return}if(S.lot){S.lot=false;render()}});
+  try{var _mq=window.matchMedia('(prefers-color-scheme: dark)');var _fn=function(){applyLook()};if(_mq.addEventListener)_mq.addEventListener('change',_fn)}catch(e){}
   seedSamples();
   try{applyLook()}catch(e){}
   render();

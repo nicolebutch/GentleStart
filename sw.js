@@ -1,5 +1,5 @@
 /* Offline support. Bump VERSION whenever app files change so installed copies update. */
-var VERSION='gs-v6';
+var VERSION='gs-v7';
 var SHELL=['./','index.html','styles.css','app.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/apple-touch-icon.png'];
 self.addEventListener('install',function(e){
   e.waitUntil(caches.open(VERSION).then(function(c){return c.addAll(SHELL)}).then(function(){return self.skipWaiting()}));
