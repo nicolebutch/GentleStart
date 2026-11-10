@@ -7,45 +7,45 @@ img{max-width:100%}
 /* Layout: one narrow phone-sized column, four tabs at the bottom, a menu in the top-right emblem.
    Two separate choices: Look (structure, type, illustration) and Colorway (palette only). */
 :root{
-  --bg:#F3F8F8; --surface:#FFFFFF; --surface2:#E7F0F1; --ink:#1E3640; --ink2:#52707A;
-  --line:#D3E2E4; --accent:#3E7858; --accent-ink:#FFFFFF; --sky:#BCD8E8; --wood:#A9794A;
-  --soft:#DCEBE3; --focus:#2F6FA3;
+  --bg:#E9EDDF; --surface:#F7F8F3; --surface2:#DCE4D4; --ink:#182F20; --ink2:#476651;
+  --line:#C8CFC0; --accent:#3D754F; --accent-ink:#FFFFFF; --sky:#A9CC9B; --wood:#476E38;
+  --soft:#D2E2D4; --focus:#3D754F;
   --c0:#7B6FB3; --c1:#C27A4B; --c2:#4A86A8; --c3:#4E9A70; --c4:#3C9C98; --c5:#C46F8A; --c6:#A39142; --c7:#6B7F8A;
   --font-display:'Young Serif',Georgia,serif;
   --font-body:'Figtree',system-ui,-apple-system,sans-serif;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#11222A; --surface:#182E37; --surface2:#1F3844; --ink:#E4EFF0; --ink2:#9BB5BB;
-    --line:#2B4752; --accent:#7FBF9B; --accent-ink:#0F2219; --sky:#2E5568; --wood:#D3A06C;
-    --soft:#1E3A30; --focus:#8CC4EE;
+    --bg:#131D16; --surface:#1B2A20; --surface2:#24382A; --ink:#EDF0E5; --ink2:#A6BFAE;
+    --line:#354F3D; --accent:#74BE8B; --accent-ink:#131D16; --sky:#3D5F30; --wood:#ABD699;
+    --soft:#2B4533; --focus:#74BE8B;
     --c0:#A99DE0; --c1:#E0A074; --c2:#7FB5D6; --c3:#7FC49A; --c4:#6CC5C0; --c5:#E19AB2; --c6:#D2C06D; --c7:#A5B8C0;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#11222A; --surface:#182E37; --surface2:#1F3844; --ink:#E4EFF0; --ink2:#9BB5BB;
-  --line:#2B4752; --accent:#7FBF9B; --accent-ink:#0F2219; --sky:#2E5568; --wood:#D3A06C;
-  --soft:#1E3A30; --focus:#8CC4EE;
+  --bg:#131D16; --surface:#1B2A20; --surface2:#24382A; --ink:#EDF0E5; --ink2:#A6BFAE;
+  --line:#354F3D; --accent:#74BE8B; --accent-ink:#131D16; --sky:#3D5F30; --wood:#ABD699;
+  --soft:#2B4533; --focus:#74BE8B;
   --c0:#A99DE0; --c1:#E0A074; --c2:#7FB5D6; --c3:#7FC49A; --c4:#6CC5C0; --c5:#E19AB2; --c6:#D2C06D; --c7:#A5B8C0;
   color-scheme:dark;
 }
 
-/* Colorways. Sea Glass is the base set above. */
-:root[data-cw="library"]{--bg:#EDF1F9;--surface:#FFFFFF;--surface2:#E0E7F4;--ink:#13223F;--ink2:#52627F;--line:#CBD5E8;--accent:#1F3A73;--accent-ink:#FFFFFF;--sky:#B3C5E6;--wood:#9C6B3C;--soft:#DCE4F3;--focus:#2F5FA3}
-:root[data-cw="peri"]{--bg:#F6F7FD;--surface:#FFFFFF;--surface2:#ECEFFA;--ink:#2A3358;--ink2:#666F94;--line:#DADFF2;--accent:#5468C2;--accent-ink:#FFFFFF;--sky:#C7D3F3;--wood:#B2587A;--soft:#E6EAFB;--focus:#3F55B5}
-:root[data-cw="ocean"]{--bg:#EFF7FA;--surface:#FFFFFF;--surface2:#DFEFF4;--ink:#12394A;--ink2:#4B7283;--line:#C6E0E8;--accent:#1A7791;--accent-ink:#FFFFFF;--sky:#B7DAE6;--wood:#8F6330;--soft:#D6ECF2;--focus:#0F5F85}
-:root[data-cw="oak"]{--bg:#FAF9F6;--surface:#FFFFFF;--surface2:#F0ECE4;--ink:#2C373D;--ink2:#667177;--line:#E4DDD0;--accent:#44707E;--accent-ink:#FFFFFF;--sky:#C9DCE5;--wood:#94683A;--soft:#E5EDF0;--focus:#2E6A87}
+/* Colorways. Fern is the base set above. */
+:root[data-cw="library"]{--bg:#E9DFC9;--surface:#F7F3EA;--surface2:#DCD5C2;--ink:#172331;--ink2:#4B5C6C;--line:#C7C1B1;--accent:#28496B;--accent-ink:#FFFFFF;--sky:#D6BFAD;--wood:#78553C;--soft:#C9CECE;--focus:#28496B}
+:root[data-cw="peri"]{--bg:#F1E8D7;--surface:#FAF6F0;--surface2:#E5DBCF;--ink:#241C30;--ink2:#594B6C;--line:#D0C7BC;--accent:#755C9B;--accent-ink:#FFFFFF;--sky:#C98FA0;--wood:#96485E;--soft:#E4DCE3;--focus:#755C9B}
+:root[data-cw="ocean"]{--bg:#EDE5D8;--surface:#F8F5F0;--surface2:#E0DCD0;--ink:#14292A;--ink2:#456263;--line:#CAC7BC;--accent:#316E70;--accent-ink:#FFFFFF;--sky:#A5CFC7;--wood:#36675E;--soft:#CEDBD8;--focus:#316E70}
+:root[data-cw="oak"]{--bg:#F5F0E6;--surface:#FBF9F6;--surface2:#EBE5D9;--ink:#31291C;--ink2:#6C604B;--line:#D6D0C6;--accent:#7E6947;--accent-ink:#FFFFFF;--sky:#B5BDB1;--wood:#5E6858;--soft:#F0EBE3;--focus:#7E6947}
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"])[data-cw="library"]{--bg:#0F1A30;--surface:#16233F;--surface2:#1E2E50;--ink:#E3EAF7;--ink2:#9DB0D0;--line:#2A3C61;--accent:#8DAEE8;--accent-ink:#0C1830;--sky:#2C4472;--wood:#D6A66F;--soft:#1B2C4D;--focus:#9DBBF2;color-scheme:dark}
-  :root:not([data-theme="light"])[data-cw="peri"]{--bg:#161A31;--surface:#1E2441;--surface2:#272E52;--ink:#E7EAFA;--ink2:#A2AAD0;--line:#323A63;--accent:#A0B1F5;--accent-ink:#141838;--sky:#33407A;--wood:#EAA1BD;--soft:#252C54;--focus:#B6C3FA;color-scheme:dark}
-  :root:not([data-theme="light"])[data-cw="ocean"]{--bg:#0E232C;--surface:#153240;--surface2:#1C4050;--ink:#DCEFF4;--ink2:#93B8C6;--line:#265063;--accent:#6EC4DB;--accent-ink:#06232C;--sky:#285A70;--wood:#D9AE76;--soft:#173B49;--focus:#8FD3E8;color-scheme:dark}
-  :root:not([data-theme="light"])[data-cw="oak"]{--bg:#1B2022;--surface:#232A2D;--surface2:#2C3538;--ink:#EEEAE2;--ink2:#A9B2B5;--line:#3A4447;--accent:#8DBBCB;--accent-ink:#10242C;--sky:#355766;--wood:#D8B27E;--soft:#2A3A40;--focus:#9CCBDD;color-scheme:dark}
+  :root:not([data-theme="light"])[data-cw="library"]{--bg:#101820;--surface:#17222D;--surface2:#1F2E3D;--ink:#F1EDE4;--ink2:#A6B2BF;--line:#2F4255;--accent:#6598CD;--accent-ink:#101820;--sky:#5F4430;--wood:#D7B399;--soft:#25374A;--focus:#699BCE;color-scheme:dark}
+  :root:not([data-theme="light"])[data-cw="peri"]{--bg:#17141D;--surface:#211C29;--surface2:#2C2636;--ink:#F1ECE4;--ink2:#B0A6BF;--line:#40384D;--accent:#947BB9;--accent-ink:#17141D;--sky:#602E3D;--wood:#D898AA;--soft:#362D43;--focus:#A28CC2;color-scheme:dark}
+  :root:not([data-theme="light"])[data-cw="ocean"]{--bg:#121E1F;--surface:#192B2C;--surface2:#21393A;--ink:#F1ECE4;--ink2:#A6BEBF;--line:#325153;--accent:#6CC2C6;--accent-ink:#121E1F;--sky:#325D55;--wood:#9BD4C9;--soft:#284648;--focus:#6CC2C6;color-scheme:dark}
+  :root:not([data-theme="light"])[data-cw="oak"]{--bg:#1D1913;--surface:#29241C;--surface2:#373025;--ink:#F1EDE4;--ink2:#BFB5A6;--line:#4E4537;--accent:#CDBA9B;--accent-ink:#1D1913;--sky:#454D41;--wood:#B3C5AB;--soft:#473F33;--focus:#CDBA9B;color-scheme:dark}
 }
-:root[data-theme="dark"][data-cw="library"]{--bg:#0F1A30;--surface:#16233F;--surface2:#1E2E50;--ink:#E3EAF7;--ink2:#9DB0D0;--line:#2A3C61;--accent:#8DAEE8;--accent-ink:#0C1830;--sky:#2C4472;--wood:#D6A66F;--soft:#1B2C4D;--focus:#9DBBF2;color-scheme:dark}
-:root[data-theme="dark"][data-cw="peri"]{--bg:#161A31;--surface:#1E2441;--surface2:#272E52;--ink:#E7EAFA;--ink2:#A2AAD0;--line:#323A63;--accent:#A0B1F5;--accent-ink:#141838;--sky:#33407A;--wood:#EAA1BD;--soft:#252C54;--focus:#B6C3FA;color-scheme:dark}
-:root[data-theme="dark"][data-cw="ocean"]{--bg:#0E232C;--surface:#153240;--surface2:#1C4050;--ink:#DCEFF4;--ink2:#93B8C6;--line:#265063;--accent:#6EC4DB;--accent-ink:#06232C;--sky:#285A70;--wood:#D9AE76;--soft:#173B49;--focus:#8FD3E8;color-scheme:dark}
-:root[data-theme="dark"][data-cw="oak"]{--bg:#1B2022;--surface:#232A2D;--surface2:#2C3538;--ink:#EEEAE2;--ink2:#A9B2B5;--line:#3A4447;--accent:#8DBBCB;--accent-ink:#10242C;--sky:#355766;--wood:#D8B27E;--soft:#2A3A40;--focus:#9CCBDD;color-scheme:dark}
+:root[data-theme="dark"][data-cw="library"]{--bg:#101820;--surface:#17222D;--surface2:#1F2E3D;--ink:#F1EDE4;--ink2:#A6B2BF;--line:#2F4255;--accent:#6598CD;--accent-ink:#101820;--sky:#5F4430;--wood:#D7B399;--soft:#25374A;--focus:#699BCE;color-scheme:dark}
+:root[data-theme="dark"][data-cw="peri"]{--bg:#17141D;--surface:#211C29;--surface2:#2C2636;--ink:#F1ECE4;--ink2:#B0A6BF;--line:#40384D;--accent:#947BB9;--accent-ink:#17141D;--sky:#602E3D;--wood:#D898AA;--soft:#362D43;--focus:#A28CC2;color-scheme:dark}
+:root[data-theme="dark"][data-cw="ocean"]{--bg:#121E1F;--surface:#192B2C;--surface2:#21393A;--ink:#F1ECE4;--ink2:#A6BEBF;--line:#325153;--accent:#6CC2C6;--accent-ink:#121E1F;--sky:#325D55;--wood:#9BD4C9;--soft:#284648;--focus:#6CC2C6;color-scheme:dark}
+:root[data-theme="dark"][data-cw="oak"]{--bg:#1D1913;--surface:#29241C;--surface2:#373025;--ink:#F1EDE4;--ink2:#BFB5A6;--line:#4E4537;--accent:#CDBA9B;--accent-ink:#1D1913;--sky:#454D41;--wood:#B3C5AB;--soft:#473F33;--focus:#CDBA9B;color-scheme:dark}
 
 /* Look fonts and shared mask shapes */
 :root[data-look="nook"]{--font-display:'Lora',Georgia,serif;--font-body:'Literata',Georgia,serif}
@@ -245,7 +245,7 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
 .dayhead{font-size:13px;font-weight:600;color:var(--ink2);margin-top:6px}
 
-/* ===== LOOK: Reading Nook. Bookshelf header, chapter-list routine with dotted leaders, bookplate card with a ribbon, ribbon tabs. ===== */
+/* ===== LOOK: Library. Bookshelf header, chapter-list routine with dotted leaders, bookplate card with a ribbon, ribbon tabs. ===== */
 :root[data-look="nook"] .deco,:root[data-look="meadow"] .deco,:root[data-look="tide"] .deco,:root[data-look="birch"] .deco{display:block}
 :root[data-look="nook"] body{font-size:16.5px}
 :root[data-look="nook"] .hello{font-style:italic;font-size:33px}
@@ -295,7 +295,7 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 :root[data-look="meadow"] .tabs button{border-radius:999px;padding:6px 4px}
 :root[data-look="meadow"] .toast{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 
-/* ===== LOOK: Tide Pool. Rippling pool header, ripple ring on the next step, wave along the card, wavy tab bar. ===== */
+/* ===== LOOK: Ocean. Rippling pool header, ripple ring on the next step, wave along the card, wavy tab bar. ===== */
 :root[data-look="tide"] .head{background:linear-gradient(180deg,var(--soft),var(--surface));border:1.5px solid var(--line);border-radius:28px;padding:18px 16px 0;overflow:hidden;gap:8px}
 :root[data-look="tide"] .head .deco svg{width:calc(100% + 32px);max-width:none;margin:0 -16px}
 :root[data-look="tide"] .hello{font-size:38px}
@@ -309,7 +309,7 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 :root[data-look="tide"] .tabs::before{content:"";position:absolute;left:0;right:0;top:-11px;height:12px;background:var(--surface);-webkit-mask:var(--wave) left bottom/48px 12px repeat-x;mask:var(--wave) left bottom/48px 12px repeat-x;pointer-events:none}
 :root[data-look="tide"] .tabs button[aria-current="page"]{border-radius:16px}
 
-/* ===== LOOK: Birch Morning. Flat quiet sections, birch trunk down the edge, morning glow, branch drawing, wood shelf rule. ===== */
+/* ===== LOOK: Canvas. Flat quiet sections, birch trunk down the edge, morning glow, branch drawing, wood shelf rule. ===== */
 :root[data-look="birch"] body{padding-left:max(30px,calc(env(safe-area-inset-left,0px) + 18px));
   background-image:radial-gradient(ellipse 80% 38% at 82% -6%,color-mix(in srgb,var(--sky) 70%,transparent),transparent 72%);background-repeat:no-repeat}
 :root[data-look="birch"] body::before{content:"";position:fixed;left:0;top:0;bottom:0;width:11px;background:var(--surface);border-right:1px solid var(--line);z-index:1;pointer-events:none}

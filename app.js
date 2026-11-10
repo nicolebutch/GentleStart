@@ -7,11 +7,11 @@
     birch:{name:'Canvas',cw:'oak',blurb:'Flat, quiet sections with a birch trunk down the edge, a morning glow, a branch drawing, and a wood shelf rule.'}
   };
   var CWS={
-    sea:{name:'Fern',sw:['#E9EDDF','#4F9665','#A9CC9B']},
+    sea:{name:'Fern',sw:['#E9EDDF','#3D754F','#A9CC9B']},
     library:{name:'Heirloom',sw:['#E9DFC9','#28496B','#A47552']},
-    peri:{name:'Wisteria',sw:['#F1E8D7','#9580B4','#C98FA0']},
-    ocean:{name:'Seaglass',sw:['#EDE5D8','#397F82','#A5CFC7']},
-    oak:{name:'Linen',sw:['#F5F0E6','#C9B99F','#B5BDB1']}
+    peri:{name:'Wisteria',sw:['#F1E8D7','#755C9B','#C98FA0']},
+    ocean:{name:'Seaglass',sw:['#EDE5D8','#316E70','#A5CFC7']},
+    oak:{name:'Linen',sw:['#F5F0E6','#7E6947','#B5BDB1']}
   };
   var MOTIFS={
     creature:'<path d="M6 25C6 13 12 7 26 7C26 19 18 25 6 25Z"/><path d="M6 25L18 13"/>',
