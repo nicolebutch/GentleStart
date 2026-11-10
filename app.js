@@ -1113,9 +1113,10 @@
       h+='<div class="grp"><div class="lab">Appearance</div><div class="chips sm" role="group" aria-label="Light or dark">';
       [['auto','Auto'],['light','Light'],['dark','Dark']].forEach(function(t){h+='<button data-a="appear" data-v="'+t[0]+'" aria-pressed="'+(S.appear===t[0])+'">'+t[1]+'</button>'});
       h+='</div><p class="small">Auto follows your phone.</p></div>';
+      if(!creature()){
       h+='<div class="grp"><div class="lab">Theme</div>';
       Object.keys(LOOKS).forEach(function(k){
-        h+='<button class="opt" data-a="look" data-v="'+k+'" aria-pressed="'+(S.look===k)+'">'+SVGO.replace('class="sprig"','class="mini"')+MOTIFS[k]+'</svg><span><b>'+esc(LOOKS[k].name)+'</b><span class="small">'+esc(LOOKS[k].blurb)+'</span></span></button>';
+        h+='<button class="opt" data-a="look" data-v="'+k+'" aria-pressed="'+(S.look===k)+'">'+SVGO.replace('class="sprig"','class="mini"')+MOTIFS[k]+'</svg><span><b>'+esc(LOOKS[k].name)+'</b>'+(S.look===k?'<span class="small">'+esc(LOOKS[k].blurb)+'</span>':'')+'</span></button>';
       });
       h+='</div><div class="grp"><div class="lab">Colorway</div><div class="cws">';
       Object.keys(CWS).forEach(function(k){
@@ -1123,6 +1124,8 @@
         h+='<button class="cw" data-a="cw" data-v="'+k+'" aria-pressed="'+(S.cw===k)+'"><span class="sws">'+sw+'</span>'+esc(CWS[k].name)+'</button>';
       });
       h+='</div><p class="small">Colorways only change the colors, and they work with any theme.</p></div>';
+      }
+
     }else if(S.mt==='data'){
       h+='<form id="profform" class="grp" style="display:flex;flex-direction:column;gap:4px"><div class="lab">About you</div>'+nameFields(PROF)+'<button class="btn alt" type="submit" style="margin-top:10px">Save names</button></form>';
       h+='<div class="grp"><div class="lab">Back up your data</div><p class="small">Everything lives on this device only for now. A backup is one small file with your tasks, plans, lists, log and settings. Keep it somewhere safe, or use it to move to a new phone.</p><button class="btn" data-a="dexport">Save a backup</button></div>';
@@ -1132,13 +1135,11 @@
     }else{
       h+='<div class="grp"><div class="lab">What&rsquo;s your mindset today?</div><p class="small">This changes how the app thinks.</p>';
       Object.keys(LOGICS).forEach(function(k){
-        h+='<button class="opt" data-a="logic" data-v="'+k+'" aria-pressed="'+(S.logic===k)+'">'+SVGO.replace('class="sprig"','class="mini"')+LOGICS[k].icon+'</svg><span><b>'+esc(LOGICS[k].name)+'</b><span class="small">'+esc(LOGICS[k].blurb)+'</span></span></button>';
+        h+='<button class="opt" data-a="logic" data-v="'+k+'" aria-pressed="'+(S.logic===k)+'">'+SVGO.replace('class="sprig"','class="mini"')+LOGICS[k].icon+'</svg><span><b>'+esc(LOGICS[k].name)+'</b>'+(S.logic===k?'<span class="small">'+esc(LOGICS[k].blurb)+'</span>':'')+'</span></button>';
       });
       h+='<p class="small">Your plans, lists and log stay exactly the same, so you can switch whenever you feel like it.</p></div>';
       if(creature()){
-        h+='<div class="grp"><div class="lab">How are you feeling today?</div><div class="chips sm">';
-        Object.keys(MOODS).forEach(function(k){h+='<button data-a="mood" data-v="'+k+'" aria-pressed="'+(S.mood===k)+'">'+MOODS[k].name+'</button>'});
-        h+='</div><p class="small">Today: '+esc(MOODS[S.mood].desc)+'.</p></div><div class="grp"><div class="lab">Season</div><div class="chips sm">';
+        h+='<div class="grp"><div class="lab">Season</div><div class="chips sm">';
         Object.keys(SEASONS).forEach(function(k){h+='<button data-a="season" data-v="'+k+'" aria-pressed="'+(S.season===k)+'">'+SEASONS[k]+'</button>'});
         h+='</div><p class="small">Auto follows the calendar. Pick one to preview its colors and creatures.</p></div>';
       }
