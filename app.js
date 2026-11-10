@@ -284,7 +284,7 @@
     low:{name:'Low battery',blurb:'Only the basics today: medications, §C, water, and food. Quiet words, nothing extra.',icon:'<rect x="4" y="10" width="21" height="12" rx="3"/><path d="M28 14v4M8 14v4"/>',voice:'She is low on energy: keep replies very short, offer only the minimum, and give permission to do less.'}
   };
   var UI0={
-    greet:function(l){return l+', §N.'},next:'Next',allset:'All set',
+    greet:function(l){return 'Good '+l.toLowerCase()+', §N.'},next:'Next',allset:'All set',
     routine:function(p){return 'Your '+p+', in order'},plans:'Plans',up:'Coming up',
     rough:'Rough morning? Tap here.',unrough:'Back to a normal morning',music:'Music, no detours',stuck:'Stuck?',skip:'I skipped this',
     food:'What should I have?',eaten:'I have eaten already',picked:'I picked something, done',lunchBtn:'Text §P: lunch?',solo:'I will eat on my own',
@@ -295,7 +295,7 @@
   var UIALT={
     clock:{next:'On the clock',routine:function(p){return 'Your '+p+' schedule'},skip:'Skip this one',win:90,hello:'Hi. What is getting in the way? Tell me, or tap one.'},
     mammal:{
-      greet:function(l){return l+', little mammal.'},next:'Next in the den',allset:'Settled in',
+      greet:function(l){return 'Good '+l.toLowerCase()+', little mammal.'},next:'Next in the den',allset:'Settled in',
       routine:function(p){return 'Your '+p+' in the den, in order'},plans:'Places to be',up:'Further down the trail',
       rough:'Rough morning? Curl up here.',unrough:'Back to a regular den morning',music:'Sounds for the burrow',stuck:'Lost in the brush?',skip:'I let this one go',
       food:'What should I forage?',eaten:'I already foraged',picked:'I found something, done',lunchBtn:'Howl to §P: lunch?',solo:'I will forage alone',
@@ -367,7 +367,7 @@
   UI0.lot='Parking lot';UI0.parkIt='Park it';UI0.back='Back to the parking lot';UI0.charge='Recharge Battery';UI0.chargeSub='Gentle ideas for when your battery is low. None of these are tasks.';
   UIALT.mammal.lot='The stash';UIALT.mammal.parkIt='Stash it';UIALT.mammal.back='Back to the stash';UIALT.mammal.charge='Curl-up ideas';UIALT.mammal.chargeSub='Gentle ways to rest in the den. None of these are tasks.';
   UI0.plinko='Plinko';UI0.plbtn='Let the ball choose';UIALT.mammal.plinko='Acorn drop';UIALT.mammal.plbtn='Let the acorn choose';
-  UIALT.mammal.greet=function(l){return l+', '+WHO[S.mood][critterIdx()]+'.'};
+  UIALT.mammal.greet=function(l){return 'Good '+l.toLowerCase()+', '+WHO[S.mood][critterIdx()]+'.'};
 
   /* ---- parking lot: anything nebulous with no set time ---- */
   UI0.park='From the parking lot';UI0.start='Start this';UI0.another='Another one';UI0.later='Not today';
