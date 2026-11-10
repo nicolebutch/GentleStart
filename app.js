@@ -182,18 +182,7 @@
     },
 
     nook:function(){
-      var cols=['var(--accent)','var(--sky)','var(--wood)','var(--soft)'],ds=[[14,36],[11,44],[16,30],[12,40],[15,46],[13,32],[14,42],[11,36],[16,44],[12,30],[14,38]],x=6,s='';
-      ds.forEach(function(d,i){var y=52-d[1];
-        s+='<rect x="'+x+'" y="'+y+'" width="'+d[0]+'" height="'+d[1]+'" rx="1.5" style="fill:'+cols[i%4]+'"/>';
-        s+='<rect x="'+x+'" y="'+(y+7)+'" width="'+d[0]+'" height="2" style="fill:var(--surface);opacity:.6"/>';
-        s+='<rect x="'+x+'" y="'+(y+d[1]-9)+'" width="'+d[0]+'" height="2" style="fill:var(--surface);opacity:.6"/>';
-        x+=d[0]+2});
-      s+='<g transform="translate('+(x+14)+' 52) rotate(16)"><rect x="0" y="-40" width="12" height="40" rx="1.5" style="fill:var(--accent)"/><rect x="0" y="-33" width="12" height="2" style="fill:var(--surface);opacity:.6"/></g>';
-      s+='<rect x="236" y="43" width="56" height="9" rx="1.5" style="fill:var(--wood)"/><rect x="242" y="34" width="46" height="9" rx="1.5" style="fill:var(--sky)"/><rect x="238" y="26" width="50" height="8" rx="1.5" style="fill:var(--accent)"/>';
-      s+='<rect x="0" y="52" width="440" height="3" rx="1.5" style="fill:var(--wood)"/>';
-      s+='<g transform="translate(338 52)" style="fill:var(--ink2)"><path d="M-22 0C-23 -10 -14 -18 -2 -18C12 -18 22 -12 22 0Z"/><circle cx="15" cy="-15" r="8"/><path d="M8 -20L9 -30L15 -22Z M16 -22L22 -30L23 -19Z"/><path d="M11 -15q2 2 4 0 M18 -15q2 2 4 0" fill="none" style="stroke:var(--surface)" stroke-width="1.4" stroke-linecap="round"/><path d="M-21 -3C-30 -3 -34 5 -29 10C-25 14 -17 13 -15 8" fill="none" style="stroke:var(--ink2)" stroke-width="4" stroke-linecap="round"/></g>';
-      s+='<path d="M388 52h18l-2.5-13h-13z" style="fill:var(--wood)"/><path d="M397 39c-9-2-12-10-10-18 8 3 11 9 10 18z" style="fill:var(--accent)"/><path d="M397 39c2-9 8-13 15-14 0 8-6 13-15 14z" style="fill:var(--soft);stroke:var(--accent)" stroke-width="1"/><path d="M397 39c-1-8 1-15 5-20 4 6 3 14-5 20z" style="fill:var(--sky)"/>';
-      return '<svg viewBox="0 0 440 70" role="presentation">'+s+'</svg>';
+      return '<img class="shelf shelf-l" src="art/library-light.png" alt="" width="1200" height="373"><img class="shelf shelf-d" src="art/library-dark.png" alt="" width="1200" height="368">';
     },
     meadow:function(){
       var s='',pts=[],yy=function(x){return 34+11*Math.sin(x/21)};

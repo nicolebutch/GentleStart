@@ -247,6 +247,14 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 
 /* ===== LOOK: Library. Bookshelf header, chapter-list routine with dotted leaders, bookplate card with a ribbon, ribbon tabs. ===== */
 :root[data-look="nook"] .deco,:root[data-look="meadow"] .deco,:root[data-look="tide"] .deco,:root[data-look="birch"] .deco{display:block}
+.deco img.shelf{display:block;width:100%;height:auto}
+.deco img.shelf.shelf-d{display:none}
+:root[data-theme="dark"] .deco img.shelf.shelf-l{display:none}
+:root[data-theme="dark"] .deco img.shelf.shelf-d{display:block}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .deco img.shelf.shelf-l{display:none}
+  :root:not([data-theme="light"]) .deco img.shelf.shelf-d{display:block}
+}
 :root[data-look="nook"] body{font-size:16.5px}
 :root[data-look="nook"] .hello{font-style:italic;font-size:33px}
 :root[data-look="nook"] .emblem{border-radius:6px;border-color:var(--wood);color:var(--wood)}
