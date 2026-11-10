@@ -29,6 +29,48 @@
   /* extra animals per mood; the scene shows one a day, and tapping the scene brings the next */
   var WHO={slow:['sleepy bear','slow turtle','little snail'],energetic:['busy squirrel','bouncy rabbit','springy grasshopper'],dreamy:['little songbird','leaping dolphin','dreamy butterfly'],balanced:['little hedgehog','clever fox','quiet deer']};
   function critterIdx(){var d=new Date(),doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);return (doy+(S.cr||0))%3}
+
+  /* storybook hedgehog: soft gradients, many fine spines, warm face, adventure gear */
+  function HEDGEHOG(){
+    var o='fill="none" stroke="var(--ink)" stroke-opacity=".55" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"';
+    var ol='stroke="var(--ink)" stroke-opacity=".5" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round"';
+    var g='<ellipse cx="348" cy="78" rx="50" ry="3.6" style="fill:var(--ink)" opacity=".13"/>';
+    // grass tufts
+    [[288,0],[292,3]].forEach(function(t){g+='<path d="M'+t[0]+' 78C'+t[0]+' 72 '+(t[0]+2)+' 70 '+(t[0]+3)+' '+(68+t[1])+'" '+o+' stroke="var(--accent)" stroke-opacity=".8"/>'});
+    // walking stick
+    g+='<path d="M298 78L304 32" fill="none" stroke="#4F3523" stroke-width="2.6" stroke-linecap="round"/><path d="M298 78L304 32" fill="none" stroke="#8A6544" stroke-width="1.2" stroke-linecap="round"/><circle cx="304.5" cy="30.5" r="3" style="fill:#8A6544" '+ol+'/><path d="M302 36Q297 37 296 42Q300 40 303 40Z" style="fill:var(--accent)" '+ol+'/>';
+    // body
+    g+='<path d="M300 78C298 52 320 37 348 38C376 39 392 56 388 78Z" fill="url(#gBody)" '+ol+'/>';
+    // spines: two layers, darker underneath then lighter tips
+    var cx=345,cy=80,rx=45,ry=41,i,a,x,y,nx,ny,L,d='',d2='';
+    for(i=0;i<44;i++){
+      a=Math.PI*(1.09+0.82*i/43);
+      x=cx+Math.cos(a)*rx;y=cy+Math.sin(a)*ry;
+      nx=Math.cos(a);ny=Math.sin(a)*0.9;L=6+((i*7)%5)*1.6;
+      var tx=x+nx*L+Math.sin(i*2.3)*1.2,ty=y+ny*L;
+      d+='M'+x.toFixed(1)+' '+y.toFixed(1)+'L'+tx.toFixed(1)+' '+ty.toFixed(1);
+      if(i%2===0){var bx=x+nx*(L*0.45),by=y+ny*(L*0.45);d2+='M'+bx.toFixed(1)+' '+by.toFixed(1)+'L'+(tx+nx*1.5).toFixed(1)+' '+(ty+ny*1.5).toFixed(1)}
+    }
+    g+='<path d="'+d+'" fill="none" stroke="#4A2F1D" stroke-width="1.9" stroke-linecap="round"/><path d="'+d2+'" fill="none" stroke="#C9A27A" stroke-width="1" stroke-linecap="round" opacity=".9"/>';
+    // inner spine shading on the back
+    g+='<path d="M312 66C322 50 346 46 366 52" '+o+' stroke="#fff" stroke-opacity=".25" stroke-width="2.4"/>';
+    // backpack + bedroll
+    g+='<rect x="324" y="52" width="23" height="20" rx="6" fill="url(#gAccent)" '+ol+'/><path d="M327 60H344" '+o+'/><rect x="332" y="62" width="7" height="5" rx="1.6" style="fill:#E8D5B5" '+ol+'/>';
+    g+='<ellipse cx="335" cy="50.5" rx="13" ry="4.4" style="fill:#C9A66B" '+ol+'/><path d="M328 47V54M342 47V54" '+o+'/>';
+    // strap across the body
+    g+='<path d="M347 56C358 58 366 66 370 76" '+o+' stroke="var(--accent)" stroke-opacity=".95" stroke-width="2.2"/>';
+    // face
+    g+='<path d="M374 66C384 58 398 62 410 74C410 78 402 79 392 79L376 79Z" fill="url(#gCream)" '+ol+'/>';
+    g+='<ellipse cx="409" cy="73.6" rx="2.3" ry="1.9" style="fill:#2B211C"/><circle cx="397" cy="68.6" r="2" style="fill:#2B211C"/><circle cx="397.6" cy="68" r=".7" style="fill:#fff"/>';
+    g+='<circle cx="392" cy="73" r="3.2" style="fill:#E58E86" opacity=".45"/><path d="M402 77Q406 78.4 409 76.4" '+o+' stroke-width=".9"/>';
+    g+='<circle cx="381" cy="62" r="4.6" style="fill:#8E6240" '+ol+'/><circle cx="381.4" cy="62.4" r="2.4" style="fill:#E8B5A5"/>';
+    // little hat with a feather
+    g+='<ellipse cx="388" cy="56.5" rx="12" ry="3.2" style="fill:var(--accent)" '+ol+'/><path d="M379 56C379 47 397 47 397 56Z" fill="url(#gAccent)" '+ol+'/><path d="M379.6 53.4Q388 55.6 396.4 53.4" '+o+' stroke="#fff" stroke-opacity=".4"/>';
+    g+='<path d="M394 51C400 44 404 41 410 40C406 44 403 48 397 53Z" style="fill:var(--hot)" '+ol+'/>';
+    // paws
+    g+='<ellipse cx="372" cy="78" rx="6" ry="2.6" style="fill:#E8D5B5" '+ol+'/><ellipse cx="392" cy="78.4" rx="5.4" ry="2.4" style="fill:#E8D5B5" '+ol+'/>';
+    return g;
+  }
   var CRITTERS={
     slow:[
       function(f,o){ // turtle
@@ -115,7 +157,7 @@
       }
       // the animal, right side
       var f='stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"';
-      var v=critterIdx();s+='<g transform="translate(440 78) scale(1.3) translate(-440 -78)">';
+      var v=critterIdx();s+='<g transform="translate(440 78) scale(1.3) translate(-440 -78)" filter="url(#gWob)">';
       if(v>0&&CRITTERS[m]&&CRITTERS[m][v-1]){s+=CRITTERS[m][v-1](f,o)}else if(m==='slow'){ // sleepy bear in a scarf
         s+='<path d="M300 78C300 54 318 46 342 46C368 46 386 58 386 78Z" style="fill:var(--wood)" '+f+'/>';
         s+='<circle cx="364" cy="56" r="17" style="fill:var(--wood)" '+f+'/><circle cx="351" cy="42" r="6" style="fill:var(--wood)" '+f+'/><circle cx="377" cy="42" r="6" style="fill:var(--wood)" '+f+'/>';
@@ -134,17 +176,9 @@
         s+='<path d="M332 36C322 32 316 36 312 44C322 46 330 44 334 40Z" style="fill:var(--soft)" '+f+'/><path d="M344 36C350 28 358 30 358 38C352 42 346 42 344 36Z" style="fill:var(--accent)" '+f+'/>';
         s+='<path d="M342 48L341 54M352 48L353 54" '+o+'/>';
         s+='<path d="M296 26C290 18 282 22 286 30C290 32 294 30 296 26Z M296 26C302 18 310 22 306 30C302 32 298 30 296 26Z" style="fill:var(--accent);opacity:.85" stroke="var(--ink)" stroke-width="1.2"/><path d="M296 24V32" '+o+'/>';
-      }else{ // balanced: hedgehog ready for an adventure
-        s+='<path d="M300 78C300 50 322 38 348 40C374 42 388 58 386 78Z" style="fill:var(--wood)" '+f+'/>';
-        for(var k=0;k<9;k++){var x=306+k*9;s+='<path d="M'+x+' '+(52-Math.abs(k-4)*2.2)+'L'+(x+4)+' '+(42-Math.abs(k-4)*2.2)+'L'+(x+8)+' '+(54-Math.abs(k-4)*2.2)+'" '+o+'/>'}
-        s+='<path d="M380 66C392 66 402 70 404 76L384 78Z" style="fill:var(--surface2)" '+f+'/><circle cx="404" cy="75" r="2.2" style="fill:var(--ink)"/><circle cx="392" cy="68" r="1.5" style="fill:var(--ink)"/>';
-        s+='<path d="M368 54C372 44 384 44 388 54Z" style="fill:var(--accent)" '+f+'/><path d="M364 54H394" '+o+'/>';
-        s+='<rect x="330" y="52" width="20" height="18" rx="5" style="fill:var(--accent)" '+f+'/><path d="M334 52V70M346 52V70" '+o+'/>';
-        s+='<path d="M296 78L300 38" '+o+'/><circle cx="300" cy="37" r="3" style="fill:var(--soft)" '+f+'/>';
-        s+='<path d="M334 78L332 72M352 78L354 72" '+o+'/>';
-      }
+      }else{ s+=HEDGEHOG(); }
       s+='</g>';
-      return '<svg viewBox="0 0 440 90" preserveAspectRatio="xMidYMax meet">'+s+'</svg>';
+      return '<svg viewBox="0 0 440 90" preserveAspectRatio="xMidYMax meet"><defs><linearGradient id="gBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:#B88C5E"/><stop offset=".55" style="stop-color:#8E6240"/><stop offset="1" style="stop-color:#5B3D27"/></linearGradient><linearGradient id="gAccent" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:color-mix(in srgb,var(--accent) 80%,#fff)"/><stop offset="1" style="stop-color:color-mix(in srgb,var(--accent) 78%,#000)"/></linearGradient><linearGradient id="gCream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:#F3E4C8"/><stop offset="1" style="stop-color:#D9BF98"/></linearGradient><filter id="gWob" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.7"/></filter></defs>'+s+'</svg>';
     },
 
     nook:function(){
