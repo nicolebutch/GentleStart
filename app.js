@@ -25,6 +25,70 @@
   function motif(){return SVGO+(MOTIFS[lookKey()]||MOTIFS.original)+'</svg>'}
 
   /* header illustrations, drawn with the colorway's own tokens */
+
+  /* extra animals per mood; the scene shows one a day, and tapping the scene brings the next */
+  var WHO={slow:['sleepy bear','slow turtle','little snail'],energetic:['busy squirrel','bouncy rabbit','springy grasshopper'],dreamy:['little songbird','leaping dolphin','dreamy butterfly'],balanced:['little hedgehog','clever fox','quiet deer']};
+  function critterIdx(){var d=new Date(),doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);return (doy+(S.cr||0))%3}
+  var CRITTERS={
+    slow:[
+      function(f,o){ // turtle
+        return '<ellipse cx="318" cy="76" rx="8" ry="4" style="fill:var(--sky)" '+f+'/><ellipse cx="368" cy="76" rx="8" ry="4" style="fill:var(--sky)" '+f+'/>'
+          +'<path d="M300 76C300 52 322 44 346 44C370 44 388 54 388 76Z" style="fill:var(--accent)" '+f+'/><path d="M316 76C316 62 328 54 346 54M346 54C364 54 374 62 374 76M346 44V76" '+o+' opacity=".55"/>'
+          +'<ellipse cx="398" cy="66" rx="10" ry="8" style="fill:var(--sky)" '+f+'/><path d="M396 64Q400 67 404 64" '+o+'/>'
+          +'<text x="410" y="48" font-size="12" style="fill:var(--ink2);font-family:var(--font-display)">z</text>';
+      },
+      function(f,o){ // snail
+        return '<path d="M298 78C298 71 306 69 320 69L372 69C384 69 392 60 392 48C392 43 399 43 399 50C401 66 399 78 386 78Z" style="fill:var(--sky)" '+f+'/>'
+          +'<path d="M392 46L390 36M398 47L402 37" '+o+'/><circle cx="390" cy="35" r="2" style="fill:var(--ink)"/><circle cx="402" cy="36" r="2" style="fill:var(--ink)"/>'
+          +'<circle cx="340" cy="54" r="17" style="fill:var(--wood)" '+f+'/><path d="M340 54m0-1a1 1 0 1 1-1 1M340 54m-1 0a9 9 0 1 1 9 9M340 54m0 0a5 5 0 1 0-5-5" '+o+' opacity=".7"/>';
+      }
+    ],
+    energetic:[
+      function(f,o){ // rabbit
+        return '<ellipse cx="340" cy="70" rx="12" ry="8" style="fill:var(--surface2)" '+f+'/><ellipse cx="352" cy="62" rx="22" ry="14" style="fill:var(--surface2)" '+f+'/>'
+          +'<circle cx="326" cy="68" r="5" style="fill:var(--surface)" '+f+'/>'
+          +'<ellipse cx="376" cy="28" rx="3.8" ry="12" transform="rotate(-8 376 28)" style="fill:var(--surface2)" '+f+'/><ellipse cx="387" cy="29" rx="3.8" ry="12" transform="rotate(8 387 29)" style="fill:var(--surface2)" '+f+'/>'
+          +'<circle cx="380" cy="50" r="11" style="fill:var(--surface2)" '+f+'/><circle cx="384" cy="48" r="1.6" style="fill:var(--ink)"/><circle cx="390" cy="53" r="2" style="fill:var(--accent)"/>'
+          +'<path d="M392 66L402 62L398 74Z" style="fill:var(--accent)" '+f+'/><path d="M398 62L401 55" '+o+'/>';
+      },
+      function(f,o){ // grasshopper
+        return '<ellipse cx="350" cy="56" rx="24" ry="7" transform="rotate(-8 350 56)" style="fill:var(--accent)" '+f+'/><ellipse cx="346" cy="51" rx="19" ry="4" transform="rotate(-8 346 51)" style="fill:var(--sky)" '+f+'/>'
+          +'<circle cx="378" cy="50" r="6.5" style="fill:var(--accent)" '+f+'/><circle cx="381" cy="48" r="1.6" style="fill:var(--ink)"/><path d="M381 44L394 28M383 44L400 36" '+o+'/>'
+          +'<path d="M336 58L324 38L304 70M340 62L336 78M360 62L364 78M366 60L374 78" '+o+'/>';
+      }
+    ],
+    dreamy:[
+      function(f,o){ // dolphin leaping
+        return '<path d="M276 78q8-6 16 0t16 0M372 78q8-6 16 0t16 0" '+o+' opacity=".6"/>'
+          +'<path d="M298 76C312 34 352 22 390 44L406 50L392 57C374 50 332 52 312 80Z" style="fill:var(--sky)" '+f+'/>'
+          +'<path d="M334 40L344 25L354 38Z" style="fill:var(--sky)" '+f+'/><path d="M374 52L368 65L382 58Z" style="fill:var(--sky)" '+f+'/>'
+          +'<path d="M298 76L284 69M298 76L289 85" '+o+'/><circle cx="385" cy="46" r="1.7" style="fill:var(--ink)"/><path d="M392 52Q398 54 403 51" '+o+' stroke-width="1"/>';
+      },
+      function(f,o){ // butterfly on a flower
+        return '<path d="M392 78V46" '+o+'/><circle cx="392" cy="43" r="5" style="fill:var(--soft)" '+f+'/><circle cx="392" cy="43" r="2" style="fill:var(--wood)"/>'
+          +'<ellipse cx="338" cy="42" rx="15" ry="10" transform="rotate(-28 338 42)" style="fill:var(--accent)" '+f+'/><ellipse cx="372" cy="42" rx="15" ry="10" transform="rotate(28 372 42)" style="fill:var(--accent)" '+f+'/>'
+          +'<ellipse cx="344" cy="58" rx="9" ry="7" transform="rotate(22 344 58)" style="fill:var(--soft)" '+f+'/><ellipse cx="366" cy="58" rx="9" ry="7" transform="rotate(-22 366 58)" style="fill:var(--soft)" '+f+'/>'
+          +'<path d="M355 38V64" '+o+' stroke-width="3"/><path d="M355 38L349 27M355 38L361 27" '+o+'/>';
+      }
+    ],
+    balanced:[
+      function(f,o){ // fox with a scarf
+        return '<path d="M332 64C306 66 296 48 304 34C316 40 326 50 334 58Z" style="fill:var(--hot)" '+f+'/><path d="M304 34C309 36 313 40 315 45L305 45Z" style="fill:var(--surface)" '+f+'/>'
+          +'<ellipse cx="352" cy="64" rx="22" ry="12" style="fill:var(--hot)" '+f+'/><path d="M342 76V78M362 76V78" '+o+'/>'
+          +'<path d="M368 52L371 32L380 41L389 32L392 52C392 62 372 64 368 52Z" style="fill:var(--hot)" '+f+'/><path d="M372 52L380 62L388 52Z" style="fill:var(--surface)" '+f+'/>'
+          +'<circle cx="376" cy="47" r="1.4" style="fill:var(--ink)"/><circle cx="385" cy="47" r="1.4" style="fill:var(--ink)"/><circle cx="380.5" cy="58" r="1.8" style="fill:var(--ink)"/>'
+          +'<path d="M366 62Q380 70 394 62" fill="none" style="stroke:var(--accent)" stroke-width="5" stroke-linecap="round"/>';
+      },
+      function(f,o){ // deer
+        return '<ellipse cx="346" cy="58" rx="22" ry="11" style="fill:var(--wood)" '+f+'/><circle cx="338" cy="55" r="2" style="fill:var(--surface)"/><circle cx="350" cy="52" r="2" style="fill:var(--surface)"/><circle cx="356" cy="60" r="2" style="fill:var(--surface)"/>'
+          +'<path d="M330 66V78M338 66V78M356 66V78M364 66V78" '+o+' stroke-width="3"/><path d="M324 52L320 46" '+o+' stroke-width="3"/>'
+          +'<path d="M362 50L376 34" '+o+' stroke-width="9"/><path d="M362 50L376 34" fill="none" style="stroke:var(--wood)" stroke-width="6" stroke-linecap="round"/>'
+          +'<ellipse cx="382" cy="31" rx="9" ry="5.5" transform="rotate(-25 382 31)" style="fill:var(--wood)" '+f+'/><circle cx="385" cy="29" r="1.4" style="fill:var(--ink)"/><circle cx="390" cy="34" r="1.8" style="fill:var(--ink)"/>'
+          +'<ellipse cx="376" cy="24" rx="2.5" ry="5" transform="rotate(-20 376 24)" style="fill:var(--wood)" '+f+'/>'
+          +'<path d="M380 24L376 12M377 16L370 10M384 24L388 12M387 16L394 12" '+o+'/>';
+      }
+    ]
+  };
   var DECO={
     creature:function(){
       var o='fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';
@@ -51,7 +115,8 @@
       }
       // the animal, right side
       var f='stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"';
-      if(m==='slow'){ // sleepy bear in a scarf
+      var v=critterIdx();s+='<g transform="translate(440 78) scale(1.3) translate(-440 -78)">';
+      if(v>0&&CRITTERS[m]&&CRITTERS[m][v-1]){s+=CRITTERS[m][v-1](f,o)}else if(m==='slow'){ // sleepy bear in a scarf
         s+='<path d="M300 78C300 54 318 46 342 46C368 46 386 58 386 78Z" style="fill:var(--wood)" '+f+'/>';
         s+='<circle cx="364" cy="56" r="17" style="fill:var(--wood)" '+f+'/><circle cx="351" cy="42" r="6" style="fill:var(--wood)" '+f+'/><circle cx="377" cy="42" r="6" style="fill:var(--wood)" '+f+'/>';
         s+='<ellipse cx="369" cy="62" rx="9" ry="6.5" style="fill:var(--surface2)" '+f+'/><ellipse cx="371" cy="59.5" rx="2.6" ry="1.8" style="fill:var(--ink)"/>';
@@ -78,6 +143,7 @@
         s+='<path d="M296 78L300 38" '+o+'/><circle cx="300" cy="37" r="3" style="fill:var(--soft)" '+f+'/>';
         s+='<path d="M334 78L332 72M352 78L354 72" '+o+'/>';
       }
+      s+='</g>';
       return '<svg viewBox="0 0 440 90" preserveAspectRatio="xMidYMax meet">'+s+'</svg>';
     },
 
@@ -126,7 +192,7 @@
       return '<svg viewBox="0 0 440 60" role="presentation">'+s+'</svg>';
     }
   };
-  function deco(){var f=DECO[lookKey()];return f?'<div class="deco" aria-hidden="true">'+f()+'</div>':''}
+  function deco(){var f=DECO[lookKey()];return f?'<div class="deco" aria-hidden="true"'+(S.logic==='mammal'?' data-a="critter"':'')+'>'+f()+'</div>':''}
   function head(o){
     return '<header class="head"><div class="top"><div>'+(o.eyebrow?'<div class="date">'+esc(o.eyebrow)+'</div>':'')+'<h1 class="hello">'+esc(o.title)+'</h1>'+(o.sub?'<div class="date">'+esc(o.sub)+'</div>':'')+'</div>'
       +'<button class="emblem" data-a="menu" aria-label="Open menu" aria-haspopup="dialog">'+motif()+'</button></div>'+deco()+'</header>';
@@ -301,7 +367,7 @@
   UI0.lot='Parking lot';UI0.parkIt='Park it';UI0.back='Back to the parking lot';UI0.charge='Recharge Battery';UI0.chargeSub='Gentle ideas for when your battery is low. None of these are tasks.';
   UIALT.mammal.lot='The stash';UIALT.mammal.parkIt='Stash it';UIALT.mammal.back='Back to the stash';UIALT.mammal.charge='Curl-up ideas';UIALT.mammal.chargeSub='Gentle ways to rest in the den. None of these are tasks.';
   UI0.plinko='Plinko';UI0.plbtn='Let the ball choose';UIALT.mammal.plinko='Acorn drop';UIALT.mammal.plbtn='Let the acorn choose';
-  UIALT.mammal.greet=function(l){return l+', '+MOODS[S.mood].who+'.'};
+  UIALT.mammal.greet=function(l){return l+', '+WHO[S.mood][critterIdx()]+'.'};
 
   /* ---- parking lot: anything nebulous with no set time ---- */
   UI0.park='From the parking lot';UI0.start='Start this';UI0.another='Another one';UI0.later='Not today';
@@ -780,7 +846,7 @@
     var u=U(),d=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
     var P=PARTS[S.part];
     var h=head({eyebrow:d,title:u.greet(P.label)});
-    if(creature()){h+='<div class="sim"><small>How are you feeling today?</small><div class="seg">';Object.keys(MOODS).forEach(function(k){h+='<button data-a="mood" data-v="'+k+'" aria-pressed="'+(S.mood===k)+'">'+MOODS[k].name+'</button>'});h+='</div></div>'}
+    if(creature()){h+='<div class="sim"><small>How are you feeling today?</small><div class="seg mood">';Object.keys(MOODS).forEach(function(k){h+='<button data-a="mood" data-v="'+k+'" aria-pressed="'+(S.mood===k)+'">'+MOODS[k].name+'</button>'});h+='</div></div>'}
     if(!lowMode()){
       h+='<div class="sim"><small>Prototype control: see the day at</small><div class="seg">';
       ['morning','afternoon','evening'].forEach(function(k){h+='<button data-a="part" data-v="'+k+'" aria-pressed="'+(S.part===k)+'">'+PARTS[k].label+'</button>'});
@@ -1091,6 +1157,9 @@
     var app=document.getElementById('app');
     app.innerHTML=fx(S.tab==='today'?today():S.tab==='ov'?overview():S.tab==='lists'?lists():S.tab==='log'?logview():us());
     document.getElementById('tabs').innerHTML=fx(tabs());
+    var _hh=app.querySelector('.hero h2'),_hk=_hh?_hh.textContent:'';
+    if(_hk&&_hk===render.lastHero){app.querySelectorAll('.hero').forEach(function(e){e.style.animation='none'})}
+    render.lastHero=_hk;
     var _l=document.querySelector('.lot'),_st=_l?_l.scrollTop:0;
     document.getElementById('sheetRoot').innerHTML=fx(roughSheet()+menuSheet()+evSheet()+nameSheet()+tkSheet()+lotSheet()+plSheet()+fab()+welcomeSheet());
     var _l2=document.querySelector('.lot');if(_l2)_l2.scrollTop=_st;
@@ -1153,6 +1222,7 @@
     rmsample:function(){S.log=S.log.filter(function(e){return !e.smp});save('gs-log',S.log);render();toast('Sample entries removed.')},
     mood:function(b){keepSheet(function(){S.mood=b.dataset.v;S.skipPark=[];save('gs-mood',S.mood);render()})},
     season:function(b){keepSheet(function(){S.season=b.dataset.v;save('gs-season',S.season);applyLook();render()})},
+    critter:function(){S.cr=(S.cr||0)+1;render()},
     plopen:function(){var pool=plPool();if(pool.length<2)return;S.pl={ids:plSample(pool).map(function(t){return t.id}),drops:0};plDrop();render();plAnimate()},
     plagain:function(){if(!S.pl||S.pl.drops>=2)return;plDrop();render();plAnimate()},
     plskip:function(){plLand()},

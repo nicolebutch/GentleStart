@@ -472,3 +472,9 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .plleg li{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:12px;border:1.5px solid var(--line);font-size:15px}
 .plleg li.win{border-color:var(--accent);background:var(--soft);font-weight:600}
 .plleg i{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;color:var(--bg)}
+
+/* polish */
+.seg.mood{flex-wrap:nowrap}
+.seg.mood button{flex:1;padding:7px 4px;font-size:13px;white-space:nowrap}
+:root[data-look="tide"] .tabs button[data-v="today"]{position:relative;z-index:2}
+:root[data-look="creature"] .deco{cursor:pointer}
