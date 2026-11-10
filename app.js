@@ -518,19 +518,69 @@
   }
   function plDrop(){var P=S.pl,n=P.ids.length;P.k=Math.floor(Math.random()*n);P.path=plPath(n,P.k);P.phase='fall';P.drops=(P.drops||0)+1}
   function plLand(){if(!S.pl)return;plAnimate.id++;S.pl.phase='done';render()}
+  /* the ball itself, drawn around 0,0: a glossy ball, or an acorn in Little mammal mode */
+  var ACORN='<g transform="scale(1.02)"><path d="M0 -10.5L.6 -14 L2 -14.7" fill="none" stroke="#4F3319" stroke-width="1.7" stroke-linecap="round"/><path d="M-6.2 -1.5C-6.7 5 -3.6 9.6 0 11.2C3.6 9.6 6.7 5 6.2 -1.5Z" fill="#BE8548" stroke="#6B4423" stroke-width="1.2" stroke-linejoin="round"/><path d="M-3.6 1.2C-3.9 4.2 -2.6 6.7 -1 8.2" fill="none" stroke="#E6BC85" stroke-width="1.3" stroke-linecap="round" opacity=".8"/><path d="M-7.4 -1.3C-7.7 -8.4 -3.6 -10.6 0 -10.6C3.6 -10.6 7.7 -8.4 7.4 -1.3C3.6 -.1 -3.6 -.1 -7.4 -1.3Z" fill="#7C5430" stroke="#4F3319" stroke-width="1.2" stroke-linejoin="round"/><path d="M-5.2 -2.6L-1.4 -8.6M-1.6 -1.2L2.4 -9.4M2.4 -1.2L6 -6.6M-5.6 -6L-2.4 -1.6M-1.6 -9.6L2.2 -1.4M2.6 -9.4L6 -2.6" fill="none" stroke="#4F3319" stroke-width=".7" opacity=".55"/></g>';
+  function plBallArt(){return creature()?ACORN:'<circle r="8" style="fill:var(--accent);stroke:var(--ink);stroke-width:1.3"/><circle cx="-2.7" cy="-2.9" r="2.7" style="fill:#fff;opacity:.5"/>'}
+  var PLTR=6,PLOFF=11,PLFLOOR=212;
+  /* a hop-by-hop timeline: the outcome is already decided, this only makes the fall look physical */
+  function plTimeline(n,path,k){
+    var rows=n-1,dx=150/n,gap=rows>1?150/(rows-1):0,ph=[],x=150,j=0,s,rot=0,rnd=Math.random;
+    ph.push({d:300,a:[150,-10],c:[150,34-PLOFF],g:1,H:0,r0:0,r1:0});
+    for(s=0;s<rows;s++){
+      var dir=path[s]?1:-1,x2=x+dir*dx,last=s===rows-1,dr=dir*(45+rnd()*50);
+      ph.push({d:Math.max(240,350-20*s),a:[x,34+s*gap-PLOFF],c:[x2,last?PLFLOOR:34+(s+1)*gap-PLOFF],H:8+rnd()*5,r0:rot,r1:rot+dr,hit:s*(s+1)/2+j});
+      rot+=dr;j+=path[s]?1:0;x=x2;
+    }
+    var up=Math.round(rot/360)*360;
+    [[300,12],[200,5],[140,2]].forEach(function(b,q){ph.push({d:b[0],a:[x,PLFLOOR],c:[x,PLFLOOR],H:b[1],r0:q===0?rot:up,r1:up,land:q===0,sq:1})});
+    ph.push({d:520,a:[x,PLFLOOR],c:[x,PLFLOOR],H:0,r0:up,r1:up});
+    var t=0;ph.forEach(function(p){p.t0=t;t+=p.d});
+    return {ph:ph,total:t,xf:x};
+  }
   function plAnimate(){
     var P=S.pl;if(!P||P.phase!=='fall')return;
     if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){plLand();return}
-    var pts=plGeo(P.ids.length,P.path).way,seg=pts.length-1,T=2400,t0=null,id=++plAnimate.id;
+    var n=P.ids.length,TL=plTimeline(n,P.path,P.k),id=++plAnimate.id,t0=null,hist=[],fx=null,fxT=0,xf=TL.xf;
+    var ball=document.getElementById('plball'),slot=document.getElementById('plslot'+P.k),svg=ball&&ball.ownerSVGElement,acorn=creature();
+    var hits=TL.ph.filter(function(p){return p.hit!==undefined}).map(function(p){return {i:p.hit,t:p.t0}});
+    var landT=TL.ph.filter(function(p){return p.land})[0].t0;
     function ease(u){return u*u*(3-2*u)}
     function f(ts){
       if(plAnimate.id!==id||!S.pl||S.pl.phase!=='fall')return;
-      var b=document.getElementById('plball');if(!b)return;
+      ball=document.getElementById('plball');if(!ball)return;
       if(t0===null)t0=ts;
-      var p=Math.min(1,(ts-t0)/T),q=p*seg,i=Math.min(seg-1,Math.floor(q)),u=q-i,a=pts[i],c=pts[i+1];
-      b.setAttribute('cx',(a[0]+(c[0]-a[0])*ease(u)).toFixed(1));
-      b.setAttribute('cy',(a[1]+(c[1]-a[1])*Math.pow(u,1.6)).toFixed(1));
-      if(p>=1)plLand();else requestAnimationFrame(f);
+      var t=ts-t0,p=TL.ph[TL.ph.length-1],q=0,u;
+      for(q=0;q<TL.ph.length;q++){if(t<TL.ph[q].t0+TL.ph[q].d){p=TL.ph[q];break}}
+      u=Math.max(0,Math.min(1,(t-p.t0)/p.d));
+      var x=p.a[0]+(p.c[0]-p.a[0])*u,y=p.g?p.a[1]+(p.c[1]-p.a[1])*u*u:p.a[1]+(p.c[1]-p.a[1])*u-p.H*4*u*(1-u);
+      var rot=p.r0+(p.r1-p.r0)*ease(u),sx=1,sy=1,since=t-p.t0;
+      if((p.hit!==undefined||p.sq)&&since<120){var sq=1-since/120;sx=1+.2*sq;sy=1-.22*sq}
+      else if(p.g||p.hit!==undefined){sy=1+.07*u*u;sx=1-.04*u*u}
+      ball.setAttribute('transform','translate('+x.toFixed(1)+' '+y.toFixed(1)+') rotate('+rot.toFixed(1)+') scale('+sx.toFixed(3)+' '+sy.toFixed(3)+')');
+      /* trail */
+      if(!hist.length||ts-hist[0].ts>26){hist.unshift({x:x,y:y,ts:ts});if(hist.length>PLTR)hist.pop()}
+      for(q=0;q<PLTR;q++){var c=document.getElementById('pltr'+q),h=hist[q+1];if(!c)continue;
+        if(h&&t<landT){c.setAttribute('cx',h.x.toFixed(1));c.setAttribute('cy',h.y.toFixed(1));c.setAttribute('r',(6.2-q*.8).toFixed(1));c.setAttribute('opacity',(.26-q*.04).toFixed(2))}else c.setAttribute('opacity','0')}
+      /* pegs: bump and ripple after a hit */
+      hits.forEach(function(hh){
+        var age=t-hh.t;if(age<0)return;
+        var pg=document.getElementById('plpeg'+hh.i),rp=document.getElementById('plrp'+hh.i);if(!pg||!rp)return;
+        if(age<460){var e=age/460;pg.setAttribute('r',(3.4+2*Math.max(0,1-age/200)).toFixed(2));pg.style.fill='var(--accent)';
+          rp.setAttribute('r',(4+e*13).toFixed(1));rp.setAttribute('opacity',(.7*(1-e)).toFixed(2))}
+        else if(!hh.done){hh.done=1;pg.setAttribute('r','3.4');pg.style.fill='var(--ink2)';rp.setAttribute('opacity','0')}
+      });
+      /* landing: slot glows, sparkles burst */
+      if(t>=landT){
+        var la=t-landT;
+        if(slot)slot.style.opacity=(.28+.62*Math.min(1,la/320)).toFixed(2);
+        if(!fx&&svg){fx=[];fxT=landT;var g=document.getElementById('plfx');
+          for(q=0;q<12;q++){var el=document.createElementNS('http://www.w3.org/2000/svg','circle'),ang=-Math.PI*(.05+.9*q/11)+(Math.random()-.5)*.25;
+            el.setAttribute('r','2');el.style.fill=q%3===0?'var(--sky)':'var(--accent)';g.appendChild(el);fx.push({el:el,vx:Math.cos(ang)*(.05+Math.random()*.07),vy:Math.sin(ang)*(.07+Math.random()*.09)})}
+          if(navigator.vibrate)try{navigator.vibrate(18)}catch(e){}}
+        if(fx)fx.forEach(function(o){var age=la;o.el.setAttribute('cx',(xf+o.vx*age).toFixed(1));o.el.setAttribute('cy',(PLFLOOR-6+o.vy*age+.00022*age*age).toFixed(1));
+          o.el.setAttribute('opacity',Math.max(0,1-age/720).toFixed(2));o.el.setAttribute('r',Math.max(.1,2.1*(1-age/900)).toFixed(2))});
+      }
+      if(t>=TL.total)plLand();else requestAnimationFrame(f);
     }
     requestAnimationFrame(f);
   }
@@ -546,10 +596,13 @@
     var h='<div class="backdrop" data-a="plbg"><div class="sheet plsheet" role="dialog" aria-modal="true" aria-label="'+esc(u.plinko)+'"><div class="between"><h2 style="font-size:24px">'+esc(u.plinko)+'</h2><button class="x" data-a="plclose" aria-label="Close">&times;</button></div>';
     h+='<p class="small">'+(done?'Landed. These all fit the time you have, so any of them is a fine pick.':'Everything on the board fits the time you have right now. Tap the board to skip the wait.')+'</p>';
     h+='<div class="plboard"'+(done?'':' data-a="plskip"')+'><svg viewBox="0 0 300 260" role="img" aria-label="Plinko board with '+n+' slots">';
-    for(i=0;i<n;i++){h+='<rect x="'+(300*i/n+2)+'" y="200" width="'+(300/n-4)+'" height="52" rx="8" style="fill:var(--c'+i+');opacity:'+(done&&P.k===i?'.9':'.28')+'"/><text x="'+(300*(i+.5)/n)+'" y="246" text-anchor="middle" style="fill:var(--ink);font:700 15px var(--font-body)">'+(i+1)+'</text>'}
-    g.pegs.forEach(function(p){h+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.4" style="fill:var(--ink2)"/>'});
-    var bx=done?300*(P.k+.5)/n:150,by=done?212:8;
-    h+='<circle id="plball" cx="'+bx+'" cy="'+by+'" r="7.5" style="fill:var(--accent);stroke:var(--ink);stroke-width:1.4"/></svg></div>';
+    for(i=0;i<n;i++){h+='<rect id="plslot'+i+'" x="'+(300*i/n+2)+'" y="200" width="'+(300/n-4)+'" height="52" rx="8" style="fill:var(--c'+i+');opacity:'+(done&&P.k===i?'.9':'.28')+'"/><text x="'+(300*(i+.5)/n)+'" y="246" text-anchor="middle" style="fill:var(--ink);font:700 15px var(--font-body)">'+(i+1)+'</text>'}
+    for(i=1;i<n;i++){h+='<rect x="'+(300*i/n-1.5)+'" y="198" width="3" height="54" rx="1.5" style="fill:var(--ink2);opacity:.45"/>'}
+    g.pegs.forEach(function(p,q){h+='<circle id="plpeg'+q+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.4" style="fill:var(--ink2)"/><circle id="plrp'+q+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4" fill="none" opacity="0" style="stroke:var(--accent)" stroke-width="1.6"/>'});
+    if(!done)for(i=0;i<6;i++)h+='<circle id="pltr'+i+'" r="5" opacity="0" style="fill:'+(creature()?'#B27A40':'var(--accent)')+'"/>';
+    h+='<g id="plfx"></g>';
+    var bx=done?300*(P.k+.5)/n:150,by=done?PLFLOOR:6;
+    h+='<g id="plball" transform="translate('+bx+' '+by+')">'+plBallArt()+'</g></svg></div>';
     h+='<ol class="plleg">';
     tasks.forEach(function(t,j){h+='<li'+(done&&P.k===j?' class="win"':'')+'><i style="background:var(--c'+j+')">'+(j+1)+'</i><span>'+esc(t.title)+'</span></li>'});
     h+='</ol>';
