@@ -1,17 +1,17 @@
 (function(){
   var LOOKS={
     original:{name:'Original',cw:'sea',blurb:'Soft rounded cards, a friendly serif, and a sprig. The calm base we started with.'},
-    nook:{name:'Reading Nook',cw:'library',blurb:'A bookshelf (with a cat) across the top, a chapter-list routine with dotted leaders, a ribbon bookmark on your next step, and ribbon tabs.'},
+    nook:{name:'Library',cw:'library',blurb:'A bookshelf (with a cat) across the top, a chapter-list routine with dotted leaders, a ribbon bookmark on your next step, and ribbon tabs.'},
     meadow:{name:'Meadow',cw:'peri',blurb:'A flower garland, blossom bullets, pastel gradient edges, polka-dot paper, and a floating pill tab bar.'},
-    tide:{name:'Tide Pool',cw:'ocean',blurb:'A rippling pool header, a ripple ring on your next step, a wave along the main card, and a wavy tab bar.'},
-    birch:{name:'Birch Morning',cw:'oak',blurb:'Flat, quiet sections with a birch trunk down the edge, a morning glow, a branch drawing, and a wood shelf rule.'}
+    tide:{name:'Ocean',cw:'ocean',blurb:'A rippling pool header, a ripple ring on your next step, a wave along the main card, and a wavy tab bar.'},
+    birch:{name:'Canvas',cw:'oak',blurb:'Flat, quiet sections with a birch trunk down the edge, a morning glow, a branch drawing, and a wood shelf rule.'}
   };
   var CWS={
-    sea:{name:'Sea Glass',sw:['#F3F8F8','#3E7858','#A9794A']},
-    library:{name:'Library',sw:['#EDF1F9','#1F3A73','#9C6B3C']},
-    peri:{name:'Periwinkle',sw:['#F6F7FD','#5468C2','#B2587A']},
-    ocean:{name:'Ocean',sw:['#EFF7FA','#1A7791','#8F6330']},
-    oak:{name:'Oak and Sky',sw:['#FAF9F6','#44707E','#94683A']}
+    sea:{name:'Fern',sw:['#E9EDDF','#4F9665','#A9CC9B']},
+    library:{name:'Heirloom',sw:['#E9DFC9','#28496B','#A47552']},
+    peri:{name:'Wisteria',sw:['#F1E8D7','#9580B4','#C98FA0']},
+    ocean:{name:'Seaglass',sw:['#EDE5D8','#397F82','#A5CFC7']},
+    oak:{name:'Linen',sw:['#F5F0E6','#C9B99F','#B5BDB1']}
   };
   var MOTIFS={
     creature:'<path d="M6 25C6 13 12 7 26 7C26 19 18 25 6 25Z"/><path d="M6 25L18 13"/>',
