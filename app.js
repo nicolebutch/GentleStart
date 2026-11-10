@@ -300,6 +300,7 @@
   function lowMode(){return S.logic==='low'||(S.logic==='mammal'&&S.mood==='slow')}
   UI0.lot='Parking lot';UI0.parkIt='Park it';UI0.back='Back to the parking lot';UI0.charge='Recharge Battery';UI0.chargeSub='Gentle ideas for when your battery is low. None of these are tasks.';
   UIALT.mammal.lot='The stash';UIALT.mammal.parkIt='Stash it';UIALT.mammal.back='Back to the stash';UIALT.mammal.charge='Curl-up ideas';UIALT.mammal.chargeSub='Gentle ways to rest in the den. None of these are tasks.';
+  UI0.plinko='Plinko';UI0.plbtn='Let the ball choose';UIALT.mammal.plinko='Acorn drop';UIALT.mammal.plbtn='Let the acorn choose';
   UIALT.mammal.greet=function(l){return l+', '+MOODS[S.mood].who+'.'};
 
   /* ---- parking lot: anything nebulous with no set time ---- */
@@ -313,7 +314,7 @@
     {id:'t4',title:'Sort out the plant shelf',ex:true,h:'month',nr:false,fun:false,work:[],mins:60,w:'small',due:'',offDue:null,steps:[],done:false,created:Date.now()-9*864e5},
     {id:'t5',title:'Sketch something just for fun',ex:true,h:'week',nr:false,fun:true,work:[],mins:30,w:'small',due:'',offDue:null,steps:[],done:false,created:Date.now()-3*864e5}
   ];
-  S.tk=null;S.doing=null;S.askMore=false;S.celeb=null;S.skipPark=[];S.tkBusy=false;S.ovv='week';S.ovMo=0;S.ovDay=null;S.lot=false;S.lotTab='week';S.lotAnim=false;
+  S.tk=null;S.doing=null;S.askMore=false;S.celeb=null;S.skipPark=[];S.tkBusy=false;S.ovv='week';S.ovMo=0;S.ovDay=null;S.lot=false;S.pl=null;S.lotTab='week';S.lotAnim=false;
   function saveTasks(){save('gs-tasks',S.tasks)}
   function taskById(id){for(var i=0;i<S.tasks.length;i++)if(S.tasks[i].id===id)return S.tasks[i];return null}
   function dueOf(t){return t.ex&&t.offDue!=null?ymd(addDays(new Date(),t.offDue)):(t.due||'')}
@@ -393,6 +394,69 @@
     h+=taskTags(t)+'</div><div class="row"><button class="btn'+(soft?' alt':'')+' grow" data-a="tkstart" data-v="'+esc(t.id)+'">'+esc(startLabel||u.start)+'</button><button class="btn alt grow" data-a="tkanother" data-v="'+esc(t.id)+'">'+esc(u.another)+'</button></div><div class="row"><button class="quiet" data-a="tklater" data-v="'+esc(t.id)+'">'+esc(u.later)+'</button></div>';
     return h;
   }
+
+  /* ---- plinko: a ball picks one of the tasks that fit right now ---- */
+  var PLN=5;
+  function plPool(){return rank(function(t){return !t.nr}).list.map(function(x){return x.t})}
+  function plSample(list){var a=list.slice(),o=[];while(a.length&&o.length<PLN){o.push(a.splice(Math.floor(Math.random()*a.length),1)[0])}return o}
+  function plPath(n,k){
+    /* pick the landing slot first (so every task is equally likely), then shuffle the lefts and rights that lead there */
+    var st=[],i;for(i=0;i<n-1;i++)st.push(i<k?1:0);
+    for(i=st.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=st[i];st[i]=st[j];st[j]=t}
+    return st;
+  }
+  function plGeo(n,path){
+    var dx=150/n,rows=n-1,y0=34,gap=rows>1?150/(rows-1):0,pegs=[],way=[[150,8]],x=150,s,j;
+    for(s=0;s<rows;s++){for(j=0;j<=s;j++)pegs.push([150+(2*j-s)*dx,y0+s*gap])}
+    for(s=0;s<rows&&path&&path.length;s++){way.push([x,y0+s*gap-8]);x+=(path[s]?1:-1)*dx}
+    if(path&&path.length)way.push([x,212]);
+    return {dx:dx,pegs:pegs,way:way};
+  }
+  function plDrop(){var P=S.pl,n=P.ids.length;P.k=Math.floor(Math.random()*n);P.path=plPath(n,P.k);P.phase='fall';P.drops=(P.drops||0)+1}
+  function plLand(){if(!S.pl)return;plAnimate.id++;S.pl.phase='done';render()}
+  function plAnimate(){
+    var P=S.pl;if(!P||P.phase!=='fall')return;
+    if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){plLand();return}
+    var pts=plGeo(P.ids.length,P.path).way,seg=pts.length-1,T=2400,t0=null,id=++plAnimate.id;
+    function ease(u){return u*u*(3-2*u)}
+    function f(ts){
+      if(plAnimate.id!==id||!S.pl||S.pl.phase!=='fall')return;
+      var b=document.getElementById('plball');if(!b)return;
+      if(t0===null)t0=ts;
+      var p=Math.min(1,(ts-t0)/T),q=p*seg,i=Math.min(seg-1,Math.floor(q)),u=q-i,a=pts[i],c=pts[i+1];
+      b.setAttribute('cx',(a[0]+(c[0]-a[0])*ease(u)).toFixed(1));
+      b.setAttribute('cy',(a[1]+(c[1]-a[1])*Math.pow(u,1.6)).toFixed(1));
+      if(p>=1)plLand();else requestAnimationFrame(f);
+    }
+    requestAnimationFrame(f);
+  }
+  plAnimate.id=0;
+  function plBtn(){
+    if(plPool().length<2)return '';
+    var u=U(),hot=S.skipPark.length>=2;
+    return (hot?'<p class="small">Cannot decide? Let it fall.</p>':'')+'<div class="row"><button class="'+(hot?'btn alt grow':'quiet')+'" data-a="plopen">'+esc(u.plbtn)+'</button></div>';
+  }
+  function plSheet(){
+    var P=S.pl;if(!P)return '';
+    var u=U(),n=P.ids.length,g=plGeo(n,P.path),tasks=P.ids.map(taskById).filter(Boolean),done=P.phase==='done',i;
+    var h='<div class="backdrop" data-a="plbg"><div class="sheet plsheet" role="dialog" aria-modal="true" aria-label="'+esc(u.plinko)+'"><div class="between"><h2 style="font-size:24px">'+esc(u.plinko)+'</h2><button class="x" data-a="plclose" aria-label="Close">&times;</button></div>';
+    h+='<p class="small">'+(done?'Landed. These all fit the time you have, so any of them is a fine pick.':'Everything on the board fits the time you have right now. Tap the board to skip the wait.')+'</p>';
+    h+='<div class="plboard"'+(done?'':' data-a="plskip"')+'><svg viewBox="0 0 300 260" role="img" aria-label="Plinko board with '+n+' slots">';
+    for(i=0;i<n;i++){h+='<rect x="'+(300*i/n+2)+'" y="200" width="'+(300/n-4)+'" height="52" rx="8" style="fill:var(--c'+i+');opacity:'+(done&&P.k===i?'.9':'.28')+'"/><text x="'+(300*(i+.5)/n)+'" y="246" text-anchor="middle" style="fill:var(--ink);font:700 15px var(--font-body)">'+(i+1)+'</text>'}
+    g.pegs.forEach(function(p){h+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.4" style="fill:var(--ink2)"/>'});
+    var bx=done?300*(P.k+.5)/n:150,by=done?212:8;
+    h+='<circle id="plball" cx="'+bx+'" cy="'+by+'" r="7.5" style="fill:var(--accent);stroke:var(--ink);stroke-width:1.4"/></svg></div>';
+    h+='<ol class="plleg">';
+    tasks.forEach(function(t,j){h+='<li'+(done&&P.k===j?' class="win"':'')+'><i style="background:var(--c'+j+')">'+(j+1)+'</i><span>'+esc(t.title)+'</span></li>'});
+    h+='</ol>';
+    if(done&&tasks[P.k]){
+      var w=tasks[P.k];
+      h+='<div class="sugg"><b>'+esc(w.title)+'</b>'+taskTags(w)+'</div><div class="row"><button class="btn grow" data-a="plstart" data-v="'+esc(w.id)+'">'+esc(u.start)+'</button>'+(P.drops<2?'<button class="btn alt grow" data-a="plagain">Drop again</button>':'')+'</div>';
+      h+='<div class="row"><button class="quiet" data-a="plclose">'+(P.drops<2?'Not now':'Maybe later')+'</button></div>';
+      if(P.drops>=2)h+='<p class="small">That is the second drop, so this one is the pick. Closing leaves everything as it was.</p>';
+    }else h+='<div class="row"><button class="quiet" data-a="plskip">Skip the wait</button></div>';
+    return h+'</div></div>';
+  }
   function parkCard(){
     if(basicsDay())return careCard();
     var u=U(),open=S.tasks.filter(function(t){return !t.done}).length;
@@ -415,7 +479,7 @@
       if(!pk)h+='<p class="small">That is all the suggestions for now. They come back tomorrow.</p>';
       else h+=suggBlock(pk,u);
     }
-    return h+'</div>';
+    return h+plBtn()+'</div>';
   }
   function doingHero(t){
     var fs=firstStep(t),u=U();
@@ -1028,7 +1092,7 @@
     app.innerHTML=fx(S.tab==='today'?today():S.tab==='ov'?overview():S.tab==='lists'?lists():S.tab==='log'?logview():us());
     document.getElementById('tabs').innerHTML=fx(tabs());
     var _l=document.querySelector('.lot'),_st=_l?_l.scrollTop:0;
-    document.getElementById('sheetRoot').innerHTML=fx(roughSheet()+menuSheet()+evSheet()+nameSheet()+tkSheet()+lotSheet()+fab()+welcomeSheet());
+    document.getElementById('sheetRoot').innerHTML=fx(roughSheet()+menuSheet()+evSheet()+nameSheet()+tkSheet()+lotSheet()+plSheet()+fab()+welcomeSheet());
     var _l2=document.querySelector('.lot');if(_l2)_l2.scrollTop=_st;
   }
 
@@ -1047,7 +1111,7 @@
   function keepOpen(){var ids=openIds();render();reopen(ids)}
   function resetForm(){S.f={sels:[],sev:null,meds:[],trig:[],symp:[]}}
   function keepSheet(fn){var sh=document.querySelector('.sheet'),st=sh?sh.scrollTop:0;fn();var s2=document.querySelector('.sheet');if(s2)s2.scrollTop=st}
-  function closeSheets(){S.menu=false;S.rp=null;S.ev=null;S.ns=null;S.tk=null}
+  function closeSheets(){S.menu=false;S.rp=null;S.ev=null;S.ns=null;S.tk=null;S.pl=null}
 
   var A={
     mt:function(b){keepSheet(function(){S.mt=b.dataset.v;render()})},
@@ -1089,6 +1153,12 @@
     rmsample:function(){S.log=S.log.filter(function(e){return !e.smp});save('gs-log',S.log);render();toast('Sample entries removed.')},
     mood:function(b){keepSheet(function(){S.mood=b.dataset.v;S.skipPark=[];save('gs-mood',S.mood);render()})},
     season:function(b){keepSheet(function(){S.season=b.dataset.v;save('gs-season',S.season);applyLook();render()})},
+    plopen:function(){var pool=plPool();if(pool.length<2)return;S.pl={ids:plSample(pool).map(function(t){return t.id}),drops:0};plDrop();render();plAnimate()},
+    plagain:function(){if(!S.pl||S.pl.drops>=2)return;plDrop();render();plAnimate()},
+    plskip:function(){plLand()},
+    plclose:function(){plAnimate.id++;S.pl=null;render()},
+    plbg:function(b,e){if(e.target===b)A.plclose()},
+    plstart:function(b){var id=b.dataset.v;plAnimate.id++;S.pl=null;S.lot=false;S.doing=id;S.askMore=false;S.celeb=null;S.tab='today';render();window.scrollTo(0,0)},
     lot:function(){S.lot=true;S.lotAnim=true;render();S.lotAnim=false},
     lclose:function(){S.lot=false;render()},
     lbg:function(b,e){if(e.target===b){S.lot=false;render()}},
@@ -1375,7 +1445,7 @@
   var CHATCTL=null,CHATICON='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-5 4v-4H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg>';
   var STARTERS=["I can't get out of bed","I don't know what to do first","I can't start something","I'm stuck on a decision"];
   function getSample(){try{return window.claude&&window.claude.use?window.claude.use('sample').then(function(f){return f||null},function(){return null}):Promise.resolve(null)}catch(e){return Promise.resolve(null)}}
-  function fab(){if(!PROF||S.noAI||S.menu||S.rp||S.ev||S.ns||S.tk||S.lot||S.chat.open)return '';return '<button class="fab" data-a="stuck" aria-label="Open the stuck helper">'+CHATICON+'<span>'+esc(U().stuck)+'</span></button>'}
+  function fab(){if(!PROF||S.noAI||S.menu||S.rp||S.ev||S.ns||S.tk||S.lot||S.pl||S.chat.open)return '';return '<button class="fab" data-a="stuck" aria-label="Open the stuck helper">'+CHATICON+'<span>'+esc(U().stuck)+'</span></button>'}
   function chatRules(){
     var tk=ymd(new Date()),evs=evsOn(tk).map(function(ev){return ev.title+' at '+fmt(tmin(ev.time))}).join('; ')||'none',nx=nextId(),L=LOGICS[S.logic],pk=S.tasks.filter(function(t){return !t.done}).slice(0,6).map(function(t){return t.title}).join('; ')||'none';
     return fxt(['You are the "Stuck?" helper inside §N\'s personal scheduling app. §N has trouble with task initiation and often ruminates over which task to do first, or cannot start something she knows she should do. Generic productivity advice and "be more disciplined" do not help her; understanding what is in the way and reducing friction does.',
@@ -1438,7 +1508,7 @@
   document.addEventListener('submit',function(e){if(e.target&&e.target.id==='chatform'){e.preventDefault();var i=document.getElementById('chatin');if(i)chatSend(i.value)}});
 
   /* ---- swipe a sheet down to close it ---- */
-  var SW=null,CLOSERS={mbg:'mclose',rbg:'rcancel',evbg:'evclose',nbg:'ncancel',cbg:'cclose',tkbg:'tkclose'};
+  var SW=null,CLOSERS={mbg:'mclose',rbg:'rcancel',evbg:'evclose',nbg:'ncancel',cbg:'cclose',tkbg:'tkclose',plbg:'plclose'};
   document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&e.target.id==='tk-step'){e.preventDefault();A.tkstepadd()}});
   document.addEventListener('touchstart',function(e){
     if(D||!e.touches||e.touches.length!==1)return;
@@ -1463,7 +1533,7 @@
     else{w.sh.style.transition='transform .18s ease';w.sh.style.transform='none'}
   }
   document.addEventListener('touchend',swEnd);document.addEventListener('touchcancel',swEnd);
-  document.addEventListener('keydown',function(e){if(e.key!=='Escape')return;if(D&&D.active){endDrag(false);return}if(S.chat.open){chatClose();return}if(S.rp||S.menu||S.ev||S.ns||S.tk){closeSheets();render();return}if(S.lot){S.lot=false;render()}});
+  document.addEventListener('keydown',function(e){if(e.key!=='Escape')return;if(D&&D.active){endDrag(false);return}if(S.chat.open){chatClose();return}if(S.pl){A.plclose();return}if(S.rp||S.menu||S.ev||S.ns||S.tk){closeSheets();render();return}if(S.lot){S.lot=false;render()}});
   seedSamples();
   try{applyLook()}catch(e){}
   render();
