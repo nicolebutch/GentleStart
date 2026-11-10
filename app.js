@@ -19,7 +19,7 @@
     nook:'<path d="M16 8c-3-2.5-7-3-11-2.5v17c4-.5 8 0 11 2.5 3-2.5 7-3 11-2.5v-17c-4-.5-8 0-11 2.5z"/><path d="M16 8v17"/>',
     meadow:'<circle cx="16" cy="12" r="2.5"/><circle cx="16" cy="6" r="3"/><circle cx="21.7" cy="10.1" r="3"/><circle cx="19.5" cy="16.8" r="3"/><circle cx="12.5" cy="16.8" r="3"/><circle cx="10.3" cy="10.1" r="3"/><path d="M16 19v10"/><path d="M16 25c3 0 5-1.5 6-4-3 0-5 1.5-6 4z"/>',
     tide:'<path d="M3 12c3-3 5-3 8 0s5 3 8 0 5-3 8 0"/><path d="M3 19c3-3 5-3 8 0s5 3 8 0 5-3 8 0"/><path d="M3 26c3-3 5-3 8 0s5 3 8 0 5-3 8 0"/>',
-    birch:'<circle cx="16" cy="16" r="10"/><circle cx="16" cy="16" r="3.2" fill="currentColor"/>'
+    birch:'<path d="M26 4C17 4.5 10.5 10 9.5 19L7 26.5l7.5-2.5C22.5 23 26.5 14 26 4z"/><path d="M7 26.5L19.5 12"/><path d="M12 21.5l5-1M14.5 17.5l5-1.2"/>'
   };
   var SVGO='<svg class="sprig" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
   function motif(){return SVGO+(MOTIFS[lookKey()]||MOTIFS.original)+'</svg>'}
@@ -215,18 +215,19 @@
       return '<svg viewBox="0 0 440 60" role="presentation">'+s+'</svg>';
     },
     birch:function(){
-      var N=46,x0=14,x1=344,top=[],bot=[],s='',i,t,x,w,yy;
-      for(i=0;i<=N;i++){t=i/N;x=x0+(x1-x0)*t;
-        w=t<.06?2.5+(t/.06)*8.5:11*Math.pow(1-(t-.06)/.94,1.15)+.6;
-        yy=41-t*4+.9*Math.sin(t*15)+.5*Math.sin(t*38);
-        top.push(x.toFixed(1)+' '+(yy-w*.5).toFixed(1));bot.push(x.toFixed(1)+' '+(yy+w*.45).toFixed(1))}
-      s+='<defs><filter id="gInk" x="-5%" y="-40%" width="110%" height="180%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2"/></filter></defs>';
-      s+='<g filter="url(#gInk)" style="fill:var(--ink);stroke:var(--ink)">';
-      s+='<path d="M'+top.join('L')+'L'+bot.reverse().join('L')+'Z" stroke="none" opacity=".88"/>';
-      var cx=394,cy=29,r=16.5,W=[5.6,4.6,3.3,1.9],a0=-18;
-      W.forEach(function(wd,k){var A=(a0+k*75)*Math.PI/180,B=(a0+(k+1)*75+1.5)*Math.PI/180;
-        s+='<path d="M'+(cx+r*Math.cos(A)).toFixed(1)+' '+(cy+r*Math.sin(A)).toFixed(1)+'A'+r+' '+r+' 0 0 1 '+(cx+r*Math.cos(B)).toFixed(1)+' '+(cy+r*Math.sin(B)).toFixed(1)+'" fill="none" stroke-width="'+wd+'" stroke-linecap="round" opacity=".86"/>'});
-      s+='<circle cx="356" cy="25" r="1.2" stroke="none" opacity=".6"/><circle cx="364" cy="49" r=".9" stroke="none" opacity=".5"/><circle cx="30" cy="25" r="1" stroke="none" opacity=".5"/>';
+      var s='<defs><filter id="gInk" x="-5%" y="-40%" width="110%" height="180%"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2"/></filter></defs>';
+      function stroke(x0,x1,y0,amp,ph,wmax,op,k){
+        var N=70,top=[],bot=[],i,t,x,w,yy;
+        for(i=0;i<=N;i++){t=i/N;x=x0+(x1-x0)*t;
+          yy=y0+amp*Math.sin(t*7.2+ph)+amp*.45*Math.sin(t*17+ph*2.1)+amp*.2*Math.sin(t*31+k);
+          w=wmax*(.28+.72*Math.pow(Math.abs(Math.sin(t*3.4+ph*.7)),.8))*Math.pow(Math.sin(Math.PI*Math.min(1,t*1.04)),.55)+.5;
+          top.push(x.toFixed(1)+' '+(yy-w*.5).toFixed(1));bot.push(x.toFixed(1)+' '+(yy+w*.5).toFixed(1))}
+        return '<path d="M'+top.join('L')+'L'+bot.reverse().join('L')+'Z" fill-opacity="'+op+'"/>'}
+      s+='<g filter="url(#gInk)" style="fill:var(--brush)">';
+      s+=stroke(16,396,31,7.5,0.4,10.5,.7,1);
+      s+=stroke(60,372,36,6,2.3,7,.6,2);
+      s+=stroke(150,408,27,5,4.4,5,.5,3);
+      s+='<circle cx="404" cy="22" r="1.3" fill-opacity=".55"/><circle cx="30" cy="22" r="1" fill-opacity=".5"/><circle cx="388" cy="49" r=".9" fill-opacity=".5"/>';
       s+='</g>';
       s+='<rect x="420" y="38" width="11" height="11" rx="1.5" style="fill:var(--hot)"/><path d="M423.5 41.5h4M425.5 41.5v4.5M423.5 46h4" fill="none" style="stroke:var(--bg)" stroke-width="1.2" stroke-linecap="round"/>';
       return '<svg viewBox="0 0 440 60" role="presentation">'+s+'</svg>';
