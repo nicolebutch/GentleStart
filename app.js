@@ -19,7 +19,7 @@
     nook:'<path d="M16 8c-3-2.5-7-3-11-2.5v17c4-.5 8 0 11 2.5 3-2.5 7-3 11-2.5v-17c-4-.5-8 0-11 2.5z"/><path d="M16 8v17"/>',
     meadow:'<circle cx="16" cy="12" r="2.5"/><circle cx="16" cy="6" r="3"/><circle cx="21.7" cy="10.1" r="3"/><circle cx="19.5" cy="16.8" r="3"/><circle cx="12.5" cy="16.8" r="3"/><circle cx="10.3" cy="10.1" r="3"/><path d="M16 19v10"/><path d="M16 25c3 0 5-1.5 6-4-3 0-5 1.5-6 4z"/>',
     tide:'<path d="M3 12c3-3 5-3 8 0s5 3 8 0 5-3 8 0"/><path d="M3 19c3-3 5-3 8 0s5 3 8 0 5-3 8 0"/><path d="M3 26c3-3 5-3 8 0s5 3 8 0 5-3 8 0"/>',
-    birch:'<path d="M26 4C17 4.5 10.5 10 9.5 19L7 26.5l7.5-2.5C22.5 23 26.5 14 26 4z"/><path d="M7 26.5L19.5 12"/><path d="M12 21.5l5-1M14.5 17.5l5-1.2"/>'
+    birch:'<path d="M26.5 3C18 3.5 12 8.5 11 16.5L9.5 21.5l5.5-1.8C22.5 18.5 27 12 26.5 3z"/><path d="M2.5 30L20 11.5"/><path d="M13 17.5l5-.9M15.5 13.5l5-1.2"/>'
   };
   var SVGO='<svg class="sprig" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
   function motif(){return SVGO+(MOTIFS[lookKey()]||MOTIFS.original)+'</svg>'}
@@ -215,21 +215,18 @@
       return '<svg viewBox="0 0 440 60" role="presentation">'+s+'</svg>';
     },
     birch:function(){
-      var s='<defs><filter id="gInk" x="-5%" y="-40%" width="110%" height="180%"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2"/></filter></defs>';
-      function stroke(x0,x1,y0,amp,ph,wmax,op,k){
-        var N=70,top=[],bot=[],i,t,x,w,yy;
-        for(i=0;i<=N;i++){t=i/N;x=x0+(x1-x0)*t;
-          yy=y0+amp*Math.sin(t*7.2+ph)+amp*.45*Math.sin(t*17+ph*2.1)+amp*.2*Math.sin(t*31+k);
-          w=wmax*(.28+.72*Math.pow(Math.abs(Math.sin(t*3.4+ph*.7)),.8))*Math.pow(Math.sin(Math.PI*Math.min(1,t*1.04)),.55)+.5;
-          top.push(x.toFixed(1)+' '+(yy-w*.5).toFixed(1));bot.push(x.toFixed(1)+' '+(yy+w*.5).toFixed(1))}
-        return '<path d="M'+top.join('L')+'L'+bot.reverse().join('L')+'Z" fill-opacity="'+op+'"/>'}
-      s+='<g filter="url(#gInk)" style="fill:var(--brush)">';
-      s+=stroke(16,396,31,7.5,0.4,10.5,.7,1);
-      s+=stroke(60,372,36,6,2.3,7,.6,2);
-      s+=stroke(150,408,27,5,4.4,5,.5,3);
-      s+='<circle cx="404" cy="22" r="1.3" fill-opacity=".55"/><circle cx="30" cy="22" r="1" fill-opacity=".5"/><circle cx="388" cy="49" r=".9" fill-opacity=".5"/>';
-      s+='</g>';
-      s+='<rect x="420" y="38" width="11" height="11" rx="1.5" style="fill:var(--hot)"/><path d="M423.5 41.5h4M425.5 41.5v4.5M423.5 46h4" fill="none" style="stroke:var(--bg)" stroke-width="1.2" stroke-linecap="round"/>';
+      var N=140,x0=14,x1=426,y0=30,TP=6.28318,L=[],R=[],i;
+      function env(t){return Math.pow(Math.sin(Math.PI*Math.pow(t,.92)),1.15)}
+      function cy(t){return y0+19*Math.pow(env(t),.75)*(Math.sin(TP*2.7*t+.35+.9*Math.sin(TP*.7*t))+.32*Math.sin(TP*5.1*t+1.1))*.8}
+      function wd(t){return 9.5*Math.pow(Math.sin(Math.PI*Math.pow(t,.88)),.85)*(.62+.38*Math.sin(TP*2.6*t+.9))+.35}
+      for(i=0;i<=N;i++){var t=i/N,x=x0+(x1-x0)*t,y=cy(t),e=.001,m=(cy(Math.min(1,t+e))-cy(Math.max(0,t-e)))/((x1-x0)*2*e),q=Math.sqrt(1+m*m),nx=-m/q,ny=1/q,w=wd(t);
+        L.push((x+nx*w/2).toFixed(1)+' '+(y+ny*w/2).toFixed(1));R.push((x-nx*w/2).toFixed(1)+' '+(y-ny*w/2).toFixed(1))}
+      var d='M'+L.join('L')+'L'+R.reverse().join('L')+'Z';
+      var s='<defs><filter id="gInk" x="-3%" y="-20%" width="106%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2"/></filter>'
+        +'<linearGradient id="gGold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8B7137"/><stop offset=".14" stop-color="#E4D096"/><stop offset=".3" stop-color="#BC9D55"/><stop offset=".46" stop-color="#F3E6B4"/><stop offset=".62" stop-color="#A98B46"/><stop offset=".8" stop-color="#E1CC90"/><stop offset="1" stop-color="#8B7137"/></linearGradient>'
+        +'<linearGradient id="gSheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6D6" stop-opacity=".45"/><stop offset=".5" stop-color="#FFF6D6" stop-opacity="0"/><stop offset="1" stop-color="#462F00" stop-opacity=".35"/></linearGradient></defs>';
+      s+='<g filter="url(#gInk)"><path d="'+d+'" style="fill:var(--brush-svg);fill-opacity:var(--brush-op,.9)"/><path d="'+d+'" style="fill:url(#gSheen);opacity:var(--sheen,0)"/>';
+      s+='<circle cx="408" cy="12" r="1.2" style="fill:var(--brush-svg)" fill-opacity=".55"/><circle cx="26" cy="46" r="1" style="fill:var(--brush-svg)" fill-opacity=".5"/><circle cx="214" cy="52" r=".9" style="fill:var(--brush-svg)" fill-opacity=".45"/></g>';
       return '<svg viewBox="0 0 440 60" role="presentation">'+s+'</svg>';
     }
   };
