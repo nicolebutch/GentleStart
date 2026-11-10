@@ -53,8 +53,7 @@ img{max-width:100%}
   --flower:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><defs><mask id='h'><rect width='24' height='24' fill='white'/><circle cx='12' cy='12' r='1.5' fill='black'/></mask></defs><g mask='url(%23h)'><circle cx='12' cy='12' r='3.4'/><circle cx='12' cy='5.8' r='3.7'/><circle cx='17.9' cy='10.08' r='3.7'/><circle cx='15.64' cy='17.02' r='3.7'/><circle cx='8.36' cy='17.02' r='3.7'/><circle cx='6.1' cy='10.08' r='3.7'/></g></svg>")}
 :root[data-look="tide"]{--font-display:'DM Serif Display',Georgia,serif;--font-body:'Figtree',system-ui,-apple-system,sans-serif;
   --wave:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 20' preserveAspectRatio='none'><path d='M0 12 Q12 2 24 12 T48 12 V20 H0Z'/></svg>")}
-:root[data-look="birch"]{--font-display:'Spectral',Georgia,serif;--font-body:'Figtree',system-ui,-apple-system,sans-serif;
-  --bark:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='11' height='160'><rect x='1' y='10' width='7' height='2' rx='1'/><rect x='3' y='34' width='6' height='1.6' rx='.8'/><rect x='0' y='58' width='5' height='2' rx='1'/><rect x='2' y='82' width='8' height='2' rx='1'/><rect x='4' y='104' width='5' height='1.6' rx='.8'/><rect x='1' y='128' width='7' height='2' rx='1'/><rect x='5' y='148' width='5' height='1.6' rx='.8'/></svg>")}
+:root[data-look="birch"]{--font-display:'Shippori Mincho','Spectral',Georgia,serif;--font-body:'Figtree',system-ui,-apple-system,sans-serif}
 
 *{box-sizing:border-box}
 body{
@@ -246,7 +245,7 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 .dayhead{font-size:13px;font-weight:600;color:var(--ink2);margin-top:6px}
 
 /* ===== LOOK: Library. Bookshelf header, chapter-list routine with dotted leaders, bookplate card with a ribbon, ribbon tabs. ===== */
-:root[data-look="nook"] .deco,:root[data-look="meadow"] .deco,:root[data-look="tide"] .deco,:root[data-look="birch"] .deco{display:block}
+:root[data-look="original"] .deco,:root[data-look="nook"] .deco,:root[data-look="meadow"] .deco,:root[data-look="tide"] .deco,:root[data-look="birch"] .deco{display:block}
 .deco img.shelf{display:block;width:100%;height:auto}
 .deco img.shelf.shelf-d{display:none}
 :root[data-theme="dark"] .deco img.shelf.shelf-l{display:none}
@@ -317,26 +316,41 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 :root[data-look="tide"] .tabs::before{content:"";position:absolute;left:0;right:0;top:-11px;height:12px;background:var(--surface);-webkit-mask:var(--wave) left bottom/48px 12px repeat-x;mask:var(--wave) left bottom/48px 12px repeat-x;pointer-events:none}
 :root[data-look="tide"] .tabs button[aria-current="page"]{border-radius:16px}
 
-/* ===== LOOK: Canvas. Flat quiet sections, birch trunk down the edge, morning glow, branch drawing, wood shelf rule. ===== */
-:root[data-look="birch"] body{padding-left:max(30px,calc(env(safe-area-inset-left,0px) + 18px));
+/* ===== LOOK: Original. Soft base plus a birch trunk down the edge, a morning glow and a branch across the top. ===== */
+:root[data-look="original"] body{padding-left:max(30px,calc(env(safe-area-inset-left,0px) + 18px));
   background-image:radial-gradient(ellipse 80% 38% at 82% -6%,color-mix(in srgb,var(--sky) 70%,transparent),transparent 72%);background-repeat:no-repeat}
-:root[data-look="birch"] body::before{content:"";position:fixed;left:0;top:0;bottom:0;width:11px;background:var(--surface);border-right:1px solid var(--line);z-index:1;pointer-events:none}
-:root[data-look="birch"] body::after{content:"";position:fixed;left:0;top:0;bottom:0;width:11px;background:var(--ink2);opacity:.7;-webkit-mask:var(--bark) left top/11px 160px repeat-y;mask:var(--bark) left top/11px 160px repeat-y;z-index:1;pointer-events:none}
-:root[data-look="birch"] .hello{font-size:39px;font-weight:500;line-height:1.08}
-:root[data-look="birch"] .head{border-bottom:1px solid var(--line);padding-bottom:6px}
-:root[data-look="birch"] .emblem{border-radius:6px;color:var(--wood)}
-:root[data-look="birch"] .hero{background:transparent;border:0;border-top:5px solid var(--wood);border-radius:0;box-shadow:none;padding:20px 2px 6px}
-:root[data-look="birch"] .hero h2{font-size:35px;font-weight:500}
-:root[data-look="birch"] .card{background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;padding:16px 2px 6px}
-:root[data-look="birch"] .entry,:root[data-look="birch"] .sim,:root[data-look="birch"] .note,:root[data-look="birch"] .gpanel,:root[data-look="birch"] .day{border-radius:4px}
-:root[data-look="birch"] .btn,:root[data-look="birch"] .add button,:root[data-look="birch"] .add input,:root[data-look="birch"] .field{border-radius:4px}
+:root[data-look="original"] body::before{content:"";position:fixed;left:0;top:0;bottom:0;width:11px;background:var(--surface);border-right:1px solid var(--line);z-index:1;pointer-events:none}
+:root[data-look="original"] body::after{content:"";position:fixed;left:0;top:0;bottom:0;width:11px;background:var(--ink2);opacity:.7;-webkit-mask:var(--bark) left top/11px 160px repeat-y;mask:var(--bark) left top/11px 160px repeat-y;z-index:1;pointer-events:none}
+:root[data-look="original"] .tabs{padding-left:max(30px,calc(env(safe-area-inset-left,0px) + 18px))}
+
+/* ===== LOOK: Canvas. Paper-and-ink: canvas weave, ink wash, brush-stroke dividers, ensō step markers. ===== */
+:root[data-look="birch"] body{
+  background-image:radial-gradient(ellipse 75% 30% at 88% -4%,color-mix(in srgb,var(--ink) 9%,transparent),transparent 70%),
+    repeating-linear-gradient(0deg,color-mix(in srgb,var(--ink) 3.2%,transparent) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 3.2%,transparent) 0 1px,transparent 1px 3px);
+  background-repeat:no-repeat,repeat,repeat}
+:root[data-look="birch"] .hello{font-size:33px;font-weight:500;line-height:1.12;letter-spacing:.01em}
+:root[data-look="birch"] .emblem{background:transparent;border:0;color:var(--ink)}
+:root[data-look="birch"] .emblem .sprig{width:34px;height:34px;stroke-width:2}
+:root[data-look="birch"] .hero,:root[data-look="birch"] .card{position:relative;background:transparent;border:0;border-radius:0;box-shadow:none}
+:root[data-look="birch"] .hero{padding:26px 2px 6px}
+:root[data-look="birch"] .card{padding:20px 2px 6px}
+:root[data-look="birch"] .hero::before,:root[data-look="birch"] .card::before{content:"";position:absolute;left:0;right:0;top:0;background:var(--ink);pointer-events:none;-webkit-mask:var(--stroke) 0 0/100% 100% no-repeat;mask:var(--stroke) 0 0/100% 100% no-repeat}
+:root[data-look="birch"] .hero::before{height:9px;opacity:.85}
+:root[data-look="birch"] .card::before{height:5px;opacity:.4}
+:root[data-look="birch"] .hero h2{font-size:34px;font-weight:500}
+:root[data-look="birch"] .entry,:root[data-look="birch"] .sim,:root[data-look="birch"] .note,:root[data-look="birch"] .gpanel,:root[data-look="birch"] .day{border-radius:2px}
+:root[data-look="birch"] .btn,:root[data-look="birch"] .add button,:root[data-look="birch"] .add input,:root[data-look="birch"] .field{border-radius:2px}
 :root[data-look="birch"] .steps{gap:0}
-:root[data-look="birch"] .steps li{border-bottom:1px solid var(--line);padding:11px 2px}
+:root[data-look="birch"] .steps li{border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent);padding:11px 2px}
 :root[data-look="birch"] .steps li:last-child{border-bottom:0}
-:root[data-look="birch"] .steps li .dot{width:14px;height:14px;border-radius:3px}
-:root[data-look="birch"] .tabs{border-top:1px solid var(--line);padding-left:max(30px,calc(env(safe-area-inset-left,0px) + 18px))}
-:root[data-look="birch"] .tabs button{border-radius:0}
-:root[data-look="birch"] .tabs button[aria-current="page"]{background:none;color:var(--ink);margin-top:-8px;padding-top:16px;box-shadow:inset 0 3px 0 var(--wood)}
+:root[data-look="birch"] .steps li .dot{width:16px;height:16px;border:1.8px solid var(--ink2);border-top-color:transparent;transform:rotate(-35deg)}
+:root[data-look="birch"] .steps li.now .dot{border-color:var(--accent);border-top-color:transparent;border-width:2.6px}
+:root[data-look="birch"] .steps li.done .dot{background:var(--ink);border-color:var(--ink);transform:none}
+:root[data-look="birch"] .tabs{border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+:root[data-look="birch"] .tabs button{position:relative;border-radius:0}
+:root[data-look="birch"] .tabs button[aria-current="page"]{background:none;color:var(--ink)}
+:root[data-look="birch"] .tabs button[aria-current="page"]:not([data-v="today"])::before{content:"";position:absolute;left:16%;right:16%;top:-4px;height:6px;background:var(--ink);-webkit-mask:var(--stroke) 0 0/100% 100% no-repeat;mask:var(--stroke) 0 0/100% 100% no-repeat}
 
 @media (prefers-reduced-motion:no-preference){
   .hero{animation:rise .35s ease-out}
@@ -378,7 +392,7 @@ html:root[data-look] .tabs button[data-v="today"] svg{width:26px;height:26px}
 html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{background:var(--accent);color:var(--accent-ink);box-shadow:0 0 0 3px var(--soft),0 10px 20px -10px color-mix(in srgb,var(--accent) 80%,transparent)}
 
 /* parking lot: pavement, painted bays */
-:root{--hot:#C85A12;--hot-ink:#FFFFFF;--pave:#5A5F68;--pave2:#3F434A;--paint:#F4F1E6;--paintY:#F0CD4F}
+:root{--bark:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='11' height='160'><rect x='1' y='10' width='7' height='2' rx='1'/><rect x='3' y='34' width='6' height='1.6' rx='.8'/><rect x='0' y='58' width='5' height='2' rx='1'/><rect x='2' y='82' width='8' height='2' rx='1'/><rect x='4' y='104' width='5' height='1.6' rx='.8'/><rect x='1' y='128' width='7' height='2' rx='1'/><rect x='5' y='148' width='5' height='1.6' rx='.8'/></svg>");--stroke:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 10' preserveAspectRatio='none'><path d='M2 5.4C7 2.4 22 1.3 62 2S172 1 232 2.5 288 3.1 298 4.7C289 5.3 262 5.7 232 6.4S152 9 92 8.2 22 8.7 2 5.4Z'/><path d='M258 7.7c11-.2 24 0 38-.9-9 1.5-24 2-38 .9Z'/></svg>");--hot:#C85A12;--hot-ink:#FFFFFF;--pave:#5A5F68;--pave2:#3F434A;--paint:#F4F1E6;--paintY:#F0CD4F}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pave:#363A41;--pave2:#2A2D33;--paint:#E8E4D6;--paintY:#E2BF45}}
 :root[data-theme="dark"]{--pave:#363A41;--pave2:#2A2D33;--paint:#E8E4D6;--paintY:#E2BF45}
 .psign{display:flex;align-items:center;gap:8px;border:0;background:var(--accent);color:var(--accent-ink);border-radius:12px;padding:5px 12px 5px 5px;font-weight:600;font-size:14px;flex:none}

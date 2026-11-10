@@ -1,10 +1,10 @@
 (function(){
   var LOOKS={
-    original:{name:'Original',cw:'sea',blurb:'Soft rounded cards, a friendly serif, and a sprig. The calm base we started with.'},
+    original:{name:'Original',cw:'sea',blurb:'Soft rounded cards, a friendly serif, a sprig, a birch trunk down the edge, and a branch across the top.'},
     nook:{name:'Library',cw:'library',blurb:'A bookshelf (with a cat) across the top, a chapter-list routine with dotted leaders, a ribbon bookmark on your next step, and ribbon tabs.'},
     meadow:{name:'Meadow',cw:'peri',blurb:'A flower garland, blossom bullets, pastel gradient edges, polka-dot paper, and a floating pill tab bar.'},
     tide:{name:'Ocean',cw:'ocean',blurb:'A rippling pool header, a ripple ring on your next step, a wave along the main card, and a wavy tab bar.'},
-    birch:{name:'Canvas',cw:'oak',blurb:'Flat, quiet sections with a birch trunk down the edge, a morning glow, a branch drawing, and a wood shelf rule.'}
+    birch:{name:'Canvas',cw:'oak',blurb:'Paper-and-ink calm: canvas texture, a brush-stroke and ensō header, brush-stroke dividers, and open-circle step markers.'}
   };
   var CWS={
     sea:{name:'Fern',sw:['#E9EDDF','#3D754F','#A9CC9B']},
@@ -19,7 +19,7 @@
     nook:'<path d="M16 8c-3-2.5-7-3-11-2.5v17c4-.5 8 0 11 2.5 3-2.5 7-3 11-2.5v-17c-4-.5-8 0-11 2.5z"/><path d="M16 8v17"/>',
     meadow:'<circle cx="16" cy="12" r="2.5"/><circle cx="16" cy="6" r="3"/><circle cx="21.7" cy="10.1" r="3"/><circle cx="19.5" cy="16.8" r="3"/><circle cx="12.5" cy="16.8" r="3"/><circle cx="10.3" cy="10.1" r="3"/><path d="M16 19v10"/><path d="M16 25c3 0 5-1.5 6-4-3 0-5 1.5-6 4z"/>',
     tide:'<path d="M3 12c3-3 5-3 8 0s5 3 8 0 5-3 8 0"/><path d="M3 19c3-3 5-3 8 0s5 3 8 0 5-3 8 0"/><path d="M3 26c3-3 5-3 8 0s5 3 8 0 5-3 8 0"/>',
-    birch:'<path d="M6 28C10 20 16 14 26 5"/><path d="M12 22c-4 0-6-2-6-5 4 0 6 2 6 5z"/><path d="M17 16c0-4 2-6 5-6 0 4-2 6-5 6z"/><path d="M22 10c3 0 5-1 5-4-3 0-5 1-5 4z"/>'
+    birch:'<circle cx="16" cy="16" r="10"/><circle cx="16" cy="16" r="3.2" fill="currentColor"/>'
   };
   var SVGO='<svg class="sprig" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
   function motif(){return SVGO+(MOTIFS[lookKey()]||MOTIFS.original)+'</svg>'}
@@ -206,12 +206,29 @@
         +'<circle cx="250" cy="14" r="3" fill="none" style="stroke:var(--accent)" stroke-width="1.3"/><circle cx="262" cy="22" r="1.8" fill="none" style="stroke:var(--accent)" stroke-width="1.1"/>'
         +'<circle cx="372" cy="12" r="4.5" fill="none" style="stroke:var(--accent)" stroke-width="1.4"/></svg>';
     },
-    birch:function(){
+    original:function(){
       var s='',pts=[],yb=function(x){var t=(440-x)/376;return 8+t*40+4*Math.sin(t*9)};
       for(var x=440;x>=64;x-=8)pts.push((x===440?'M':'L')+x+' '+yb(x).toFixed(1));
       s+='<path d="'+pts.join('')+'" fill="none" style="stroke:var(--ink2)" stroke-width="1.4" stroke-linecap="round"/>';
       [410,372,338,300,262,226,190,154,118,86].forEach(function(x,i){var y=yb(x),a=i%2===0?-48:48;
         s+='<g transform="translate('+x+' '+y.toFixed(1)+') rotate('+a+')"><path d="M0 0C5-7 14-7 19 0C14 7 5 7 0 0Z" style="fill:'+(i%3===0?'var(--sky)':'var(--soft)')+';stroke:var(--accent)" stroke-width="1"/></g>'});
+      return '<svg viewBox="0 0 440 60" role="presentation">'+s+'</svg>';
+    },
+    birch:function(){
+      var N=46,x0=14,x1=344,top=[],bot=[],s='',i,t,x,w,yy;
+      for(i=0;i<=N;i++){t=i/N;x=x0+(x1-x0)*t;
+        w=t<.06?2.5+(t/.06)*8.5:11*Math.pow(1-(t-.06)/.94,1.15)+.6;
+        yy=41-t*4+.9*Math.sin(t*15)+.5*Math.sin(t*38);
+        top.push(x.toFixed(1)+' '+(yy-w*.5).toFixed(1));bot.push(x.toFixed(1)+' '+(yy+w*.45).toFixed(1))}
+      s+='<defs><filter id="gInk" x="-5%" y="-40%" width="110%" height="180%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2"/></filter></defs>';
+      s+='<g filter="url(#gInk)" style="fill:var(--ink);stroke:var(--ink)">';
+      s+='<path d="M'+top.join('L')+'L'+bot.reverse().join('L')+'Z" stroke="none" opacity=".88"/>';
+      var cx=394,cy=29,r=16.5,W=[5.6,4.6,3.3,1.9],a0=-18;
+      W.forEach(function(wd,k){var A=(a0+k*75)*Math.PI/180,B=(a0+(k+1)*75+1.5)*Math.PI/180;
+        s+='<path d="M'+(cx+r*Math.cos(A)).toFixed(1)+' '+(cy+r*Math.sin(A)).toFixed(1)+'A'+r+' '+r+' 0 0 1 '+(cx+r*Math.cos(B)).toFixed(1)+' '+(cy+r*Math.sin(B)).toFixed(1)+'" fill="none" stroke-width="'+wd+'" stroke-linecap="round" opacity=".86"/>'});
+      s+='<circle cx="356" cy="25" r="1.2" stroke="none" opacity=".6"/><circle cx="364" cy="49" r=".9" stroke="none" opacity=".5"/><circle cx="30" cy="25" r="1" stroke="none" opacity=".5"/>';
+      s+='</g>';
+      s+='<rect x="420" y="38" width="11" height="11" rx="1.5" style="fill:var(--hot)"/><path d="M423.5 41.5h4M425.5 41.5v4.5M423.5 46h4" fill="none" style="stroke:var(--bg)" stroke-width="1.2" stroke-linecap="round"/>';
       return '<svg viewBox="0 0 440 60" role="presentation">'+s+'</svg>';
     }
   };
