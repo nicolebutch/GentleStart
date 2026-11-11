@@ -1297,9 +1297,11 @@
     stuck:function(){S.chat.open=true;render();chatRender();focusChat()},
     cclose:function(){chatClose()},
     cbg:function(b,e){if(e.target===b)chatClose()},
-    cnew:function(){if(CHATCTL)CHATCTL.abort();S.chat.msgs=[];S.chat.err='';S.chat.retry='';S.chat.busy=false;chatRender();focusChat()},
+    cnew:function(){if(CHATCTL)CHATCTL.abort();S.chat.opts=null;S.chat.act=[];S.chat.msgs=[];S.chat.err='';S.chat.retry='';S.chat.busy=false;chatRender();focusChat()},
     cstop:function(){if(CHATCTL)CHATCTL.abort()},
-    cstart:function(b){chatSend(b.dataset.v)},
+    cstart:function(b){if(S.noAI)helpPick(b.dataset.v);else chatSend(b.dataset.v)},
+    chp:function(b){helpPick(b.dataset.v)},
+    hact:function(b){var k=b.dataset.v;S.chat.open=false;chatRender();if(A[k])A[k](b);else render()},
     cretry:function(){var t=S.chat.retry;if(!t)return;var m=S.chat.msgs;if(m.length&&m[m.length-1].r==='u'&&m[m.length-1].t===t)m.pop();chatSend(t)},
     wskip:function(){saveProf({});render()},
     dexport:function(){
@@ -1622,7 +1624,29 @@
   var CHATCTL=null,CHATICON='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-5 4v-4H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg>';
   var STARTERS=["I can't get out of bed","I don't know what to do first","I can't start something","I'm stuck on a decision"];
   function getSample(){try{return window.claude&&window.claude.use?window.claude.use('sample').then(function(f){return f||null},function(){return null}):Promise.resolve(null)}catch(e){return Promise.resolve(null)}}
-  function fab(){if(!PROF||S.noAI||S.menu||S.rp||S.ev||S.ns||S.tk||S.lot||S.pl||S.chat.open)return '';return '<button class="fab" data-a="stuck" aria-label="Open the stuck helper">'+CHATICON+'<span>'+esc(U().stuck)+'</span></button>'}
+  function fab(){if(!PROF||S.menu||S.rp||S.ev||S.ns||S.tk||S.lot||S.pl||S.chat.open)return '';return '<button class="fab" data-a="stuck" aria-label="Open the stuck helper">'+CHATICON+'<span>'+esc(U().stuck)+'</span></button>'}
+  /* guided mode (no Claude needed): tap what is going on, get a short, gentle reply and a way in */
+  var HELP={
+    "I can't get out of bed":{q:"Oh no. What is getting in the way?",o:{
+      "Just really cozy":{a:"Then let's take the cozy with you. A sweater, slippers and something warm to drink can all come along. First move: sit up and put your feet on the floor. That is the whole job for now.",act:[]},
+      "Wiped out":{a:"Then the goal is not to get going, just to get one small thing started. Sit up, sip some water, and see how you feel after. If today needs a gentler morning, there is a page for that.",act:['rough']},
+      "Dreading the day":{a:"That makes sense. The first step does not have to touch the dread. Feet down, water, bathroom, nothing else. We can look at the day once you are up.",act:['rough']},
+      "Not sure":{a:"That is okay. Try the smallest version: sit up and take one slow breath. After that you can decide again, and it only has to be the very next thing.",act:[]}}},
+    "I don't know what to do first":{a:"Then let's skip deciding. The ball can pick from the things that fit the time you have, and anything on that board is a fine place to start.",act:['pl']},
+    "I can't start something":{q:"What does it feel like?",o:{
+      "It feels huge":{a:"Make it smaller than feels reasonable. Open it, then stop. Ten seconds with it counts as starting, and you are allowed to stop after that.",act:[]},
+      "I don't know the first step":{a:"Then the first step is finding the first step. Write one line about what done looks like, then name the very first thing your hands would do, like opening the file or finding the form.",act:[]},
+      "I'm avoiding it":{a:"Avoiding usually means something about it feels boring, uncomfortable or fuzzy. Boring gets music or company, uncomfortable gets a two-minute timer, fuzzy gets one line about what done looks like. Which one sounds closest?",act:[]},
+      "It's boring":{a:"Then pair it with something that is not boring: music, a warm drink, or someone nearby doing their own thing in the same room. Start with just five minutes.",act:[]}}},
+    "I'm stuck on a decision":{a:"You do not have to decide. Let the ball choose, and if the result makes you wince or relax, that tells you something too.",act:['pl']}
+  };
+  function helpPick(l){
+    var c=S.chat,node=(c.opts&&c.opts[l])||HELP[l];if(!node)return;
+    c.msgs.push({r:'u',t:l});
+    if(node.q){c.msgs.push({r:'a',t:node.q});c.opts=node.o;c.act=[]}
+    else{c.msgs.push({r:'a',t:node.a});c.opts=null;c.act=node.act||[]}
+    chatRender();
+  }
   function chatRules(){
     var tk=ymd(new Date()),evs=evsOn(tk).map(function(ev){return ev.title+' at '+fmt(tmin(ev.time))}).join('; ')||'none',nx=nextId(),L=LOGICS[S.logic],pk=S.tasks.filter(function(t){return !t.done}).slice(0,6).map(function(t){return t.title}).join('; ')||'none';
     return fxt(['You are the "Stuck?" helper inside §N\'s personal scheduling app. §N has trouble with task initiation and often ruminates over which task to do first, or cannot start something she knows she should do. Generic productivity advice and "be more disciplined" do not help her; understanding what is in the way and reducing friction does.',
@@ -1638,12 +1662,19 @@
     var root=document.getElementById('chatRoot'),c=S.chat,old=document.getElementById('chatin'),val=old?old.value:'';
     if(!c.open){root.innerHTML='';return}
     var u=U(),h='<div class="backdrop" data-a="cbg"><div class="sheet chatsheet" role="dialog" aria-modal="true" aria-label="Stuck helper"><div class="between"><h2 style="font-size:22px">'+esc(u.ctitle)+'</h2><div class="row" style="gap:4px"><button class="quiet" data-a="cnew">New chat</button><button class="x" data-a="cclose" aria-label="Close">&times;</button></div></div><div class="msgs" id="msgs" aria-live="polite">';
-    h+=bub('a',u.hello);
+    h+=bub('a',S.noAI?(S.logic==='mammal'?'Hello, little one. What is going on in the den? Tap whichever is closest.':'Hi. What is going on? Tap whichever is closest.'):u.hello);
     c.msgs.forEach(function(m,i){h+=bub(m.r,m.t,c.busy&&i===c.msgs.length-1&&m.r==='a'&&!m.t)});
     h+='</div>';
     if(!c.msgs.length){h+='<div class="chips sm">';STARTERS.forEach(function(q){h+='<button data-a="cstart" data-v="'+esc(q)+'">'+esc(q)+'</button>'});h+='</div>'}
+    else if(S.noAI&&c.opts){h+='<div class="chips sm">';Object.keys(c.opts).forEach(function(q){h+='<button data-a="chp" data-v="'+esc(q)+'">'+esc(q)+'</button>'});h+='</div>'}
+    else if(S.noAI){
+      var acts=(c.act||[]).filter(function(k){return k!=='pl'||plPool().length>=2});
+      if(acts.length){h+='<div class="row">';acts.forEach(function(k){h+='<button class="btn alt grow" data-a="hact" data-v="'+(k==='pl'?'plopen':'rough')+'">'+esc(k==='pl'?u.plbtn:'Rough morning options')+'</button>'});h+='</div>'}
+      h+='<div class="row"><button class="quiet" data-a="cnew">Something else</button></div>';
+    }
     if(c.err)h+='<div class="note" role="alert">'+esc(c.err)+(c.retry?' <button class="quiet" data-a="cretry">Try again</button>':'')+'</div>';
-    h+='<form class="chatform" id="chatform"><input class="field" type="text" id="chatin" placeholder="Tell me what is going on" autocomplete="off" aria-label="Message">'+(c.busy?'<button type="button" class="btn alt" data-a="cstop">Stop</button>':'<button type="submit" class="btn">Send</button>')+'</form></div></div>';
+    if(!S.noAI)h+='<form class="chatform" id="chatform"><input class="field" type="text" id="chatin" placeholder="Tell me what is going on" autocomplete="off" aria-label="Message">'+(c.busy?'<button type="button" class="btn alt" data-a="cstop">Stop</button>':'<button type="submit" class="btn">Send</button>')+'</form>';
+    h+='</div></div>';
     root.innerHTML=fx(h);
     var inp=document.getElementById('chatin');if(inp)inp.value=val;
     var m=document.getElementById('msgs');if(m)m.scrollTop=m.scrollHeight;
