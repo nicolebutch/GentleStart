@@ -22,7 +22,7 @@
     birch:'<path d="M26.5 3C18 3.5 12 8.5 11 16.5L9.5 21.5l5.5-1.8C22.5 18.5 27 12 26.5 3z"/><path d="M2.5 30L20 11.5"/><path d="M13 17.5l5-.9M15.5 13.5l5-1.2"/>'
   };
   var SVGO='<svg class="sprig" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
-  function motif(){return SVGO+(MOTIFS[lookKey()]||MOTIFS.original)+'</svg>'}
+  function motif(){var k=lookKey();if(k==='birch')return '<span class="inkart quill"></span><img class="goldart quill" src="art/quill-gold.png" alt="" width="300" height="332">';return SVGO+(MOTIFS[k]||MOTIFS.original)+'</svg>'}
 
   /* header illustrations, drawn with the colorway's own tokens */
 
@@ -215,19 +215,7 @@
       return '<svg viewBox="0 0 440 60" role="presentation">'+s+'</svg>';
     },
     birch:function(){
-      var N=140,x0=14,x1=426,y0=30,TP=6.28318,L=[],R=[],i;
-      function env(t){return Math.pow(Math.sin(Math.PI*Math.pow(t,.92)),1.15)}
-      function cy(t){return y0+19*Math.pow(env(t),.75)*(Math.sin(TP*2.7*t+.35+.9*Math.sin(TP*.7*t))+.32*Math.sin(TP*5.1*t+1.1))*.8}
-      function wd(t){return 9.5*Math.pow(Math.sin(Math.PI*Math.pow(t,.88)),.85)*(.62+.38*Math.sin(TP*2.6*t+.9))+.35}
-      for(i=0;i<=N;i++){var t=i/N,x=x0+(x1-x0)*t,y=cy(t),e=.001,m=(cy(Math.min(1,t+e))-cy(Math.max(0,t-e)))/((x1-x0)*2*e),q=Math.sqrt(1+m*m),nx=-m/q,ny=1/q,w=wd(t);
-        L.push((x+nx*w/2).toFixed(1)+' '+(y+ny*w/2).toFixed(1));R.push((x-nx*w/2).toFixed(1)+' '+(y-ny*w/2).toFixed(1))}
-      var d='M'+L.join('L')+'L'+R.reverse().join('L')+'Z';
-      var s='<defs><filter id="gInk" x="-3%" y="-20%" width="106%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2"/></filter>'
-        +'<linearGradient id="gGold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8B7137"/><stop offset=".14" stop-color="#E4D096"/><stop offset=".3" stop-color="#BC9D55"/><stop offset=".46" stop-color="#F3E6B4"/><stop offset=".62" stop-color="#A98B46"/><stop offset=".8" stop-color="#E1CC90"/><stop offset="1" stop-color="#8B7137"/></linearGradient>'
-        +'<linearGradient id="gSheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6D6" stop-opacity=".45"/><stop offset=".5" stop-color="#FFF6D6" stop-opacity="0"/><stop offset="1" stop-color="#462F00" stop-opacity=".35"/></linearGradient></defs>';
-      s+='<g filter="url(#gInk)"><path d="'+d+'" style="fill:var(--brush-svg);fill-opacity:var(--brush-op,.9)"/><path d="'+d+'" style="fill:url(#gSheen);opacity:var(--sheen,0)"/>';
-      s+='<circle cx="408" cy="12" r="1.2" style="fill:var(--brush-svg)" fill-opacity=".55"/><circle cx="26" cy="46" r="1" style="fill:var(--brush-svg)" fill-opacity=".5"/><circle cx="214" cy="52" r=".9" style="fill:var(--brush-svg)" fill-opacity=".45"/></g>';
-      return '<svg viewBox="0 0 440 60" role="presentation">'+s+'</svg>';
+      return '<span class="inkart wave" role="presentation"></span><img class="goldart wave" src="art/stroke-wave-gold.png" alt="" width="1200" height="119">';
     }
   };
   function deco(){var f=DECO[lookKey()];return f?'<div class="deco" aria-hidden="true"'+(S.logic==='mammal'?' data-a="critter"':'')+'>'+f()+'</div>':''}

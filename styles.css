@@ -325,20 +325,20 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 
 /* ===== LOOK: Canvas. Paper-and-ink: canvas weave, ink wash, brush-stroke dividers, ensō step markers. ===== */
 :root[data-look="birch"]{--brush:var(--ink);--brush-fill:var(--ink);--brush-dot:var(--ink);--brush-svg:var(--ink);--sheen:0;--brush-op:.9}
-:root[data-look="birch"] body{
-  background-image:radial-gradient(ellipse 75% 30% at 88% -4%,color-mix(in srgb,var(--brush) 9%,transparent),transparent 70%),
-    repeating-linear-gradient(0deg,color-mix(in srgb,var(--brush) 3.4%,transparent) 0 1px,transparent 1px 3px),
-    repeating-linear-gradient(90deg,color-mix(in srgb,var(--brush) 3.4%,transparent) 0 1px,transparent 1px 3px);
-  background-repeat:no-repeat,repeat,repeat}
+:root[data-look="birch"] body{background-image:radial-gradient(ellipse 75% 30% at 88% -4%,color-mix(in srgb,var(--brush) 9%,transparent),transparent 70%);background-repeat:no-repeat}
+:root[data-look="birch"] body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--brush) 2.3%,transparent) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--brush) 2.3%,transparent) 0 1px,transparent 1px 3px);
+  --gm:radial-gradient(ellipse 55% 26% at 16% 11%,#000,transparent 72%),radial-gradient(ellipse 42% 20% at 88% 36%,rgba(0,0,0,.8),transparent 70%),radial-gradient(ellipse 62% 24% at 28% 68%,rgba(0,0,0,.9),transparent 72%),radial-gradient(ellipse 38% 18% at 80% 91%,#000,transparent 70%),linear-gradient(rgba(0,0,0,.26),rgba(0,0,0,.26));
+  -webkit-mask-image:var(--gm);mask-image:var(--gm)}
 :root[data-look="birch"] .hello{font-size:33px;font-weight:500;line-height:1.12;letter-spacing:.01em}
 :root[data-look="birch"] .emblem{background:transparent;border:0;color:var(--ink)}
 :root[data-look="birch"] .emblem .sprig{width:34px;height:34px;stroke-width:2}
 :root[data-look="birch"] .hero,:root[data-look="birch"] .card{position:relative;background:transparent;border:0;border-radius:0;box-shadow:none}
 :root[data-look="birch"] .hero{padding:26px 2px 6px}
 :root[data-look="birch"] .card{padding:20px 2px 6px}
-:root[data-look="birch"] .hero::before,:root[data-look="birch"] .card::before{content:"";position:absolute;left:0;right:0;top:0;background:var(--brush-fill);pointer-events:none;-webkit-mask:var(--stroke) 0 0/100% 100% no-repeat;mask:var(--stroke) 0 0/100% 100% no-repeat}
-:root[data-look="birch"] .hero::before{height:9px;opacity:.85}
-:root[data-look="birch"] .card::before{height:5px;opacity:.4}
+:root[data-look="birch"] .hero::before,:root[data-look="birch"] .card::before{content:"";position:absolute;left:0;right:0;top:0;background:var(--brush-fill);pointer-events:none;-webkit-mask:url(art/stroke-long-ink.png) 0 0/100% 100% no-repeat;mask:url(art/stroke-long-ink.png) 0 0/100% 100% no-repeat}
+:root[data-look="birch"] .hero::before{height:11px;opacity:.85}
+:root[data-look="birch"] .card::before{height:7px;opacity:.5}
 :root[data-look="birch"] .hero h2{font-size:34px;font-weight:500}
 :root[data-look="birch"] .entry,:root[data-look="birch"] .sim,:root[data-look="birch"] .note,:root[data-look="birch"] .gpanel,:root[data-look="birch"] .day{border-radius:2px}
 :root[data-look="birch"] .btn,:root[data-look="birch"] .add button,:root[data-look="birch"] .add input,:root[data-look="birch"] .field{border-radius:2px}
@@ -351,7 +351,7 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 :root[data-look="birch"] .tabs{border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
 :root[data-look="birch"] .tabs button{position:relative;border-radius:0}
 :root[data-look="birch"] .tabs button[aria-current="page"]{color:var(--ink);background:none}
-:root[data-look="birch"] .tabs button[aria-current="page"]:not([data-v="today"])::before{content:"";position:absolute;left:16%;right:16%;top:-4px;height:6px;background:var(--brush-fill);-webkit-mask:var(--stroke) 0 0/100% 100% no-repeat;mask:var(--stroke) 0 0/100% 100% no-repeat}
+:root[data-look="birch"] .tabs button[aria-current="page"]:not([data-v="today"])::before{content:"";position:absolute;left:16%;right:16%;top:-4px;height:5px;background:var(--brush-fill);-webkit-mask:url(art/stroke-short-ink.png) 0 0/100% 100% no-repeat;mask:url(art/stroke-short-ink.png) 0 0/100% 100% no-repeat}
 
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"])[data-look="birch"]{--brush:#C4A765;--brush-fill:linear-gradient(180deg,rgba(255,246,214,.38),rgba(255,246,214,0) 48%,rgba(70,48,0,.30)),linear-gradient(90deg,#8B7137 0%,#E4D096 14%,#BC9D55 30%,#F3E6B4 46%,#A98B46 62%,#E1CC90 80%,#8B7137 100%);--brush-dot:linear-gradient(135deg,#F2E4B0 0%,#C4A765 40%,#8D7338 70%,#DCC78B 100%);--brush-svg:url(#gGold);--sheen:1;--brush-op:1}
@@ -360,6 +360,24 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 :root[data-theme="dark"][data-look="birch"]{--brush:#C4A765;--brush-fill:linear-gradient(180deg,rgba(255,246,214,.38),rgba(255,246,214,0) 48%,rgba(70,48,0,.30)),linear-gradient(90deg,#8B7137 0%,#E4D096 14%,#BC9D55 30%,#F3E6B4 46%,#A98B46 62%,#E1CC90 80%,#8B7137 100%);--brush-dot:linear-gradient(135deg,#F2E4B0 0%,#C4A765 40%,#8D7338 70%,#DCC78B 100%);--brush-svg:url(#gGold);--sheen:1;--brush-op:1}
 :root[data-theme="dark"][data-look="birch"] .hero::before,:root[data-theme="dark"][data-look="birch"] .card::before{opacity:1}
 
+
+/* Canvas artwork: ink versions are tinted masks (follow colorway), gold versions are the real images in dark mode */
+.inkart{display:block;background:var(--ink)}
+.inkart.wave{width:100%;aspect-ratio:1200/119;margin:6px 0 2px;-webkit-mask:url(art/stroke-wave-ink.png) center/100% 100% no-repeat;mask:url(art/stroke-wave-ink.png) center/100% 100% no-repeat}
+.inkart.quill{width:42px;height:46px;-webkit-mask:url(art/quill-ink.png) center/contain no-repeat;mask:url(art/quill-ink.png) center/contain no-repeat}
+.goldart{display:none}
+img.goldart.wave{width:100%;height:auto;margin:6px 0 2px}
+img.goldart.quill{width:42px;height:46px;object-fit:contain}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .inkart{display:none}
+  :root:not([data-theme="light"]) .goldart{display:block}
+  :root:not([data-theme="light"])[data-look="birch"] .hero::before,:root:not([data-theme="light"])[data-look="birch"] .card::before{background:url(art/stroke-long-gold.png) 0 0/100% 100% no-repeat;-webkit-mask:none;mask:none}
+  :root:not([data-theme="light"])[data-look="birch"] .tabs button[aria-current="page"]:not([data-v="today"])::before{background:url(art/stroke-short-gold.png) 0 0/100% 100% no-repeat;-webkit-mask:none;mask:none}
+}
+:root[data-theme="dark"] .inkart{display:none}
+:root[data-theme="dark"] .goldart{display:block}
+:root[data-theme="dark"][data-look="birch"] .hero::before,:root[data-theme="dark"][data-look="birch"] .card::before{background:url(art/stroke-long-gold.png) 0 0/100% 100% no-repeat;-webkit-mask:none;mask:none}
+:root[data-theme="dark"][data-look="birch"] .tabs button[aria-current="page"]:not([data-v="today"])::before{background:url(art/stroke-short-gold.png) 0 0/100% 100% no-repeat;-webkit-mask:none;mask:none}
 
 @media (prefers-reduced-motion:no-preference){
   .hero{animation:rise .35s ease-out}
