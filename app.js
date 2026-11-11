@@ -456,6 +456,7 @@
     if(t.ex)g+=tag('Example');
     g+=tag(t.mins?fmtMins(t.mins):'No time guess');
     if(t.w==='big')g+=tag('A lot');else if(t.w==='small')g+=tag('A little');
+    if(t.bd)g+=tag('Big deal');
     if(t.fun)g+=tag('Fun');
     if(d)g+=tag('By '+dayLabel(d));
     if(t.nr)g+=tag('Not in randomizers');
@@ -638,7 +639,7 @@
       var allSteps=t.steps.length>0&&!fs;
       return '<section class="hero" aria-live="polite"><div class="kicker">Nice work</div><h2>That counts. Keep going?</h2><p class="sub">'+esc(t.title)+(fs?'. Next small piece: '+esc(fs.t):'')+(allSteps?'. Every step is ticked.':'.')+' It is saved on the task that you worked on it.</p><div class="row"><button class="btn grow" data-a="tkcont">Keep going</button><button class="btn alt grow" data-a="tkpause">I am done for now</button></div>'+(allSteps?'<div class="row"><button class="quiet" data-a="tkfinish">Mark the whole task done</button></div>':'')+'</section>';
     }
-    return '<section class="hero" aria-live="polite"><div class="kicker">Working on it</div><h2>'+esc(t.title)+'</h2><p class="sub">'+esc(fs?'Next small piece: '+fs.t:'Just start. Ten minutes counts, and so does less.')+'</p><div class="row"><button class="btn grow" data-a="tkfinish">All done</button><button class="btn alt grow" data-a="tkstep">'+(fs?'Did that step':'Did some of it')+'</button></div><div class="row"><button class="quiet" data-a="tkstop">'+esc(u.back)+'</button></div></section>';
+    return '<section class="hero" aria-live="polite"><div class="kicker">Working on it</div><h2>'+esc(t.title)+'</h2><p class="sub">'+esc(fs?'Next small piece: '+fs.t:'Just start. Ten minutes counts, and so does less.')+'</p>'+(t.bd?'<p class="small"><b>This one is a big deal.</b> It is allowed to feel heavy. Starting is already the hard part, and finishing gets a proper celebration.</p>':'')+'<div class="row"><button class="btn grow" data-a="tkfinish">All done</button><button class="btn alt grow" data-a="tkstep">'+(fs?'Did that step':'Did some of it')+'</button></div><div class="row"><button class="quiet" data-a="tkstop">'+esc(u.back)+'</button></div></section>';
   }
   function bay(t,n,doneRow){
     var chk=doneRow?'<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-7"/></svg>':'';
@@ -680,7 +681,7 @@
     h+='<div class="grp"><div class="lab">How long might it take (optional)</div>'+evChips('tkmins',T.mins,[[0,'Not sure'],[5,'5 min'],[15,'15 min'],[30,'30 min'],[60,'1 hr'],[120,'2 hr+']])+'</div>';
     h+='<div class="grp"><div class="lab">How much it matters (optional)</div>'+evChips('tkw',T.w,[['small','A little'],['med','In between'],['big','A lot']])+'</div>';
     h+='<div class="grp"><div class="lab">A date, only if it really has one (optional)</div><input class="field" type="date" id="tk-due" value="'+esc(T.due)+'" aria-label="Date">'+(T.due?'<button class="quiet" data-a="tkclr" style="align-self:flex-start">No date</button>':'')+'</div>';
-    h+='<div class="grp"><label class="fl"><input type="checkbox" id="tk-fun"'+(T.fun?' checked':'')+'> A fun or creative one</label><label class="fl"><input type="checkbox" id="tk-nr"'+(T.nr?' checked':'')+'> Keep this out of the plinko and any other randomizer</label></div>';
+    h+='<div class="grp"><div class="lab">Tags (select any number)</div><div class="chips sm" role="group" aria-label="Tags">'+[['fun','A fun or creative one'],['nr','Keep this out of the plinko'],['bd','A big deal']].map(function(o){return '<button data-a="tktag" data-v="'+o[0]+'" aria-pressed="'+(!!T[o[0]])+'">'+o[1]+'</button>'}).join('')+'</div>'+(T.bd?'<p class="small">Big deals get extra encouragement when you start, and a bigger celebration when you finish.</p>':'')+'</div>';
     h+='<div class="grp"><div class="lab">Tiny steps (optional)</div>';
     if(T.steps.length){h+='<ul class="items" style="margin-top:0">';T.steps.forEach(function(x,i){
       h+='<li class="item'+(x.done?' done':'')+'"><button class="check" role="checkbox" aria-checked="'+x.done+'" aria-label="'+esc(x.t)+'" data-a="tkstepdone" data-i="'+i+'">'+(x.done?'<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-7"/></svg>':'')+'</button><span class="t">'+esc(x.t)+'</span><button class="x" aria-label="Remove step" data-a="tkstepdel" data-i="'+i+'">&times;</button></li>';
@@ -695,17 +696,17 @@
   function syncTk(){
     var T=S.tk;if(!T)return;
     [['tk-title','title'],['tk-due','due'],['tk-step','newStep']].forEach(function(p){var e=document.getElementById(p[0]);if(e)T[p[1]]=e.value});
-    var nr=document.getElementById('tk-nr'),fn=document.getElementById('tk-fun');
-    if(nr)T.nr=nr.checked;if(fn)T.fun=fn.checked;
   }
   function commitStep(){var T=S.tk,v=T.newStep.trim();if(v&&T.steps.length<12){T.steps.push({t:v.slice(0,80),done:false})}T.newStep=''}
   function finishNote(id){
-    if(S.celeb===id){S.celeb=null;render();celebrate();toast('The hard one first. That deserves a little parade.')}
+    var bt=taskById(id);
+    if(bt&&bt.bd){S.celeb=null;render();celebrate(64);setTimeout(function(){celebrate(40)},700);toast('That was a big one, and you did it. Really.')}
+    else if(S.celeb===id){S.celeb=null;render();celebrate();toast('The hard one first. That deserves a little parade.')}
     else{render();toast('Done. Nice.')}
   }
-  function celebrate(){
+  function celebrate(n){
     var c=document.createElement('div');c.className='confetti';c.setAttribute('aria-hidden','true');
-    for(var i=0;i<28;i++){var p=document.createElement('i');p.style.left=(Math.random()*100)+'%';p.style.background='var(--c'+(i%8)+')';p.style.animationDelay=(Math.random()*.6)+'s';p.style.transform='rotate('+Math.floor(Math.random()*180)+'deg)';c.appendChild(p)}
+    for(var i=0;i<(n||28);i++){var p=document.createElement('i');p.style.left=(Math.random()*100)+'%';p.style.background='var(--c'+(i%8)+')';p.style.animationDelay=(Math.random()*.6)+'s';p.style.transform='rotate('+Math.floor(Math.random()*180)+'deg)';c.appendChild(p)}
     document.body.appendChild(c);setTimeout(function(){c.remove()},2800);
   }
 
@@ -1368,12 +1369,13 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     carenext:function(){S.careIdx=(S.careIdx+1)%S.care.length;render()},
     tkopen:function(b){
       var t=taskById(b.dataset.v);if(!t)return;
-      S.tk={id:t.id,title:t.title,h:t.h||'week',nr:!!t.nr,fun:!!t.fun,work:(t.work||[]).slice(),mins:t.mins||0,w:t.w||'med',due:dueOf(t),steps:t.steps.map(function(x){return {t:x.t,done:x.done}}),newStep:'',err:''};render();
+      S.tk={id:t.id,title:t.title,h:t.h||'week',nr:!!t.nr,fun:!!t.fun,bd:!!t.bd,work:(t.work||[]).slice(),mins:t.mins||0,w:t.w||'med',due:dueOf(t),steps:t.steps.map(function(x){return {t:x.t,done:x.done}}),newStep:'',err:''};render();
     },
     tkclose:function(){S.tk=null;render()},
     tkbg:function(b,e){if(e.target===b){S.tk=null;render()}},
     tkh:function(b){keepSheet(function(){syncTk();S.tk.h=b.dataset.v;render()})},
     tkmins:function(b){keepSheet(function(){syncTk();S.tk.mins=+b.dataset.v;render()})},
+    tktag:function(b){keepSheet(function(){syncTk();var k=b.dataset.v;S.tk[k]=!S.tk[k];render()})},
     tkw:function(b){keepSheet(function(){syncTk();S.tk.w=b.dataset.v;render()})},
     tkclr:function(){keepSheet(function(){syncTk();S.tk.due='';render()})},
     tkstepadd:function(){keepSheet(function(){syncTk();commitStep();render();var i=document.getElementById('tk-step');if(i)i.focus()})},
@@ -1383,14 +1385,14 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       syncTk();var T=S.tk;commitStep();T.err='';
       if(!T.title.trim()){T.err='Give it a name first. A word or two is plenty.';keepSheet(render);return}
       var old=T.id?taskById(T.id):null;
-      var rec={id:T.id||('t'+Date.now()),title:T.title.trim(),h:T.h,nr:T.nr,fun:T.fun,mins:T.mins,w:T.w,due:T.due||'',steps:T.steps,work:old?(old.work||[]):[],done:old?old.done:false,created:old?old.created:Date.now(),doneAt:old?old.doneAt:0,snooze:old?old.snooze:''};
+      var rec={id:T.id||('t'+Date.now()),title:T.title.trim(),h:T.h,nr:T.nr,fun:T.fun,bd:T.bd,mins:T.mins,w:T.w,due:T.due||'',steps:T.steps,work:old?(old.work||[]):[],done:old?old.done:false,created:old?old.created:Date.now(),doneAt:old?old.doneAt:0,snooze:old?old.snooze:''};
       if(old){S.tasks[S.tasks.indexOf(old)]=rec}else S.tasks.unshift(rec);
       saveTasks();S.tk=null;render();toast('Saved.');
     },
     tkdel:function(){var id=S.tk&&S.tk.id;S.tasks=S.tasks.filter(function(t){return t.id!==id});if(S.doing===id)S.doing=null;saveTasks();S.tk=null;render();toast('Removed. Nothing else changes.')},
     tkgo:function(){
       syncTk();var T=S.tk;if(!T||!T.id)return;var t=taskById(T.id);
-      if(t){t.steps=T.steps;t.title=T.title.trim()||t.title;t.mins=T.mins;t.w=T.w;t.h=T.h;t.nr=T.nr;t.fun=T.fun;t.due=T.due||'';t.ex=false;saveTasks();S.doing=t.id;S.askMore=false}
+      if(t){t.steps=T.steps;t.title=T.title.trim()||t.title;t.mins=T.mins;t.w=T.w;t.h=T.h;t.nr=T.nr;t.fun=T.fun;t.bd=T.bd;t.due=T.due||'';t.ex=false;saveTasks();S.doing=t.id;S.askMore=false}
       S.tk=null;S.lot=false;S.tab='today';render();window.scrollTo(0,0);
     },
     tkdone:function(b){var t=taskById(b.dataset.v);if(!t)return;t.done=true;t.doneAt=Date.now();if(S.doing===t.id)S.doing=null;saveTasks();finishNote(t.id)},
