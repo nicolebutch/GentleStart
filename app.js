@@ -1415,7 +1415,7 @@
     tab:function(b){S.tab=b.dataset.v;render();window.scrollTo(0,0)},
     part:function(b){S.part=b.dataset.v;S.shift=0;render()},
     done:function(b){S.status[b.dataset.v]='done';render()},
-    skip:function(b){if(U().sq){S.sq={id:b.dataset.v,n:0};render();return}S.status[b.dataset.v]='skip';render();toast('Marked as skipped.')},
+    skip:function(b){var sid=b.dataset.v;if(U().sq||(S.logic==='gentle'&&(sid==='teeth'||sid==='clothes'))){S.sq={id:b.dataset.v,n:0};render();return}S.status[b.dataset.v]='skip';render();toast('Marked as skipped.')},
     sqyes:function(){
       var q=S.sq;if(!q)return;
       if(q.id==='clothes'){S.status[q.id]='skip';S.sq=null;render();toast("It's no fun if EVERY task has friction \ud83d\ude42");return}
