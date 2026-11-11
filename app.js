@@ -17,12 +17,13 @@
     creature:'<path d="M6 25C6 13 12 7 26 7C26 19 18 25 6 25Z"/><path d="M6 25L18 13"/>',
     original:'<path d="M16 29V9"/><path d="M16 21c-5 0-8-3-8-7 5 0 8 3 8 7z"/><path d="M16 15c4 0 7-3 7-7-4 0-7 3-7 7z"/>',
     nook:'<path d="M16 8c-3-2.5-7-3-11-2.5v17c4-.5 8 0 11 2.5 3-2.5 7-3 11-2.5v-17c-4-.5-8 0-11 2.5z"/><path d="M16 8v17"/>',
-    meadow:'<circle cx="16" cy="12" r="2.5"/><circle cx="16" cy="6" r="3"/><circle cx="21.7" cy="10.1" r="3"/><circle cx="19.5" cy="16.8" r="3"/><circle cx="12.5" cy="16.8" r="3"/><circle cx="10.3" cy="10.1" r="3"/><path d="M16 19v10"/><path d="M16 25c3 0 5-1.5 6-4-3 0-5 1.5-6 4z"/>',
+    meadow:'<path fill="currentColor" stroke="none" fill-rule="evenodd" d="M16.23 1.00L15.49 1.19L14.41 1.80L13.71 2.64L13.38 3.39L13.29 4.42L13.43 5.12L13.85 6.01L14.36 6.76L14.32 6.85L12.91 5.63L12.12 5.21L11.23 4.98L10.38 4.98L9.49 5.17L8.75 5.54L8.23 6.10L7.86 7.18L7.86 8.02L8.18 8.91L8.65 9.42L9.54 9.94L10.15 10.08L11.13 10.13L12.35 9.89L13.33 9.56L13.61 9.56L13.57 9.66L12.40 10.17L11.46 10.78L10.66 11.62L10.29 12.28L10.06 13.17L10.10 14.01L10.43 14.71L11.04 15.27L11.69 15.51L12.21 15.56L13.05 15.41L13.94 14.99L14.78 14.24L15.16 13.73L15.53 12.98L15.77 12.28L15.86 11.62L15.95 11.48L16.05 11.58L16.05 12.61L15.91 13.64L15.67 14.62L14.64 17.80L14.22 19.86L14.17 22.01L14.64 24.68L14.60 24.73L14.27 24.26L13.15 21.92L12.12 20.70L11.65 20.38L10.90 20.05L9.73 19.77L8.18 19.58L8.89 20.42L10.15 22.62L10.90 23.42L11.98 24.03L13.66 24.49L14.36 25.06L15.02 26.09L15.67 28.10L16.42 29.69L16.80 30.25L17.26 30.72L17.87 31.00L16.51 28.15L15.53 25.06L15.49 24.54L15.58 23.84L16.05 22.48L16.33 22.01L16.84 21.50L17.64 21.22L19.04 21.17L19.74 21.03L20.40 20.80L21.20 20.33L22.08 19.49L23.11 17.76L23.63 17.10L24.14 16.63L22.08 16.77L20.63 17.01L19.56 17.38L18.90 17.71L17.73 18.60L17.12 19.39L16.66 20.33L16.47 20.94L15.67 22.34L15.25 23.56L15.02 22.48L14.97 20.56L15.44 17.80L16.28 14.95L16.42 14.06L16.51 13.96L16.89 14.62L17.36 15.13L17.87 15.41L18.57 15.56L19.32 15.46L20.07 15.09L20.59 14.53L20.87 13.96L20.96 13.59L20.96 12.70L20.77 12.05L20.45 11.44L19.70 10.64L18.15 9.71L18.39 9.66L19.46 10.03L20.63 10.22L21.52 10.17L22.41 9.94L23.07 9.56L23.63 9.00L23.86 8.63L24.14 7.79L24.14 6.99L23.86 6.15L23.35 5.49L22.60 5.02L21.80 4.84L20.73 4.88L19.56 5.26L18.48 5.96L17.50 6.94L17.45 6.85L17.59 6.57L18.53 5.31L18.95 4.37L19.04 3.90L19.00 2.73L18.62 1.84L18.15 1.37L17.36 1.05ZM15.72 7.60L16.23 7.60L16.56 7.74L16.89 8.07L17.08 8.49L17.08 8.86L16.89 9.33L16.33 9.75L15.86 9.80L15.44 9.66L15.06 9.33L14.88 8.96L14.88 8.44L15.02 8.11L15.25 7.83Z"/>',
     tide:'<path d="M3 12c3-3 5-3 8 0s5 3 8 0 5-3 8 0"/><path d="M3 19c3-3 5-3 8 0s5 3 8 0 5-3 8 0"/><path d="M3 26c3-3 5-3 8 0s5 3 8 0 5-3 8 0"/>',
     birch:'<path d="M26.5 3C18 3.5 12 8.5 11 16.5L9.5 21.5l5.5-1.8C22.5 18.5 27 12 26.5 3z"/><path d="M2.5 30L20 11.5"/><path d="M13 17.5l5-.9M15.5 13.5l5-1.2"/>'
   };
   var SVGO='<svg class="sprig" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
-  function motif(){var k=lookKey();if(k==='birch')return '<span class="inkart quill"></span><img class="goldart quill" src="art/quill-gold.png" alt="" width="300" height="332">';return SVGO+(MOTIFS[k]||MOTIFS.original)+'</svg>'}
+  var QUILL='<span class="inkart quill"></span><img class="goldart quill" src="art/quill-gold.png" alt="" width="300" height="332">';
+  function motif(){var k=lookKey();if(k==='birch')return QUILL;return SVGO+(MOTIFS[k]||MOTIFS.original)+'</svg>'}
 
   /* header illustrations, drawn with the colorway's own tokens */
 
@@ -206,14 +207,7 @@
         +'<circle cx="250" cy="14" r="3" fill="none" style="stroke:var(--accent)" stroke-width="1.3"/><circle cx="262" cy="22" r="1.8" fill="none" style="stroke:var(--accent)" stroke-width="1.1"/>'
         +'<circle cx="372" cy="12" r="4.5" fill="none" style="stroke:var(--accent)" stroke-width="1.4"/></svg>';
     },
-    original:function(){
-      var s='',pts=[],yb=function(x){var t=(440-x)/376;return 8+t*40+4*Math.sin(t*9)};
-      for(var x=440;x>=64;x-=8)pts.push((x===440?'M':'L')+x+' '+yb(x).toFixed(1));
-      s+='<path d="'+pts.join('')+'" fill="none" style="stroke:var(--ink2)" stroke-width="1.4" stroke-linecap="round"/>';
-      [410,372,338,300,262,226,190,154,118,86].forEach(function(x,i){var y=yb(x),a=i%2===0?-48:48;
-        s+='<g transform="translate('+x+' '+y.toFixed(1)+') rotate('+a+')"><path d="M0 0C5-7 14-7 19 0C14 7 5 7 0 0Z" style="fill:'+(i%3===0?'var(--sky)':'var(--soft)')+';stroke:var(--accent)" stroke-width="1"/></g>'});
-      return '<svg viewBox="0 0 440 60" role="presentation">'+s+'</svg>';
-    },
+    original:function(){return '<img class="vine" src="art/vine.png" alt="" width="900" height="300">'},
     birch:function(){
       return '<span class="inkart wave" role="presentation"></span><img class="goldart wave" src="art/stroke-wave-gold.png" alt="" width="1200" height="98">';
     }
@@ -1232,7 +1226,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       if(!creature()){
       h+='<div class="grp"><div class="lab">Theme</div>';
       Object.keys(LOOKS).forEach(function(k){
-        h+='<button class="opt" data-a="look" data-v="'+k+'" aria-pressed="'+(S.look===k)+'">'+SVGO.replace('class="sprig"','class="mini"')+MOTIFS[k]+'</svg><span><b>'+esc(LOOKS[k].name)+'</b>'+(S.look===k?'<span class="small">'+esc(LOOKS[k].blurb)+'</span>':'')+'</span></button>';
+        h+='<button class="opt" data-a="look" data-v="'+k+'" aria-pressed="'+(S.look===k)+'">'+(k==='birch'?'<span class="mini qm">'+QUILL+'</span>':SVGO.replace('class="sprig"','class="mini"')+MOTIFS[k]+'</svg>')+'<span><b>'+esc(LOOKS[k].name)+'</b>'+(S.look===k?'<span class="small">'+esc(LOOKS[k].blurb)+'</span>':'')+'</span></button>';
       });
       h+='</div><div class="grp"><div class="lab">Colorway</div><div class="cws">';
       Object.keys(CWS).forEach(function(k){
