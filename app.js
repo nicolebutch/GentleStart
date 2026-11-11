@@ -919,12 +919,13 @@
     {t:'Are you sure?',y:'Yes',n:"No, I'll do it"},
     {t:'Okay, but are you really sure?',y:"What? Yeah, I'm sure",n:'Ugh, fine'},
     {t:'I hate to keep annoying you, but you said you would do it...',y:'What is going on with these popups??',n:"I'll do it but just to stop the popups"},
-    {t:'PLEASE????',y:'This popup slop actually pissed me off enough to actually do it'}
+    {t:'So... are you going to do it?',y:'No.',n:'This popup slop actually pissed me off enough to actually do it'},
+    {t:'PLEASE????',n:'Oh my god'}
   ];
   function skipSheet(){
     if(!S.sq)return '';
     var q=S.sq.id==='clothes'?SQ[0]:SQ[S.sq.n];
-    return '<div class="backdrop mid" data-a="sqbg"><div class="sheet" role="alertdialog" aria-modal="true" aria-label="'+esc(q.t)+'"><h2 style="font-size:24px;text-align:center">'+esc(q.t)+'</h2><button class="btn" data-a="sqyes">'+esc(q.y)+'</button>'+(q.n?'<button class="quiet" style="text-align:center" data-a="sqno">'+esc(q.n)+'</button>':'')+'</div></div>';
+    return '<div class="backdrop mid" data-a="sqbg"><div class="sheet" role="alertdialog" aria-modal="true" aria-label="'+esc(q.t)+'"><h2 style="font-size:24px;text-align:center">'+esc(q.t)+'</h2>'+(q.y?'<button class="btn" data-a="sqyes">'+esc(q.y)+'</button>':'')+(q.n?'<button class="quiet" style="text-align:center" data-a="sqno">'+esc(q.n)+'</button>':'')+'</div></div>';
   }
   function nameSheet(){
     if(!S.ns)return '';
