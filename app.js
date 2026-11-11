@@ -647,8 +647,12 @@
   }
   function lotSheet(){
     if(!S.lot)return '';
+    var u=U();
+    return '<div class="lotbg" data-a="lbg"><aside class="lot'+(S.lotAnim?' enter':'')+'" role="dialog" aria-modal="true" aria-label="'+esc(u.lot)+'">'+lotInner(false)+'</aside></div>';
+  }
+  function lotInner(embedded){
     var u=U(),tab=S.lotTab;
-    var h='<div class="lotbg" data-a="lbg"><aside class="lot'+(S.lotAnim?' enter':'')+'" role="dialog" aria-modal="true" aria-label="'+esc(u.lot)+'"><div class="between"><h2 class="lottitle">'+esc(u.lot)+'</h2><button class="x lotx" data-a="lclose" aria-label="Close">&times;</button></div>';
+    var h='<div class="between"><h2 class="lottitle">'+esc(u.lot)+'</h2>'+(embedded?'':'<button class="x lotx" data-a="lclose" aria-label="Close">&times;</button>')+'</div>';
     h+='<div class="subtabs lotabs" role="group" aria-label="Sections"><button data-a="lottab" data-v="week" aria-pressed="'+(tab==='week')+'">Weekly</button><button data-a="lottab" data-v="month" aria-pressed="'+(tab==='month')+'">Monthly</button><button data-a="lottab" data-v="groups" aria-pressed="'+(tab==='groups')+'">Groups</button></div>';
     if(tab==='groups')h+='<div class="lotnote">Groups are coming. Think errands, house, or hobbies, each with its own little lot.</div>';
     else{
@@ -664,7 +668,7 @@
     }
     var dn=S.tasks.filter(function(t){return t.done}).sort(function(a,b){return (b.doneAt||0)-(a.doneAt||0)});
     if(dn.length){h+='<details class="lotdone"><summary>Finished ('+dn.length+')</summary><div class="spaces">';dn.forEach(function(t){h+=bay(t,0,true)});h+='</div><button class="quiet" data-a="tkclear">Clear finished</button></details>'}
-    return h+'</aside></div>';
+    return h;
   }
   function tkSheet(){
     var T=S.tk;if(!T)return '';
@@ -766,10 +770,10 @@
     return h;
   }
   function overview(){
-    var u=U(),np=S.tasks.filter(function(t){return !t.done}).length;
-    var h=head({title:'Overview',sub:'Your plans at a glance.'});
-    h+='<div class="between" style="gap:10px"><div class="subtabs" role="group" aria-label="Overview range" style="flex:1"><button data-a="ovv" data-v="week" aria-pressed="'+(S.ovv==='week')+'">Week</button><button data-a="ovv" data-v="month" aria-pressed="'+(S.ovv==='month')+'">Month</button></div><button class="psign" data-a="lot" aria-label="Open '+esc(u.lot)+'"><b>P</b><span>'+esc(u.lot)+'</span>'+(np?'<i>'+np+'</i>':'')+'</button></div>';
-    return h+(S.ovv==='week'?ovWeek():ovMonth());
+    var u=U();
+    var hd=head({title:'Overview',sub:'Your plans at a glance.'}),h='';
+    h+='<div class="between" style="gap:10px"><div class="subtabs" role="group" aria-label="Overview range" style="flex:1"><button data-a="ovv" data-v="week" aria-pressed="'+(S.ovv==='week')+'">Week</button><button data-a="ovv" data-v="month" aria-pressed="'+(S.ovv==='month')+'">Month</button></div><button class="psign" data-a="lot" aria-label="Open '+esc(u.lot)+'"><b>P</b><span>'+esc(u.lot)+'</span></button></div>';
+    return hd+'<div class="ovsplit"><aside class="lot lotside" aria-label="'+esc(u.lot)+'">'+lotInner(true)+'</aside><div class="ovmain">'+h+(S.ovv==='week'?ovWeek():ovMonth())+'</div></div>';
   }
 
   /* ---- sample entries so the log calendar has something to show ---- */
@@ -1272,6 +1276,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
 
   function render(){
     var app=document.getElementById('app');
+    app.classList.toggle('wide',S.tab==='ov');
     app.innerHTML=fx(S.tab==='today'?today():S.tab==='ov'?overview():S.tab==='lists'?lists():S.tab==='log'?logview():us());
     document.getElementById('tabs').innerHTML=fx(tabs());
     var _hh=app.querySelector('.hero h2'),_hk=_hh?_hh.textContent:'';
