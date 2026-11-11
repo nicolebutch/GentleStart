@@ -587,3 +587,14 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
   .ovsplit .psign{display:none}
 }
 @media (max-width:899px){.ovmain{display:contents}}
+
+/* log: stack panels open right under their bubble and slide open */
+.chipflow{display:flex;flex-direction:column;gap:10px}
+.gslide{display:grid;grid-template-rows:1fr}
+.gslide>.gpanel{min-height:0;overflow:hidden}
+.gslide.anim{animation:gslide .32s ease-out}
+@keyframes gslide{from{grid-template-rows:0fr;opacity:0}to{grid-template-rows:1fr;opacity:1}}
+@media (prefers-reduced-motion:reduce){.gslide.anim{animation:none}}
+/* category edit mode */
+.chips button.cated{border-style:dashed;gap:8px}
+.chips button.cated em{font-style:normal;color:var(--ink2);font-size:13px}

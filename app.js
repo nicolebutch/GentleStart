@@ -287,6 +287,7 @@
     opts:{meds:load('gs-meds',[]),trig:load('gs-trig',['Poor sleep','Skipped a meal','Dehydration','Weather change','Stress','Bright light']),symp:load('gs-symp',['Aura','Nausea','Light sensitivity','Sound sensitivity','Brain fog','Neck tension'])},
     f:{sels:[],sev:null,meds:[],trig:[],symp:[]}};
   BASE_CHIPS.forEach(function(c,i){if(S.colors[c]===undefined)S.colors[c]=i});
+  S.cats=load('gs-cats',null);if(!S.cats)S.cats=BASE_CHIPS.filter(function(c){return c!=='Migraine'}).concat(S.custom);S.ce=null;S.catEdit=false;S.justOpen=null;
   S.look=load('gs-look','original');if(S.look==='greenhouse')S.look='original';if(!LOOKS[S.look])S.look='original';
   S.cw=load('gs-cw',null);if(!CWS[S.cw])S.cw=LOOKS[S.look].cw;
   function lookKey(){return S.logic==='mammal'?'creature':S.look}
@@ -813,7 +814,7 @@
   S.stacks=load('gs-stacks',null);if(!Array.isArray(S.stacks))S.stacks=[];
   if(!S.stacks.some(function(x){return x.id==='mig'}))S.stacks.unshift({id:'mig',name:'Migraine',builtin:true,kids:[]});
   S.openStacks=[];S.ns=null;
-  function allTiles(){return BASE_CHIPS.filter(function(c){return c!=='Migraine'}).concat(S.custom)}
+  function allTiles(){return S.cats}
   function stackById(id){for(var i=0;i<S.stacks.length;i++)if(S.stacks[i].id===id)return S.stacks[i];return null}
   function stackOf(label){for(var i=0;i<S.stacks.length;i++)if(S.stacks[i].kids.indexOf(label)>=0)return S.stacks[i];return null}
   function topTiles(){return allTiles().filter(function(c){return !stackOf(c)})}
@@ -928,6 +929,10 @@
   function forgotSheet(){
     if(!S.fg)return '';
     return '<div class="backdrop mid" data-a="fgbg"><div class="sheet" role="alertdialog" aria-modal="true" aria-label="Forgot medications"><h2 style="font-size:24px;text-align:center">Uh oh!</h2><p class="small" style="text-align:center;margin:0">I will make a note in the log in case you need it later.</p><button class="btn" data-a="fgok">Okay</button></div></div>';
+  }
+  function catSheet(){
+    if(!S.ce)return '';
+    return '<div class="backdrop mid" data-a="cebg"><div class="sheet" role="dialog" aria-modal="true" aria-label="Edit category"><h2 style="font-size:22px;text-align:center">Edit category</h2><input class="field" type="text" id="ce-name" maxlength="40" value="'+esc(S.ce.name)+'" aria-label="Category name"><button class="btn" data-a="cesave">Save name</button><button class="quiet" style="text-align:center" data-a="cedel">Take this category away</button><button class="quiet" style="text-align:center" data-a="cecancel">Cancel</button></div></div>';
   }
   function skipSheet(){
     if(!S.sq)return '';
@@ -1087,6 +1092,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
 
   function tileBtn(c,from){
     var on=S.f.sels.indexOf(c)>=0;
+    if(S.catEdit)return '<button class="cated" data-a="catedit" data-v="'+esc(c)+'"><span class="sw" style="background:'+colorOf(c)+'"></span>'+esc(c)+'<em aria-hidden="true">&#9998;</em></button>';
     return '<button data-a="chip" data-v="'+esc(c)+'" data-drag="'+esc(c)+'"'+(from?' data-from="'+esc(from)+'"':' data-drop-tile="'+esc(c)+'"')+' aria-pressed="'+on+'"><span class="sw" style="background:'+colorOf(c)+'"></span>'+esc(c)+'</button>';
   }
   function stackBtn(st){
@@ -1105,7 +1111,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       h+='</div><p class="small">Press and hold a tile, then drag it out to take it out of the stack.</p></div>';
     }
     if(!mig)h+='<button class="quiet" data-a="unstack" data-v="'+esc(st.id)+'">Ungroup these tiles</button>';
-    return h+'</div>';
+    return '<div class="gslide'+(S.justOpen===st.id?' anim':'')+'">'+h+'</div></div>';
   }
 
   function logview(){
@@ -1116,11 +1122,13 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
 
     h+='<div class="card"><h3>Log something</h3>';
     if(S.day){var dq=S.day.split('-');h+='<p class="small">Adding to '+esc(new Date(+dq[0],+dq[1]-1,+dq[2]).toLocaleDateString(undefined,{month:'short',day:'numeric'}))+'. Tap the day again to go back to right now.</p>'}
-    h+='<p class="small">Pick as many as you like. Stacked tiles hold more options. To make your own stack, press and hold a tile, then drag it onto another tile.</p><div class="chips">';
-    S.stacks.forEach(function(st){h+=stackBtn(st)});
-    topTiles().forEach(function(c){h+=tileBtn(c,'')});
-    h+='</div>';
-    S.stacks.forEach(function(st){if(isOpen(st))h+=stackPanel(st)});
+    h+='<p class="small">Pick as many as you like. Stacked tiles hold more options. To make your own stack, press and hold a tile, then drag it onto another tile.</p><div class="chipflow">';
+    var seg='',flow='';
+    S.stacks.forEach(function(st){seg+=stackBtn(st);if(isOpen(st)){flow+='<div class="chips">'+seg+'</div>'+stackPanel(st);seg=''}});
+    topTiles().forEach(function(c){seg+=tileBtn(c,'')});
+    if(seg)flow+='<div class="chips">'+seg+'</div>';
+    h+=flow+'</div>';
+    h+='<button class="quiet" data-a="catmode" style="align-self:flex-start">'+(S.catEdit?'Done editing categories':'Edit categories')+'</button>'+(S.catEdit?'<p class="small">Tap a tile to rename it or take it away. Past entries stay in your log either way.</p>':'');
     h+='<input class="field" type="text" id="custom" placeholder="Or track something new" aria-label="Track something new"><button class="btn" data-a="savelog">Save</button></div>';
 
     h+='<div class="subtabs" role="group" aria-label="Log view"><button data-a="lv" data-v="everyday" aria-pressed="'+(!mig)+'">Everyday</button><button data-a="lv" data-v="migraine" aria-pressed="'+mig+'">Migraine</button></div>';
@@ -1284,7 +1292,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     if(_hk&&_hk===render.lastHero){app.querySelectorAll('.hero').forEach(function(e){e.style.animation='none'})}
     render.lastHero=_hk;
     var _l=document.querySelector('.lot'),_st=_l?_l.scrollTop:0;
-    document.getElementById('sheetRoot').innerHTML=fx(roughSheet()+menuSheet()+evSheet()+skipSheet()+forgotSheet()+nameSheet()+tkSheet()+lotSheet()+plSheet()+fab()+welcomeSheet());
+    document.getElementById('sheetRoot').innerHTML=fx(roughSheet()+menuSheet()+evSheet()+skipSheet()+forgotSheet()+catSheet()+nameSheet()+tkSheet()+lotSheet()+plSheet()+fab()+welcomeSheet());
     var _l2=document.querySelector('.lot');if(_l2)_l2.scrollTop=_st;
   }
 
@@ -1303,7 +1311,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
   function keepOpen(){var ids=openIds();render();reopen(ids)}
   function resetForm(){S.f={sels:[],sev:null,meds:[],trig:[],symp:[]}}
   function keepSheet(fn){var sh=document.querySelector('.sheet'),st=sh?sh.scrollTop:0;fn();var s2=document.querySelector('.sheet');if(s2)s2.scrollTop=st}
-  function closeSheets(){S.menu=false;S.rp=null;S.ev=null;S.ns=null;S.tk=null;S.pl=null;S.sq=null;S.fg=null}
+  function closeSheets(){S.menu=false;S.rp=null;S.ev=null;S.ns=null;S.tk=null;S.pl=null;S.sq=null;S.fg=null;S.ce=null}
 
   var A={
     appear:function(b){keepSheet(function(){S.appear=b.dataset.v;save('gs-appear',S.appear);applyLook();render()})},
@@ -1475,9 +1483,34 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     chip:function(b){keepAll(function(){toggleSel(b.dataset.v);render()})},
     stack:function(b){keepAll(function(){
       var id=b.dataset.v;
-      if(id==='mig')toggleSel('Migraine');
-      else{var i=S.openStacks.indexOf(id);if(i>=0)S.openStacks.splice(i,1);else S.openStacks.push(id)}
-      render()})},
+      if(id==='mig'){var was=S.f.sels.indexOf('Migraine')>=0;toggleSel('Migraine');if(!was)S.justOpen='mig'}
+      else{var i=S.openStacks.indexOf(id);if(i>=0)S.openStacks.splice(i,1);else{S.openStacks.push(id);S.justOpen=id}}
+      render();S.justOpen=null})},
+    catmode:function(){S.catEdit=!S.catEdit;keepAll(render)},
+    catedit:function(b){S.ce={label:b.dataset.v,name:b.dataset.v};render();var i=document.getElementById('ce-name');if(i){i.focus();i.select()}},
+    cesave:function(){
+      var ce=S.ce,i=document.getElementById('ce-name'),v=(i?i.value:'').trim().slice(0,40);if(!ce)return;
+      if(!v){toast('A category needs a name.');return}
+      if(v!==ce.label){
+        if(S.cats.concat(['Migraine']).some(function(x){return x.toLowerCase()===v.toLowerCase()&&x!==ce.label})){toast('That name is already a category.');return}
+        var ix=S.cats.indexOf(ce.label);if(ix>=0)S.cats[ix]=v;
+        S.stacks.forEach(function(x){var k=x.kids.indexOf(ce.label);if(k>=0)x.kids[k]=v});
+        var s=S.f.sels.indexOf(ce.label);if(s>=0)S.f.sels[s]=v;
+        S.log.forEach(function(e){if(e.label===ce.label)e.label=v});
+        if(S.colors[ce.label]!==undefined){S.colors[v]=S.colors[ce.label];delete S.colors[ce.label];save('gs-colors',S.colors)}
+        save('gs-cats',S.cats);save('gs-stacks',S.stacks);save('gs-log',S.log);
+      }
+      S.ce=null;render();toast('Saved.')
+    },
+    cedel:function(){
+      var ce=S.ce;if(!ce)return;
+      S.cats=S.cats.filter(function(x){return x!==ce.label});
+      S.f.sels=S.f.sels.filter(function(x){return x!==ce.label});
+      cleanStacks();save('gs-cats',S.cats);save('gs-stacks',S.stacks);
+      S.ce=null;render();toast('Taken away. Past entries are still in your log.')
+    },
+    cecancel:function(){S.ce=null;render()},
+    cebg:function(b,e){if(e.target===b){S.ce=null;render()}},
     rename:function(b){var st=stackById(b.dataset.v);if(!st)return;S.ns={id:st.id,name:st.name};render();focusName()},
     namestack:function(){
       var st=S.ns&&stackById(S.ns.id),el=document.getElementById('stackname');
@@ -1536,8 +1569,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       S.f.sels.forEach(function(l){logIt(l,l==='Migraine'?{sev:S.f.sev,meds:S.f.meds,trig:S.f.trig,symp:S.f.symp}:null,true)});
       if(custom){
         logIt(custom,null,true);
-        var all=BASE_CHIPS.concat(S.custom).map(function(x){return x.toLowerCase()});
-        if(all.indexOf(custom.toLowerCase())<0){S.custom.push(custom);save('gs-custom',S.custom)}
+        var all=S.cats.concat(['Migraine']).map(function(x){return x.toLowerCase()});
+        if(all.indexOf(custom.toLowerCase())<0){S.cats.push(custom);save('gs-cats',S.cats)}
       }
       var hadMig=S.f.sels.indexOf('Migraine')>=0;
       resetForm();render();toast(hadMig?'Saved. Migraine entries are in the Migraine view.':'Saved.')
@@ -1768,7 +1801,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
   document.addEventListener('submit',function(e){if(e.target&&e.target.id==='chatform'){e.preventDefault();var i=document.getElementById('chatin');if(i)chatSend(i.value)}});
 
   /* ---- swipe a sheet down to close it ---- */
-  var SW=null,CLOSERS={mbg:'mclose',rbg:'rcancel',evbg:'evclose',nbg:'ncancel',sqbg:'sqno',fgbg:'fgbg',cbg:'cclose',tkbg:'tkclose',plbg:'plclose'};
+  var SW=null,CLOSERS={mbg:'mclose',rbg:'rcancel',evbg:'evclose',nbg:'ncancel',sqbg:'sqno',cebg:'cecancel',fgbg:'fgbg',cbg:'cclose',tkbg:'tkclose',plbg:'plclose'};
   document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&e.target.id==='tk-step'){e.preventDefault();A.tkstepadd()}});
   document.addEventListener('touchstart',function(e){
     if(D||!e.touches||e.touches.length!==1)return;
