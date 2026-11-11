@@ -727,16 +727,20 @@
 
   /* ---- overview: the week or month at a glance ---- */
   function ovMonthStart(){var n=new Date();return new Date(n.getFullYear(),n.getMonth()+S.ovMo,1)}
+  function wkEv(ev,k){
+    var st=tmin(ev.time),end=st+(ev.dur||0);
+    return '<button class="wkev'+(ev.withJ?' wj':'')+'" data-a="evedit" data-v="'+esc(ev.id)+'"><small>'+fmt(st)+(ev.dur?' to '+fmt(end):'')+'</small><b>'+esc(ev.title)+'</b>'+(ev.place?'<span class="small">'+esc(ev.place)+'</span>':'')+'</button>';
+  }
   function ovWeek(){
-    var h='',now=SIM[S.part];
+    var h='<p class="small">Swipe sideways for the rest of the week.</p><div class="wkrow" role="list">';
     for(var i=0;i<7;i++){
       var d=addDays(new Date(),i),k=ymd(d),evs=evsOn(k);
-      h+='<div class="card"><div class="between"><h3>'+esc(dayLabel(k))+' <span class="small" style="font-family:var(--font-body)">'+esc(d.toLocaleDateString(undefined,{month:'short',day:'numeric'}))+'</span></h3><button class="addbtn" data-a="evnewon" data-v="'+k+'">+ Add</button></div>';
+      h+='<div class="wkday'+(i===0?' today':'')+'" role="listitem"><div class="wkhd"><b>'+esc(dayLabel(k))+'</b><span class="small">'+esc(d.toLocaleDateString(undefined,{month:'short',day:'numeric'}))+'</span></div>';
       if(!evs.length)h+='<p class="small">Open.</p>';
-      else{h+='<div class="evlist">';evs.forEach(function(ev){h+=evRow(ev,k,now,true)});h+='</div>'}
-      h+='</div>';
+      else evs.forEach(function(ev){h+=wkEv(ev,k)});
+      h+='<button class="addbtn wkadd" data-a="evnewon" data-v="'+k+'">+ Add</button></div>';
     }
-    return h;
+    return h+'</div>';
   }
   function ovMonth(){
     var ms=ovMonthStart(),y=ms.getFullYear(),m=ms.getMonth(),label=ms.toLocaleDateString(undefined,{month:'long',year:'numeric'});
@@ -747,8 +751,8 @@
     for(var b=0;b<first;b++)h+='<div class="day blank" aria-hidden="true"></div>';
     for(var d=1;d<=dim;d++){
       var key=y+'-'+pad(m+1)+'-'+pad(d),evs=evsOn(key),tiles='';
-      evs.slice(0,3).forEach(function(){tiles+='<span class="tile" style="background:var(--accent)"></span>'});
-      if(evs.length>3)tiles+='<span class="more">+'+(evs.length-3)+'</span>';
+      evs.slice(0,3).forEach(function(ev){tiles+='<span class="mt">'+esc(ev.title)+'</span>'});
+      if(evs.length>3)tiles+='<span class="more">+'+(evs.length-3)+' more</span>';
       h+='<button class="day'+(key===tk?' today':'')+(S.ovDay===key?' sel':'')+'" data-a="ovday" data-k="'+key+'" aria-pressed="'+(S.ovDay===key)+'" aria-label="'+esc(ms.toLocaleDateString(undefined,{month:'long'}))+' '+d+', '+evs.length+' plans"><span>'+d+'</span><span class="tiles">'+tiles+'</span></button>';
     }
     h+='</div>';
@@ -995,7 +999,7 @@
       var cls=s==='done'?'done':s==='skip'?'skipped':sid===cur?'now':'';
       var stt=s==='done'?'done':s==='skip'?'skipped':sid===cur?'next':'';
       if(!s&&sc2)stt=(sid===cur?'next, ':'')+fmt(sc2.start);
-      h+='<li class="'+cls+'"><span class="dot"></span><span class="nm">'+esc(nmOf(sid))+'</span><em class="st">'+esc(stt)+'</em></li>';
+      h+='<li class="'+cls+'" data-a="stepclick" data-v="'+sid+'" role="button" tabindex="0" aria-label="'+esc(nmOf(sid))+(s==='done'?', done. Tap to undo':s==='skip'?', skipped. Tap to bring it back':', tap to go to the card')+'"><span class="dot"></span><span class="nm">'+esc(nmOf(sid))+'</span><em class="st">'+esc(stt)+'</em></li>';
     });
     h+='</ul></div>';
     }
@@ -1437,6 +1441,12 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       var fid='new-'+sc+'-'+kind;
       keepAll(render);var nm=document.getElementById(fid);if(nm)nm.focus()
     },
+    stepclick:function(b){
+      var sid=b.dataset.v;
+      if(S.status[sid]){delete S.status[sid];render()}
+      var hero=document.querySelector('.hero');
+      if(hero){hero.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'center'});hero.classList.remove('pulse');void hero.offsetWidth;hero.classList.add('pulse');setTimeout(function(){hero.classList.remove('pulse')},1100)}
+    },
     forgot:function(){S.fg=true;render()},
     fgok:function(){S.fg=null;logIt('Forgot morning meds',null,false);S.status.dailymeds='skip';render()},
     fgbg:function(b,e){if(e.target===b){S.fg=null;render()}},
@@ -1540,6 +1550,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     var b=e.target.closest('[data-a]');if(!b||b.tagName==='FORM')return;
     var f=A[b.dataset.a];if(f)f(b,e);
   });
+  document.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target&&e.target.matches&&e.target.matches('li[data-a="stepclick"]')){e.preventDefault();e.target.click()}});
   document.addEventListener('mousedown',function(e){if(e.target.closest&&e.target.closest('.medsugg button'))e.preventDefault()});
   document.addEventListener('toggle',function(e){var t=e.target;if(t&&t.dataset&&t.dataset.f)S.filt=t.open},true);
   document.addEventListener('submit',function(e){

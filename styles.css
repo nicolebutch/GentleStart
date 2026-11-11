@@ -550,3 +550,29 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .deco img.vine{filter:brightness(1.25) contrast(.8)}}
 :root[data-theme="dark"] .deco img.vine{filter:brightness(1.25) contrast(.8)}
 .opt .mini.qm{display:flex;align-items:center;justify-content:center;width:30px;height:30px}
+
+/* overview week: horizontal day columns */
+.wkrow{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 2px 12px;margin:0 -2px;-webkit-overflow-scrolling:touch}
+.wkday{flex:0 0 172px;scroll-snap-align:start;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:190px}
+.wkday.today{border-color:var(--accent)}
+.wkhd{display:flex;flex-direction:column;gap:0}
+.wkhd b{font-family:var(--font-display);font-weight:400;font-size:19px}
+.wkev{display:flex;flex-direction:column;text-align:left;gap:1px;border:1.5px solid var(--line);border-left:5px solid var(--wood);background:var(--surface2);color:var(--ink);border-radius:10px;padding:6px 9px}
+.wkev.wj{border-left-color:var(--accent)}
+.wkev small{color:var(--ink2);font-size:12px}
+.wkev b{font-weight:600;font-size:14px;overflow-wrap:anywhere}
+.wkadd{margin-top:auto;align-self:flex-start}
+/* overview month: titles inside the day cells */
+.cal .day{min-height:96px;align-items:stretch;padding:4px 3px;gap:2px;overflow:hidden}
+.cal{gap:3px}
+.cal .day{padding:4px 2px}
+.cal .day>span:first-child{align-self:center}
+.cal .day .tiles{flex-direction:column;flex-wrap:nowrap;gap:2px;justify-content:flex-start;align-items:stretch}
+.mt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:9.5px;line-height:1.2;text-align:left;color:var(--ink);background:var(--soft);border-radius:4px;padding:2px 2px;overflow:hidden;overflow-wrap:anywhere;font-weight:500;letter-spacing:-.1px}
+.cal .day .more{font-size:10px;color:var(--ink2);text-align:left;padding-left:3px}
+/* step list rows are tappable */
+.steps li[data-a]{cursor:pointer;border-radius:10px}
+.steps li[data-a]:hover{background:color-mix(in srgb,var(--soft) 60%,transparent)}
+.hero.pulse{animation:heropulse 1.1s ease-out}
+@keyframes heropulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}70%{box-shadow:0 0 0 14px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.hero.pulse{animation:none}}
