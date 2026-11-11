@@ -317,8 +317,7 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 :root[data-look="tide"] .tabs button[aria-current="page"]{border-radius:16px}
 
 /* ===== LOOK: Original. Soft base plus a birch trunk down the edge, a morning glow and a branch across the top. ===== */
-:root[data-look="original"] body{padding-left:max(46px,calc(env(safe-area-inset-left,0px) + 34px));
-  background-image:radial-gradient(ellipse 80% 38% at 82% -6%,color-mix(in srgb,var(--sky) 70%,transparent),transparent 72%);background-repeat:no-repeat}
+:root[data-look="original"] body{padding-left:max(46px,calc(env(safe-area-inset-left,0px) + 34px))}
 :root[data-look="original"] body::before{content:"";position:fixed;left:0;top:0;bottom:0;width:44px;z-index:-1;pointer-events:none;background:url(art/birch-trunk.png) 0 0/44px auto repeat-y}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-look="original"] body::before{filter:brightness(.62) saturate(.9)}}
 :root[data-theme="dark"][data-look="original"] body::before{filter:brightness(.62) saturate(.9)}
@@ -533,3 +532,16 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .backdrop.mid{align-items:center;padding:20px;z-index:45}
 .backdrop.mid .sheet{border-radius:22px;max-width:360px;padding:26px 20px 20px;text-align:center;align-items:stretch}
 .backdrop.mid .sheet::before{display:none}
+
+/* menu button outline always visible in Original and Meadow */
+:root[data-look="original"] .emblem{border-color:var(--accent)}
+:root[data-look="meadow"] .emblem{border-color:var(--accent)}
+/* chat bubble entry */
+.bub.in{animation:bubin .3s cubic-bezier(.2,.9,.3,1.15) both;transform-origin:bottom left}
+.bub.u.in{transform-origin:bottom right}
+@keyframes bubin{from{opacity:0;transform:translateY(10px) scale(.88)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.bub.in{animation:none}}
+/* medication suggestions show while the add field is focused */
+.grp .medsugg{display:none;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.grp:focus-within .medsugg{display:flex}
+.medsugg button{border:1.5px dashed var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;font-size:14px}

@@ -306,7 +306,7 @@
     gentle:{name:'Gentle (default)',blurb:'How it works now: one next step at a time, nothing overdue, plenty of slack.',icon:MOTIFS.original,voice:'Warm, plain and calm.'},
     clock:{name:'On the clock',blurb:'Cares about time. Steps get start times and lengths, plans warn you earlier, and you can slide the whole schedule if you run behind.',icon:'<circle cx="16" cy="16" r="11"/><path d="M16 9v7l5 3"/>',voice:'Practical and time-aware. You may say how long something realistically takes or suggest a short timer, but never rush or scold.'},
     mammal:{name:'Little mammal',blurb:'A woodland storybook. The whole look changes with the season, you pick your mood (slow, energetic, dreamy or balanced), the parking lot becomes the stash, and the words turn into a small animal tending its den.',icon:'<ellipse cx="16" cy="21" rx="6" ry="5"/><circle cx="8" cy="14" r="2.4"/><circle cx="13" cy="9" r="2.4"/><circle cx="19" cy="9" r="2.4"/><circle cx="24" cy="14" r="2.4"/>',voice:'Lightly playful: frame things as if she were a small animal tending a den and foraging, but keep the actual advice clear and kind. A light touch, not constant.'},
-    tiny:{name:'Tiny steps',blurb:'Every step shrinks to its first 30 seconds. For days when starting is the whole problem.',icon:'<circle cx="6" cy="23" r="2"/><circle cx="13" cy="19" r="2"/><circle cx="20" cy="14" r="2"/><circle cx="27" cy="8" r="2"/>',voice:'Always shrink any suggestion to something doable in about 30 seconds.'},
+    tiny:{name:'Tiny steps',blurb:'Every step shrinks to its first 30 seconds. For days when starting is the whole problem.',icon:'<path d="M4 26h7v-7h7v-7h7V6h3"/>',voice:'Always shrink any suggestion to something doable in about 30 seconds.'},
     low:{name:'Low battery',blurb:'Only the basics today: medications, §C, water, and food. Quiet words, nothing extra.',icon:'<rect x="4" y="10" width="21" height="12" rx="3"/><path d="M28 14v4M8 14v4"/>',voice:'She is low on energy: keep replies very short, offer only the minimum, and give permission to do less.'}
   };
   var UI0={
@@ -461,7 +461,7 @@
     var g='',d=dueOf(t);
     if(t.ex)g+=tag('Example');
     g+=tag(t.mins?fmtMins(t.mins):'No time guess');
-    if(t.w==='big')g+=tag('Big');else if(t.w==='small')g+=tag('Small');
+    if(t.w==='big')g+=tag('A lot');else if(t.w==='small')g+=tag('A little');
     if(t.fun)g+=tag('Fun');
     if(d)g+=tag('By '+dayLabel(d));
     if(t.nr)g+=tag('Not in randomizers');
@@ -680,7 +680,7 @@
     h+='<div class="grp"><div class="lab">What is it</div><input class="field" type="text" id="tk-title" value="'+esc(T.title)+'" placeholder="e.g. Call about the bill" aria-label="What is it"></div>';
     h+='<div class="grp"><div class="lab">Where it lives</div>'+evChips('tkh',T.h,[['week','This week'],['month','This month']])+'</div>';
     h+='<div class="grp"><div class="lab">How long might it take (optional)</div>'+evChips('tkmins',T.mins,[[0,'Not sure'],[5,'5 min'],[15,'15 min'],[30,'30 min'],[60,'1 hr'],[120,'2 hr+']])+'</div>';
-    h+='<div class="grp"><div class="lab">How much it matters (optional)</div>'+evChips('tkw',T.w,[['small','Small'],['med','Medium'],['big','Big']])+'</div>';
+    h+='<div class="grp"><div class="lab">How much it matters (optional)</div>'+evChips('tkw',T.w,[['small','A little'],['med','In between'],['big','A lot']])+'</div>';
     h+='<div class="grp"><div class="lab">A date, only if it really has one (optional)</div><input class="field" type="date" id="tk-due" value="'+esc(T.due)+'" aria-label="Date">'+(T.due?'<button class="quiet" data-a="tkclr" style="align-self:flex-start">No date</button>':'')+'</div>';
     h+='<div class="grp"><label class="fl"><input type="checkbox" id="tk-fun"'+(T.fun?' checked':'')+'> A fun or creative one</label><label class="fl"><input type="checkbox" id="tk-nr"'+(T.nr?' checked':'')+'> Keep this out of the plinko and any other randomizer</label></div>';
     h+='<div class="grp"><div class="lab">Tiny steps (optional)</div>';
@@ -922,6 +922,10 @@
     {t:'So... are you going to do it?',y:'No.',n:'This popup slop actually pissed me off enough to actually do it'},
     {t:'PLEASE????',n:'Oh my god'}
   ];
+  function forgotSheet(){
+    if(!S.fg)return '';
+    return '<div class="backdrop mid" data-a="fgbg"><div class="sheet" role="alertdialog" aria-modal="true" aria-label="Forgot medications"><h2 style="font-size:24px;text-align:center">Uh oh!</h2><p class="small" style="text-align:center;margin:0">I will make a note in the log in case you need it later.</p><button class="btn" data-a="fgok">Okay</button></div></div>';
+  }
   function skipSheet(){
     if(!S.sq)return '';
     var q=S.sq.id==='clothes'?SQ[0]:SQ[S.sq.n];
@@ -969,7 +973,7 @@
       var st=stepOf(id),sc=schedOf(id);
       h+='<section class="hero" aria-live="polite"><div class="kicker">'+esc(sc?u.next+', '+sc.label:u.next)+'</div><h2>'+esc(st.t)+'</h2><p class="sub">'+esc(st.s)+'</p><div class="row">';
       if(st.meal){
-        h+='<a class="btn grow" href="https://www.google.com/search?q=easy+breakfast+ideas" target="_blank" rel="noopener" data-a="recime">'+esc(u.food)+'</a><button class="btn alt grow" data-a="done" data-v="'+id+'">'+esc(u.eaten)+'</button>';
+        h+='<a class="btn grow" href="https://www.google.com/search?q=easy+'+(id==='dinner'?'dinner':'breakfast')+'+ideas" target="_blank" rel="noopener" data-a="recime">'+esc(u.food)+'</a><button class="btn alt grow" data-a="done" data-v="'+id+'">'+esc(u.eaten)+'</button>';
       }else if(st.lunch){
         h+='<button class="btn grow" data-a="lunch">'+esc(u.lunchBtn)+'</button><button class="btn alt grow" data-a="done" data-v="'+id+'">'+esc(u.eaten)+'</button>';
       }else{
@@ -977,6 +981,7 @@
       }
       h+='</div><div class="row">';
       if(st.meal)h+='<button class="quiet" data-a="done" data-v="'+id+'">'+esc(u.picked)+'</button>';
+      if(id==='dailymeds')h+='<button class="quiet" data-a="forgot">Oh shit I forgot</button>';
       if(st.lunch)h+='<button class="quiet" data-a="lunchsolo">'+esc(u.solo)+'</button>';
       if(!st.floor)h+='<button class="quiet" data-a="skip" data-v="'+id+'">'+esc(u.skip)+'</button>';
       h+='</div>';
@@ -1001,7 +1006,7 @@
     h+='</ul></div>';
     }
     if(id&&!S.doing)h+=parkCard();
-    h+='<div class="sect"><h3>'+esc(u.music)+'</h3><div class="music"><a class="btn alt" href="https://open.spotify.com" target="_blank" rel="noopener">Spotify</a><a class="btn alt" href="https://www.youtube.com" target="_blank" rel="noopener">YouTube playlist</a></div></div>';
+    h+='<div class="sect"><h3>'+esc(u.music)+'</h3><div class="music"><a class="btn alt" href="https://open.spotify.com" target="_blank" rel="noopener">Spotify</a><a class="btn alt" href="https://youtube.com/playlist?list=PLObp3SAH0hnY&si=vXpF5x_9PXO8uPWp" target="_blank" rel="noopener">YouTube playlist</a></div></div>';
     return h;
   }
 
@@ -1028,8 +1033,16 @@
       S.opts[kind].forEach(function(n){h+='<button data-a="togopt" data-k="'+kind+'" data-s="'+scope+'" data-v="'+esc(n)+'" aria-pressed="'+(sel.indexOf(n)>=0)+'">'+esc(n)+'</button>'});
       h+='</div>';
     }
-    h+='<form class="add" data-a="addopt" data-k="'+kind+'" data-s="'+scope+'" style="margin-top:0"><input type="text" id="new-'+scope+'-'+kind+'" placeholder="'+K.add+'" aria-label="'+K.add+'"><button type="submit">Add</button></form></div>';
+    h+='<form class="add" data-a="addopt" data-k="'+kind+'" data-s="'+scope+'" style="margin-top:0"><input type="text" id="new-'+scope+'-'+kind+'" placeholder="'+K.add+'" aria-label="'+K.add+'"><button type="submit">Add</button></form>'+suggUI(kind,scope)+'</div>';
     return h;
+  }
+var SUGG={meds:['Rescue med','OTC painkiller']};
+  function suggUI(kind,scope){
+    var l=(SUGG[kind]||[]).filter(function(s){return S.opts[kind].every(function(x){return x.toLowerCase()!==s.toLowerCase()})});
+    if(!l.length)return '';
+    var h='<div class="medsugg" role="group" aria-label="Suggestions"><span class="small">Suggestions</span>';
+    l.forEach(function(s){h+='<button type="button" data-a="sugopt" data-k="'+kind+'" data-s="'+scope+'" data-v="'+esc(s)+'">'+esc(s)+'</button>'});
+    return h+'</div>';
   }
   function selOf(scope,kind){return scope==='rp'?S.rp.meds:S.f[kind]}
   function sevUI(cur,act){
@@ -1267,7 +1280,7 @@
     if(_hk&&_hk===render.lastHero){app.querySelectorAll('.hero').forEach(function(e){e.style.animation='none'})}
     render.lastHero=_hk;
     var _l=document.querySelector('.lot'),_st=_l?_l.scrollTop:0;
-    document.getElementById('sheetRoot').innerHTML=fx(roughSheet()+menuSheet()+evSheet()+skipSheet()+nameSheet()+tkSheet()+lotSheet()+plSheet()+fab()+welcomeSheet());
+    document.getElementById('sheetRoot').innerHTML=fx(roughSheet()+menuSheet()+evSheet()+skipSheet()+forgotSheet()+nameSheet()+tkSheet()+lotSheet()+plSheet()+fab()+welcomeSheet());
     var _l2=document.querySelector('.lot');if(_l2)_l2.scrollTop=_st;
   }
 
@@ -1286,7 +1299,7 @@
   function keepOpen(){var ids=openIds();render();reopen(ids)}
   function resetForm(){S.f={sels:[],sev:null,meds:[],trig:[],symp:[]}}
   function keepSheet(fn){var sh=document.querySelector('.sheet'),st=sh?sh.scrollTop:0;fn();var s2=document.querySelector('.sheet');if(s2)s2.scrollTop=st}
-  function closeSheets(){S.menu=false;S.rp=null;S.ev=null;S.ns=null;S.tk=null;S.pl=null;S.sq=null}
+  function closeSheets(){S.menu=false;S.rp=null;S.ev=null;S.ns=null;S.tk=null;S.pl=null;S.sq=null;S.fg=null}
 
   var A={
     appear:function(b){keepSheet(function(){S.appear=b.dataset.v;save('gs-appear',S.appear);applyLook();render()})},
@@ -1297,7 +1310,7 @@
     stuck:function(){S.chat.open=true;render();chatRender();focusChat()},
     cclose:function(){chatClose()},
     cbg:function(b,e){if(e.target===b)chatClose()},
-    cnew:function(){if(CHATCTL)CHATCTL.abort();S.chat.opts=null;S.chat.act=[];S.chat.msgs=[];S.chat.err='';S.chat.retry='';S.chat.busy=false;chatRender();focusChat()},
+    cnew:function(){if(CHATCTL)CHATCTL.abort();S.chat.opts=null;S.chat.act=[];S.chat.msgs=[];S.chat.err='';S.chat.retry='';S.chat.busy=false;S.chat.wait=false;chatRender();focusChat()},
     cstop:function(){if(CHATCTL)CHATCTL.abort()},
     cstart:function(b){if(S.noAI)helpPick(b.dataset.v);else chatSend(b.dataset.v)},
     chp:function(b){helpPick(b.dataset.v)},
@@ -1423,10 +1436,20 @@
       q.n++;render()
     },
     sqno:function(){S.sq=null;render()},
+    sugopt:function(b){
+      var kind=b.dataset.k,sc=b.dataset.s,name=b.dataset.v,arr=selOf(sc,kind);
+      if(S.opts[kind].indexOf(name)<0){S.opts[kind].push(name);save(KINDS[kind].store,S.opts[kind])}
+      if(arr.indexOf(name)<0)arr.push(name);
+      var fid='new-'+sc+'-'+kind;
+      keepAll(render);var nm=document.getElementById(fid);if(nm)nm.focus()
+    },
+    forgot:function(){S.fg=true;render()},
+    fgok:function(){S.fg=null;logIt('Forgot morning meds',null,false);S.status.dailymeds='skip';render()},
+    fgbg:function(b,e){if(e.target===b){S.fg=null;render()}},
     sqbg:function(b,e){if(e.target===b){S.sq=null;render()}},
     recime:function(){toast('Opening a recipe search.')},
-    lunch:function(){toast('Prototype: the real app would draft a quick "lunch?" text to §P.')},
-    lunchsolo:function(){toast('Got it. Lunch stays in your plan so it does not get skipped.')},
+    lunch:function(){S.status.lunch='done';render();toast('Prototype: the real app would draft a quick "lunch?" text to §P.')},
+    lunchsolo:function(){S.status.lunch='done';render();toast('Got it. Lunch is on your own today.')},
     rough:function(){S.rp={mig:false,sev:null,meds:[]};render()},
     rmig:function(){S.rp.mig=!S.rp.mig;if(!S.rp.mig){S.rp.sev=null;S.rp.meds=[]}keepAll(render)},
     rsev:function(b){keepAll(function(){S.rp.sev=S.rp.sev===b.dataset.v?null:b.dataset.v;render()})},
@@ -1523,6 +1546,7 @@
     var b=e.target.closest('[data-a]');if(!b||b.tagName==='FORM')return;
     var f=A[b.dataset.a];if(f)f(b,e);
   });
+  document.addEventListener('mousedown',function(e){if(e.target.closest&&e.target.closest('.medsugg button'))e.preventDefault()});
   document.addEventListener('toggle',function(e){var t=e.target;if(t&&t.dataset&&t.dataset.f)S.filt=t.open},true);
   document.addEventListener('submit',function(e){
     var f=e.target.closest('form[data-a]');if(!f)return;e.preventDefault();
@@ -1650,10 +1674,16 @@
   };
   function helpPick(l){
     var c=S.chat,node=(c.opts&&c.opts[l])||HELP[l];if(!node)return;
-    c.msgs.push({r:'u',t:l});
-    if(node.q){c.msgs.push({r:'a',t:node.q});c.opts=node.o;c.act=[]}
-    else{c.msgs.push({r:'a',t:node.a});c.opts=null;c.act=node.act||[]}
-    chatRender();
+    if(c.wait)return;
+    c.msgs.push({r:'u',t:l,fresh:1});c.wait=true;chatRender();
+    var reply=node.q||node.a,ms=650+Math.min(reply.length*11,950);
+    setTimeout(function(){
+      if(S.chat!==c||!c.wait)return;
+      c.wait=false;
+      c.msgs.push({r:'a',t:reply,fresh:1});
+      if(node.q){c.opts=node.o;c.act=[]}else{c.opts=null;c.act=node.act||[]}
+      if(c.open)chatRender()
+    },ms);
   }
   function chatRules(){
     var tk=ymd(new Date()),evs=evsOn(tk).map(function(ev){return ev.title+' at '+fmt(tmin(ev.time))}).join('; ')||'none',nx=nextId(),L=LOGICS[S.logic],pk=S.tasks.filter(function(t){return !t.done}).slice(0,6).map(function(t){return t.title}).join('; ')||'none';
@@ -1665,15 +1695,17 @@
       'App context: it is the '+S.part+' (about '+fmt(SIM[S.part])+'). Next routine step: '+(nx?stepOf(nx).t:'none left')+'. Plans today: '+evs+'. Parking lot (tasks with no set time): '+pk+'. '+(PROF&&PROF.partner?' Her partner is §P.':'')+(PROF&&PROF.pet?' Her pet is §C.':'')+' Voice for this reply: '+L.voice+(S.logic==='mammal'?' Today\'s mood: '+MOODS[S.mood].name+' ('+MOODS[S.mood].desc+').'+(S.mood==='dreamy'?' Remind her gently that fun things will still be there later, that doing the hard thing first is worth celebrating, and that she is never not allowed to have fun.':''):''),
       'Only use the app context if it is relevant; do not recite it.'].join('\n\n'));
   }
-  function bub(r,t,busy){return '<div class="bub '+r+(busy?' dots':'')+'">'+(busy?'<span></span><span></span><span></span>':esc(t))+'</div>'}
+  function bub(r,t,busy,fresh){return '<div class="bub '+r+(busy?' dots':'')+(fresh?' in':'')+'">'+(busy?'<span></span><span></span><span></span>':esc(t))+'</div>'}
   function chatRender(){
     var root=document.getElementById('chatRoot'),c=S.chat,old=document.getElementById('chatin'),val=old?old.value:'';
     if(!c.open){root.innerHTML='';return}
     var u=U(),h='<div class="backdrop" data-a="cbg"><div class="sheet chatsheet" role="dialog" aria-modal="true" aria-label="Stuck helper"><div class="between"><h2 style="font-size:22px">'+esc(u.ctitle)+'</h2><div class="row" style="gap:4px"><button class="quiet" data-a="cnew">New chat</button><button class="x" data-a="cclose" aria-label="Close">&times;</button></div></div><div class="msgs" id="msgs" aria-live="polite">';
     h+=bub('a',S.noAI?(S.logic==='mammal'?'Hello, little one. What is going on in the den? Tap whichever is closest.':'Hi. What is going on? Tap whichever is closest.'):u.hello);
-    c.msgs.forEach(function(m,i){h+=bub(m.r,m.t,c.busy&&i===c.msgs.length-1&&m.r==='a'&&!m.t)});
+    c.msgs.forEach(function(m,i){h+=bub(m.r,m.t,c.busy&&i===c.msgs.length-1&&m.r==='a'&&!m.t,m.fresh);m.fresh=0});
+    if(S.noAI&&c.wait)h+=bub('a','',true,true);
     h+='</div>';
-    if(!c.msgs.length){h+='<div class="chips sm">';STARTERS.forEach(function(q){h+='<button data-a="cstart" data-v="'+esc(q)+'">'+esc(q)+'</button>'});h+='</div>'}
+    if(S.noAI&&c.wait){}
+    else if(!c.msgs.length){h+='<div class="chips sm">';STARTERS.forEach(function(q){h+='<button data-a="cstart" data-v="'+esc(q)+'">'+esc(q)+'</button>'});h+='</div>'}
     else if(S.noAI&&c.opts){h+='<div class="chips sm">';Object.keys(c.opts).forEach(function(q){h+='<button data-a="chp" data-v="'+esc(q)+'">'+esc(q)+'</button>'});h+='</div>'}
     else if(S.noAI){
       var acts=(c.act||[]).filter(function(k){return k!=='pl'||plPool().length>=2});
@@ -1724,7 +1756,7 @@
   document.addEventListener('submit',function(e){if(e.target&&e.target.id==='chatform'){e.preventDefault();var i=document.getElementById('chatin');if(i)chatSend(i.value)}});
 
   /* ---- swipe a sheet down to close it ---- */
-  var SW=null,CLOSERS={mbg:'mclose',rbg:'rcancel',evbg:'evclose',nbg:'ncancel',sqbg:'sqno',cbg:'cclose',tkbg:'tkclose',plbg:'plclose'};
+  var SW=null,CLOSERS={mbg:'mclose',rbg:'rcancel',evbg:'evclose',nbg:'ncancel',sqbg:'sqno',fgbg:'fgbg',cbg:'cclose',tkbg:'tkclose',plbg:'plclose'};
   document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&e.target.id==='tk-step'){e.preventDefault();A.tkstepadd()}});
   document.addEventListener('touchstart',function(e){
     if(D||!e.touches||e.touches.length!==1)return;
