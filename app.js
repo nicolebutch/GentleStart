@@ -329,7 +329,7 @@
       lowNote:'Low battery: just the essentials. The den can wait. Nothing is overdue.',
       hello:'Hello, little one. What is going on in the den?',ctitle:'Lost in the brush?'
     },
-    tiny:{next:'First 30 seconds',allset:'That was enough',routine:function(p){return 'Tiny steps for '+p},skip:'Not this one',hello:'Hi. Tell me what you are stuck on. Small is fine.'},
+    tiny:{next:'First 30 seconds',allset:'That was enough',routine:function(p){return 'Tiny steps for '+p},skip:"I'm skipping",sq:true,hello:'Hi. Tell me what you are stuck on. Small is fine.'},
     low:{greet:function(l){return 'Soft '+l.toLowerCase()+', §N.'},next:'Just this',allset:'Basics covered',routine:function(p){return 'The basics for '+p},rough:'Rougher than usual? Tap here.'}
   };
   var ALT={
@@ -915,6 +915,17 @@
     h+='<button class="btn" data-a="evsave">Save</button>'+(E.id?'<button class="quiet" data-a="evdel">Delete this plan</button>':'')+'<button class="quiet" data-a="evclose">Cancel</button></div></div>';
     return h;
   }
+  var SQ=[
+    {t:'Are you sure?',y:'Yes',n:"No, I'll do it"},
+    {t:'Okay, but are you really sure?',y:"What? Yeah, I'm sure",n:'Ugh, fine'},
+    {t:'I hate to keep annoying you, but you said you would do it...',y:'What is going on with these popups??',n:"I'll do it but just to stop the popups"},
+    {t:'PLEASE????',y:'This popup slop actually pissed me off enough to actually do it'}
+  ];
+  function skipSheet(){
+    if(!S.sq)return '';
+    var q=S.sq.id==='clothes'?SQ[0]:SQ[S.sq.n];
+    return '<div class="backdrop" data-a="sqbg"><div class="sheet" role="alertdialog" aria-modal="true" aria-label="'+esc(q.t)+'"><h2 style="font-size:24px;text-align:center">'+esc(q.t)+'</h2><button class="btn" data-a="sqyes">'+esc(q.y)+'</button>'+(q.n?'<button class="quiet" style="text-align:center" data-a="sqno">'+esc(q.n)+'</button>':'')+'</div></div>';
+  }
   function nameSheet(){
     if(!S.ns)return '';
     var st=stackById(S.ns.id);if(!st)return '';
@@ -1255,7 +1266,7 @@
     if(_hk&&_hk===render.lastHero){app.querySelectorAll('.hero').forEach(function(e){e.style.animation='none'})}
     render.lastHero=_hk;
     var _l=document.querySelector('.lot'),_st=_l?_l.scrollTop:0;
-    document.getElementById('sheetRoot').innerHTML=fx(roughSheet()+menuSheet()+evSheet()+nameSheet()+tkSheet()+lotSheet()+plSheet()+fab()+welcomeSheet());
+    document.getElementById('sheetRoot').innerHTML=fx(roughSheet()+menuSheet()+evSheet()+skipSheet()+nameSheet()+tkSheet()+lotSheet()+plSheet()+fab()+welcomeSheet());
     var _l2=document.querySelector('.lot');if(_l2)_l2.scrollTop=_st;
   }
 
@@ -1274,7 +1285,7 @@
   function keepOpen(){var ids=openIds();render();reopen(ids)}
   function resetForm(){S.f={sels:[],sev:null,meds:[],trig:[],symp:[]}}
   function keepSheet(fn){var sh=document.querySelector('.sheet'),st=sh?sh.scrollTop:0;fn();var s2=document.querySelector('.sheet');if(s2)s2.scrollTop=st}
-  function closeSheets(){S.menu=false;S.rp=null;S.ev=null;S.ns=null;S.tk=null;S.pl=null}
+  function closeSheets(){S.menu=false;S.rp=null;S.ev=null;S.ns=null;S.tk=null;S.pl=null;S.sq=null}
 
   var A={
     appear:function(b){keepSheet(function(){S.appear=b.dataset.v;save('gs-appear',S.appear);applyLook();render()})},
@@ -1403,7 +1414,15 @@
     tab:function(b){S.tab=b.dataset.v;render();window.scrollTo(0,0)},
     part:function(b){S.part=b.dataset.v;S.shift=0;render()},
     done:function(b){S.status[b.dataset.v]='done';render()},
-    skip:function(b){S.status[b.dataset.v]='skip';render();toast('Marked as skipped.')},
+    skip:function(b){if(U().sq){S.sq={id:b.dataset.v,n:0};render();return}S.status[b.dataset.v]='skip';render();toast('Marked as skipped.')},
+    sqyes:function(){
+      var q=S.sq;if(!q)return;
+      if(q.id==='clothes'){S.status[q.id]='skip';S.sq=null;render();toast("It's no fun if EVERY task has friction \ud83d\ude42");return}
+      if(q.n>=SQ.length-1){S.sq=null;render();return}
+      q.n++;render()
+    },
+    sqno:function(){S.sq=null;render()},
+    sqbg:function(b,e){if(e.target===b){S.sq=null;render()}},
     recime:function(){toast('Opening a recipe search.')},
     lunch:function(){toast('Prototype: the real app would draft a quick "lunch?" text to §P.')},
     lunchsolo:function(){toast('Got it. Lunch stays in your plan so it does not get skipped.')},
@@ -1704,7 +1723,7 @@
   document.addEventListener('submit',function(e){if(e.target&&e.target.id==='chatform'){e.preventDefault();var i=document.getElementById('chatin');if(i)chatSend(i.value)}});
 
   /* ---- swipe a sheet down to close it ---- */
-  var SW=null,CLOSERS={mbg:'mclose',rbg:'rcancel',evbg:'evclose',nbg:'ncancel',cbg:'cclose',tkbg:'tkclose',plbg:'plclose'};
+  var SW=null,CLOSERS={mbg:'mclose',rbg:'rcancel',evbg:'evclose',nbg:'ncancel',sqbg:'sqno',cbg:'cclose',tkbg:'tkclose',plbg:'plclose'};
   document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&e.target.id==='tk-step'){e.preventDefault();A.tkstepadd()}});
   document.addEventListener('touchstart',function(e){
     if(D||!e.touches||e.touches.length!==1)return;
