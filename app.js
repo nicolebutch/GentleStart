@@ -251,7 +251,8 @@
     afternoon:{label:'Afternoon',steps:['lunch','jobs','pt'],done:{t:'Afternoon handled.',s:'Whatever happened, the afternoon is done. Evening is its own thing.'}},
     evening:{label:'Evening',steps:['muffinpm','dinner','tidy','tomorrow'],done:{t:'That is the day.',s:'Rest counts. Nothing carries over as overdue.'}}
   };
-  var FLOOR=['dailymeds','muffin','water','meal'];
+  var FLOORALL={morning:['dailymeds','teeth','clothes','muffin','water','meal'],afternoon:['lunch','jobs','pt'],evening:['muffinpm','dinner','tidy','tomorrow']};
+  var FLOORDEF=['dailymeds','muffin','water','meal','lunch','muffinpm','dinner'];
   var BASE_CHIPS=['Migraine','Rough morning','Slept badly','Good hobby session','Watered plants'];
   /* tile groups: a chip that opens a panel of more options. Migraine is the first one; more can be added later. */
   var GROUPS={Migraine:{title:'Migraine details'}};
@@ -287,6 +288,7 @@
     opts:{meds:load('gs-meds',[]),trig:load('gs-trig',['Poor sleep','Skipped a meal','Dehydration','Weather change','Stress','Bright light']),symp:load('gs-symp',['Aura','Nausea','Light sensitivity','Sound sensitivity','Brain fog','Neck tension'])},
     f:{sels:[],sev:null,meds:[],trig:[],symp:[]}};
   BASE_CHIPS.forEach(function(c,i){if(S.colors[c]===undefined)S.colors[c]=i});
+  S.floorIds=load('gs-floor',null);if(!Array.isArray(S.floorIds))S.floorIds=FLOORDEF.slice();
   S.cats=load('gs-cats',null);if(!S.cats)S.cats=BASE_CHIPS.filter(function(c){return c!=='Migraine'}).concat(S.custom);S.ce=null;S.catEdit=false;S.justOpen=null;
   S.look=load('gs-look','original');if(S.look==='greenhouse')S.look='original';if(!LOOKS[S.look])S.look='original';
   S.cw=load('gs-cw',null);if(!CWS[S.cw])S.cw=LOOKS[S.look].cw;
@@ -366,7 +368,8 @@
   };
   /* clock mode: start minute and length for each step */
   var TIMES={dailymeds:[540,5],teeth:[545,10],clothes:[555,10],muffin:[565,10],water:[575,5],meal:[580,30],lunch:[750,45],jobs:[810,20],pt:[840,30],muffinpm:[1050,10],dinner:[1080,45],tidy:[1140,10],tomorrow:[1160,10]};
-  var LOWSTEPS={morning:FLOOR,afternoon:['lunch'],evening:['muffinpm','dinner']};
+  function isFloor(id){return S.floorIds.indexOf(id)>=0}
+  function floorSteps(p){return FLOORALL[p].filter(isFloor)}
   S.logic=load('gs-logic','gentle');if(!LOGICS[S.logic])S.logic='gentle';
   S.mt='themes';S.appear=load('gs-appear','auto');if(['auto','light','dark'].indexOf(S.appear)<0)S.appear='auto';S.shift=0;S.noAI=false;
   S.chat={open:false,msgs:[],busy:false,err:'',retry:''};
@@ -714,7 +717,7 @@
   /* ---- planner view (On the clock): the whole day, hour by hour ---- */
   function planItem(x){
     if(x.k==='r'){var st=S.status[x.id];return '<button class="pi r'+(st==='done'?' done':st==='skip'?' skip':'')+'" data-a="ptog" data-v="'+x.id+'"><b>'+esc(nmOf(x.id))+'</b><small>'+fmtRange(x.start,x.dur)+'</small></button>'}
-    var ev=x.ev;return '<button class="pi e" data-a="evedit" data-v="'+esc(ev.id)+'"><b>'+esc(ev.title)+'</b><small>'+fmtRange(x.start,x.dur)+(ev.place?', '+esc(ev.place):'')+'</small></button>';
+    var ev=x.ev;return '<button class="pi e'+(ev.by==='p'?' pj':'')+'" data-a="evedit" data-v="'+esc(ev.id)+'"><b>'+(ev.by==='p'?'§P\u2019s: ':'')+esc(ev.title)+'</b><small>'+fmtRange(x.start,x.dur)+(ev.place?', '+esc(ev.place):'')+'</small></button>';
   }
   function plannerCard(){
     var tk=ymd(new Date()),now=SIM[S.part],items=[],rows='';
@@ -735,7 +738,7 @@
   function ovMonthStart(){var n=new Date();return new Date(n.getFullYear(),n.getMonth()+S.ovMo,1)}
   function wkEv(ev,k){
     var st=tmin(ev.time),end=st+(ev.dur||0);
-    return '<button class="wkev'+(ev.withJ?' wj':'')+'" data-a="evedit" data-v="'+esc(ev.id)+'"><small>'+fmt(st)+(ev.dur?' to '+fmt(end):'')+'</small><b>'+esc(ev.title)+'</b>'+(ev.place?'<span class="small">'+esc(ev.place)+'</span>':'')+'</button>';
+    return '<button class="wkev'+(ev.withJ||ev.by==='p'?' wj':'')+'" data-a="evedit" data-v="'+esc(ev.id)+'"><small>'+(ev.by==='p'?'§P\u2019s, ':'')+fmt(st)+(ev.dur?' to '+fmt(end):'')+'</small><b>'+esc(ev.title)+'</b>'+(ev.place?'<span class="small">'+esc(ev.place)+'</span>':'')+'</button>';
   }
   function ovWeek(){
     var h='<p class="small">Swipe sideways for the rest of the week.</p><div class="wkrow" role="list">';
@@ -861,7 +864,7 @@
     var now=SIM[S.part],tk=ymd(new Date()),best=null;
     evsOn(tk).forEach(function(ev){
       var st=tmin(ev.time);
-      if(now>=st||S.evReady[ev.id]||S.evHide[ev.id])return;
+      if(ev.by==='p'||now>=st||S.evReady[ev.id]||S.evHide[ev.id])return;
       if(now>=leaveBy(ev)-U().win&&!best)best=ev;
     });
     return best;
@@ -870,6 +873,7 @@
   function evRow(ev,key,now,qt){
     var st=tmin(ev.time),end=st+(ev.dur||0),isToday=key===ymd(new Date());
     var past=isToday&&now>=(ev.dur?end:st+30),cur=isToday&&!past&&now>=st,tags='';
+    if(ev.by==='p')tags+=tag('§P\u2019s');
     if(ev.ex)tags+=tag('Example');
     if(cur)tags+=tag('Now','now');
     if(isToday&&!past&&!cur&&ev.travel)tags+=tag('Leave by '+fmt(leaveBy(ev)),'now');
@@ -889,7 +893,7 @@
     if(up)h+='<div class="dayhead">'+esc(U().up)+'</div><div class="evlist">'+up+'</div>';
     return h+'</div>';
   }
-  function newEv(){return {id:null,title:'',dk:'today',dateVal:'',time:'',dur:60,place:'',travel:0,prep:'',withJ:false,share:'full',err:''}}
+  function newEv(){return {id:null,by:'me',title:'',dk:'today',dateVal:'',time:'',dur:60,place:'',travel:0,prep:'',withJ:false,share:'full',err:''}}
   function syncEv(){
     var E=S.ev;if(!E)return;
     [['ev-title','title'],['ev-time','time'],['ev-place','place'],['ev-prep','prep'],['ev-date','dateVal']].forEach(function(p){var e=document.getElementById(p[0]);if(e)E[p[1]]=e.value});
@@ -901,9 +905,10 @@
   }
   function evSheet(){
     var E=S.ev;if(!E)return '';
-    var ttl=E.id?'Edit plan':'Add a plan';
+    var ttl=E.id?'Edit plan':(E.by==='p'?'Add to §P&rsquo;s schedule':'Add a plan');
     var h='<div class="backdrop" data-a="evbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="'+ttl+'"><div class="between"><h2 style="font-size:24px">'+ttl+'</h2><button class="x" data-a="evclose" aria-label="Close">&times;</button></div>';
     if(E.err)h+='<div class="note" role="alert">'+esc(E.err)+'</div>';
+    if(PROF&&PROF.partner)h+='<div class="grp"><div class="lab">Whose is it</div>'+evChips('evby',E.by,[['me','Mine'],['p','§P&rsquo;s']])+(E.by==='p'?'<p class="small">Something on §P&rsquo;s day you want to plan around, like a lunch break or a late shift. It shows with a tag, and it never sends you a leave-by reminder.</p>':'')+'</div>';
     h+='<div class="grp"><div class="lab">What is it</div><input class="field" type="text" id="ev-title" value="'+esc(E.title)+'" placeholder="e.g. Dentist" aria-label="What is it"><div class="chips sm" style="margin-top:8px">';
     ['Appointment','Hobby','Dinner out','Call','Errand'].forEach(function(q){h+='<button data-a="evquick" data-v="'+q+'">'+q+'</button>'});
     h+='</div></div>';
@@ -912,9 +917,9 @@
     h+='<input class="field" type="time" id="ev-time" value="'+esc(E.time)+'" aria-label="Start time" style="margin-top:8px"></div>';
     h+='<div class="grp"><div class="lab">How long</div>'+evChips('evdur',E.dur,[[0,'No end time'],[30,'30 min'],[60,'1 hr'],[90,'1.5 hr'],[120,'2 hr'],[180,'3 hr']])+'</div>';
     h+='<div class="grp"><div class="lab">Where (optional)</div><input class="field" type="text" id="ev-place" value="'+esc(E.place)+'" placeholder="e.g. Main Street clinic" aria-label="Where"></div>';
-    h+='<div class="grp"><div class="lab">Travel time (optional)</div>'+evChips('evtravel',E.travel,[[0,'None'],[10,'10 min'],[20,'20 min'],[30,'30 min'],[45,'45 min'],[60,'1 hr']])+'<p class="small">Used to tell you when to start getting ready. It adds 10 minutes of buffer.</p></div>';
-    h+='<div class="grp"><div class="lab">Before you go (optional)</div><input class="field" type="text" id="ev-prep" value="'+esc(E.prep)+'" placeholder="e.g. Bring your insurance card" aria-label="Before you go"></div>';
-    h+='<div class="grp"><div class="lab">§P</div><div class="chips sm"><button data-a="evwj" aria-pressed="'+E.withJ+'">§P is coming too</button></div>'
+    if(E.by!=='p')h+='<div class="grp"><div class="lab">Travel time (optional)</div>'+evChips('evtravel',E.travel,[[0,'None'],[10,'10 min'],[20,'20 min'],[30,'30 min'],[45,'45 min'],[60,'1 hr']])+'<p class="small">Used to tell you when to start getting ready. It adds 10 minutes of buffer.</p></div>';
+    if(E.by!=='p')h+='<div class="grp"><div class="lab">Before you go (optional)</div><input class="field" type="text" id="ev-prep" value="'+esc(E.prep)+'" placeholder="e.g. Bring your insurance card" aria-label="Before you go"></div>';
+    if(E.by!=='p')h+='<div class="grp"><div class="lab">§P</div><div class="chips sm"><button data-a="evwj" aria-pressed="'+E.withJ+'">§P is coming too</button></div>'
       +'<div class="lab" style="margin-top:8px">What §P sees</div>'+evChips('evshare',E.share,[['full','Show details'],['generic','Just "Appointment"'],['hidden','Keep private']])+'</div>';
     h+='<button class="btn" data-a="evsave">Save</button>'+(E.id?'<button class="quiet" data-a="evdel">Delete this plan</button>':'')+'<button class="quiet" data-a="evclose">Cancel</button></div></div>';
     return h;
@@ -951,7 +956,7 @@
     if(S.colors[label]===undefined){var n=Object.keys(S.colors).length;S.colors[label]=n%8;save('gs-colors',S.colors)}
     return 'var(--c'+(S.colors[label]%8)+')';
   }
-  function steps(){if(lowMode())return LOWSTEPS[S.part];return (S.part==='morning'&&S.floor)?FLOOR:PARTS[S.part].steps}
+  function steps(){if(lowMode())return floorSteps(S.part);return (S.part==='morning'&&S.floor)?floorSteps('morning'):PARTS[S.part].steps}
   function nextId(){var a=steps();for(var i=0;i<a.length;i++){if(!S.status[a[i]])return a[i]}return null}
   function toast(m){var t=document.getElementById('toast');t.textContent=fxt(m);t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true},3200)}
   function keepAll(fn){var m={};document.querySelectorAll('input[type=text],input[type=time],input[type=date]').forEach(function(i){if(i.id)m[i.id]=i.value});fn();Object.keys(m).forEach(function(id){var e=document.getElementById(id);if(e)e.value=m[id]})}
@@ -963,9 +968,8 @@
     var h=head({eyebrow:d,title:u.greet(P.label)});
     if(creature()){h+='<div class="sim"><small>How are you feeling today?</small><div class="seg mood">';Object.keys(MOODS).forEach(function(k){h+='<button data-a="mood" data-v="'+k+'" aria-pressed="'+(S.mood===k)+'">'+MOODS[k].name+'</button>'});h+='</div></div>'}
     if(!lowMode()){
-      h+='<div class="sim"><small>Prototype control: see the day at</small><div class="seg">';
-      ['morning','afternoon','evening'].forEach(function(k){h+='<button data-a="part" data-v="'+k+'" aria-pressed="'+(S.part===k)+'">'+PARTS[k].label+'</button>'});
-      h+='</div></div>';
+      var simT=SIM[S.part];
+      h+='<div class="sim"><small>Prototype control: see the day at <b id="simlbl">'+fmt(simT)+'</b><span id="simpart"> ('+PARTS[S.part].label.toLowerCase()+')</span></small><input type="range" id="simslider" min="360" max="1380" step="15" value="'+simT+'" aria-label="Time of day, for testing" aria-valuetext="'+fmt(simT)+'"><div class="simticks" aria-hidden="true"><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>11 PM</span></div><small>For app testing only. The finished app follows your real clock.</small></div>';
     }
     if(lowMode())h+='<div class="note">'+esc(u.lowNote)+'</div>';
     else if(S.part==='morning'&&S.floor)h+='<div class="note">'+esc(u.floorNote)+'</div>';
@@ -991,7 +995,7 @@
       if(st.meal)h+='<button class="quiet" data-a="done" data-v="'+id+'">'+esc(u.picked)+'</button>';
       if(id==='dailymeds')h+='<button class="quiet" data-a="forgot">Oh shit I forgot</button>';
       if(st.lunch)h+='<button class="quiet" data-a="lunchsolo">'+esc(u.solo)+'</button>';
-      if(!st.floor)h+='<button class="quiet" data-a="skip" data-v="'+id+'">'+esc(u.skip)+'</button>';
+      if(!isFloor(id))h+='<button class="quiet" data-a="skip" data-v="'+id+'">'+esc(u.skip)+'</button>';
       h+='</div>';
       if(S.logic==='clock')h+='<div class="row"><button class="quiet" data-a="slide">Running behind? Slide the rest 15 min later</button>'+(S.shift?'<button class="quiet" data-a="unslide">Reset times</button>':'')+'</div>';
       h+=roughRow(u)+'</section>';
@@ -1195,6 +1199,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       g[1].forEach(function(n){
         var k=ymd(addDays(new Date(),n));
         evsOn(k).forEach(function(ev){
+          if(ev.by==='p')return;
           if(ev.share==='hidden'){hidden++;return}
           var pre=(g[0]==='Later this week')?'<span class="small">'+esc(dayLabel(k))+'</span>':'';
           rows+=pre+usRow(ev);
@@ -1206,6 +1211,13 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     if(hidden)h+='<p class="small">'+hidden+' private plan'+(hidden===1?'':'s')+' not shown to §P.</p>';
     h+='<div class="card"><details class="tuck"><summary>Flexible today (3)</summary><ul><li>Chores</li><li>Project work</li><li>Art project</li></ul></details></div>';
     h+='<p class="small">Shared plans, like dinner out, appear once for both of you.</p>';
+    if(PROF&&PROF.partner){
+      h+='<div class="card"><div class="between"><h3>§P&rsquo;s schedule</h3><button class="addbtn" data-a="evnewp">+ Add</button></div><p class="small">Things on §P&rsquo;s day you want to plan around, like a lunch break or a late shift. Only you see these, and they show up on your Overview.</p>';
+      var pr='';
+      for(var n=0;n<8;n++){var kk=ymd(addDays(new Date(),n));evsOn(kk).forEach(function(ev){if(ev.by==='p')pr+='<button class="ev" data-a="evedit" data-v="'+esc(ev.id)+'"><span class="tm">'+fmt(tmin(ev.time))+'<small>'+esc(dayLabel(kk))+'</small></span><span class="bd"><b>'+esc(ev.title)+'</b>'+(ev.place?'<span class="small">'+esc(ev.place)+'</span>':'')+'</span></button>'})}
+      h+=pr?'<div class="evlist">'+pr+'</div>':'<p class="small">Nothing added yet.</p>';
+      h+='</div>';
+    }
     return h;
   }
 
@@ -1271,6 +1283,15 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
         h+='</div><p class="small">Auto follows the calendar. Pick one to preview its colors and creatures.</p></div>';
       }
     }
+    if(S.mt==='logic'){
+      h+='<div class="grp"><div class="lab">Don&rsquo;t let me skip these</div><p class="small">Pick the things that always count. They never get a skip button, and they are what shows in floor mode and on low-battery days.</p>';
+      [['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].forEach(function(p){
+        h+='<div class="lab" style="margin-top:8px">'+p[1]+'</div><div class="chips sm" role="group" aria-label="'+p[1]+'">';
+        FLOORALL[p[0]].forEach(function(id){h+='<button data-a="flrtog" data-v="'+id+'" aria-pressed="'+isFloor(id)+'">'+esc(NAMES[id])+'</button>'});
+        h+='</div>';
+      });
+      h+='</div>';
+    }
     h+='<p class="small">More settings will live here as we build them.</p></div></div>';
     return h;
   }
@@ -1285,8 +1306,10 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
 
   function render(){
     var app=document.getElementById('app');
+    var _sl=document.getElementById('simslider'),keepSl=(_sl&&document.activeElement===_sl)?_sl:null;
     app.classList.toggle('wide',S.tab==='ov');
     app.innerHTML=fx(S.tab==='today'?today():S.tab==='ov'?overview():S.tab==='lists'?lists():S.tab==='log'?logview():us());
+    if(keepSl){var _ns=document.getElementById('simslider');if(_ns&&_ns.parentNode)_ns.parentNode.replaceChild(keepSl,_ns)}
     document.getElementById('tabs').innerHTML=fx(tabs());
     var _hh=app.querySelector('.hero h2'),_hk=_hh?_hh.textContent:'';
     if(_hk&&_hk===render.lastHero){app.querySelectorAll('.hero').forEach(function(e){e.style.animation='none'})}
@@ -1486,6 +1509,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       if(id==='mig'){var was=S.f.sels.indexOf('Migraine')>=0;toggleSel('Migraine');if(!was)S.justOpen='mig'}
       else{var i=S.openStacks.indexOf(id);if(i>=0)S.openStacks.splice(i,1);else{S.openStacks.push(id);S.justOpen=id}}
       render();S.justOpen=null})},
+    flrtog:function(b){keepSheet(function(){var id=b.dataset.v,i=S.floorIds.indexOf(id);if(i>=0)S.floorIds.splice(i,1);else S.floorIds.push(id);save('gs-floor',S.floorIds);render()})},
     catmode:function(){S.catEdit=!S.catEdit;keepAll(render)},
     catedit:function(b){S.ce={label:b.dataset.v,name:b.dataset.v};render();var i=document.getElementById('ce-name');if(i){i.focus();i.select()}},
     cesave:function(){
@@ -1525,10 +1549,11 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     nbg:function(b,e){if(e.target===b){S.ns=null;save('gs-stacks',S.stacks);render()}},
     ncancel:function(){S.ns=null;render()},
     evnew:function(){S.ev=newEv();render()},
+    evnewp:function(){S.ev=newEv();S.ev.by='p';render()},
     evedit:function(b){
       var ev=S.events.filter(function(x){return x.id===b.dataset.v})[0];if(!ev)return;
       var k=evDate(ev),dk=k===ymd(new Date())?'today':k===ymd(addDays(new Date(),1))?'tomorrow':'other';
-      S.ev={id:ev.id,title:ev.title,dk:dk,dateVal:k,time:ev.time,dur:ev.dur||0,place:ev.place||'',travel:ev.travel||0,prep:ev.prep||'',withJ:!!ev.withJ,share:ev.share||'full',err:''};
+      S.ev={id:ev.id,by:ev.by||'me',title:ev.title,dk:dk,dateVal:k,time:ev.time,dur:ev.dur||0,place:ev.place||'',travel:ev.travel||0,prep:ev.prep||'',withJ:!!ev.withJ,share:ev.share||'full',err:''};
       render();
     },
     evclose:function(){S.ev=null;render()},
@@ -1537,6 +1562,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     evday:function(b){keepSheet(function(){syncEv();S.ev.dk=b.dataset.v;render()})},
     evdur:function(b){keepSheet(function(){syncEv();S.ev.dur=+b.dataset.v;render()})},
     evtravel:function(b){keepSheet(function(){syncEv();S.ev.travel=+b.dataset.v;render()})},
+    evby:function(b){keepSheet(function(){syncEv();S.ev.by=b.dataset.v;render()})},
     evwj:function(){keepSheet(function(){syncEv();S.ev.withJ=!S.ev.withJ;render()})},
     evshare:function(b){keepSheet(function(){syncEv();S.ev.share=b.dataset.v;render()})},
     evsave:function(){
@@ -1546,10 +1572,10 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       else if(E.dk==='other'&&!E.dateVal)E.err='Pick the day.';
       if(E.err){keepSheet(render);return}
       var date=E.dk==='today'?ymd(new Date()):E.dk==='tomorrow'?ymd(addDays(new Date(),1)):E.dateVal;
-      var rec={id:E.id||('e'+Date.now()),title:E.title.trim(),date:date,time:E.time,dur:E.dur,place:E.place.trim(),travel:E.travel,prep:E.prep.trim(),withJ:E.withJ,share:E.share};
+      var rec={id:E.id||('e'+Date.now()),title:E.title.trim(),date:date,time:E.time,dur:E.dur,place:E.place.trim(),travel:E.travel,prep:E.prep.trim(),withJ:E.withJ,share:E.share,by:E.by==='p'?'p':undefined};
       var idx=-1;S.events.forEach(function(x,i){if(x.id===rec.id)idx=i});
       if(idx>=0)S.events[idx]=rec;else S.events.push(rec);
-      save('gs-events',S.events);S.ev=null;render();toast('Saved. §P sees it the way you set it.');
+      save('gs-events',S.events);S.ev=null;render();toast(E.by==='p'?'Saved. It is on the schedule so you can plan around it.':'Saved. §P sees it the way you set it.');
     },
     evdel:function(){
       var id=S.ev&&S.ev.id;S.events=S.events.filter(function(x){return x.id!==id});
@@ -1591,6 +1617,19 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     var f=A[b.dataset.a];if(f)f(b,e);
   });
   document.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target&&e.target.matches&&e.target.matches('li[data-a="stepclick"]')){e.preventDefault();e.target.click()}});
+  document.addEventListener('input',function(e){
+    var t=e.target;if(!t||t.id!=='simslider')return;
+    var v=+t.value,np=v<720?'morning':v<1020?'afternoon':'evening';
+    if(np!==S.part){S.part=np;S.shift=0}
+    SIM.morning=SIM.afternoon=SIM.evening=v;
+    var lb=document.getElementById('simlbl'),pt=document.getElementById('simpart');
+    if(lb)lb.textContent=fmt(v);if(pt)pt.textContent=' ('+PARTS[np].label.toLowerCase()+')';
+    t.setAttribute('aria-valuetext',fmt(v));
+    if(!S.simDrag)render();
+  });
+  function simEnd(){if(S.simDrag){S.simDrag=false;render()}}
+  document.addEventListener('pointerdown',function(e){if(e.target&&e.target.id==='simslider')S.simDrag=true});
+  document.addEventListener('pointerup',simEnd);document.addEventListener('pointercancel',simEnd);
   document.addEventListener('mousedown',function(e){if(e.target.closest&&e.target.closest('.medsugg button'))e.preventDefault()});
   document.addEventListener('toggle',function(e){var t=e.target;if(t&&t.dataset&&t.dataset.f)S.filt=t.open},true);
   document.addEventListener('submit',function(e){

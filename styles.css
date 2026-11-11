@@ -598,3 +598,10 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 /* category edit mode */
 .chips button.cated{border-style:dashed;gap:8px}
 .chips button.cated em{font-style:normal;color:var(--ink2);font-size:13px}
+
+/* prototype time slider */
+.sim input[type=range]{width:100%;accent-color:var(--accent);margin:2px 0 0}
+.simticks{display:flex;justify-content:space-between;font-size:11px;color:var(--ink2);margin-top:-2px}
+.sim b{font-weight:700;color:var(--ink)}
+
+.pi.pj{border-left-color:var(--accent)}
