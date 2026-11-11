@@ -332,8 +332,8 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
   --gm:radial-gradient(ellipse 55% 26% at 16% 11%,#000,transparent 72%),radial-gradient(ellipse 42% 20% at 88% 36%,rgba(0,0,0,.8),transparent 70%),radial-gradient(ellipse 62% 24% at 28% 68%,rgba(0,0,0,.9),transparent 72%),radial-gradient(ellipse 38% 18% at 80% 91%,#000,transparent 70%),linear-gradient(rgba(0,0,0,.26),rgba(0,0,0,.26));
   -webkit-mask-image:var(--gm);mask-image:var(--gm)}
 :root[data-look="birch"] .hello{font-size:33px;font-weight:500;line-height:1.12;letter-spacing:.01em}
-:root[data-look="birch"] .emblem{background:transparent;border:0;color:var(--ink)}
-:root[data-look="birch"] .emblem .sprig{width:34px;height:34px;stroke-width:2}
+:root[data-look="birch"] .emblem{position:relative;background:transparent;border:0;color:var(--ink)}
+:root[data-look="birch"] .emblem::before{content:"";position:absolute;inset:-5px;background:var(--brush-dot);opacity:.78;-webkit-mask:var(--enso) center/100% 100% no-repeat;mask:var(--enso) center/100% 100% no-repeat;pointer-events:none}
 :root[data-look="birch"] .hero,:root[data-look="birch"] .card{position:relative;background:transparent;border:0;border-radius:0;box-shadow:none}
 :root[data-look="birch"] .hero{padding:26px 2px 6px}
 :root[data-look="birch"] .card{padding:20px 2px 6px}
@@ -365,10 +365,10 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 /* Canvas artwork: ink versions are tinted masks (follow colorway), gold versions are the real images in dark mode */
 .inkart{display:block;background:var(--ink)}
 .inkart.wave{width:100%;aspect-ratio:1200/97;margin:6px 0 2px;-webkit-mask:url(art/stroke-wave-ink.png) center/100% 100% no-repeat;mask:url(art/stroke-wave-ink.png) center/100% 100% no-repeat}
-.inkart.quill{width:42px;height:46px;-webkit-mask:url(art/quill-ink.png) center/contain no-repeat;mask:url(art/quill-ink.png) center/contain no-repeat}
+.inkart.quill{width:24px;height:27px;-webkit-mask:url(art/quill-ink.png) center/contain no-repeat;mask:url(art/quill-ink.png) center/contain no-repeat}
 .goldart{display:none}
 img.goldart.wave{width:100%;height:auto;margin:6px 0 2px}
-img.goldart.quill{width:42px;height:46px;object-fit:contain}
+img.goldart.quill{width:24px;height:27px;object-fit:contain}
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]) .inkart{display:none}
   :root:not([data-theme="light"]) .goldart{display:block}
