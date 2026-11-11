@@ -363,7 +363,7 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 
 /* Canvas artwork: ink versions are tinted masks (follow colorway), gold versions are the real images in dark mode */
 .inkart{display:block;background:var(--ink)}
-.inkart.wave{width:100%;aspect-ratio:1200/119;margin:6px 0 2px;-webkit-mask:url(art/stroke-wave-ink.png) center/100% 100% no-repeat;mask:url(art/stroke-wave-ink.png) center/100% 100% no-repeat}
+.inkart.wave{width:100%;aspect-ratio:1200/97;margin:6px 0 2px;-webkit-mask:url(art/stroke-wave-ink.png) center/100% 100% no-repeat;mask:url(art/stroke-wave-ink.png) center/100% 100% no-repeat}
 .inkart.quill{width:42px;height:46px;-webkit-mask:url(art/quill-ink.png) center/contain no-repeat;mask:url(art/quill-ink.png) center/contain no-repeat}
 .goldart{display:none}
 img.goldart.wave{width:100%;height:auto;margin:6px 0 2px}

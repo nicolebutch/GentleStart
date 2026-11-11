@@ -215,7 +215,7 @@
       return '<svg viewBox="0 0 440 60" role="presentation">'+s+'</svg>';
     },
     birch:function(){
-      return '<span class="inkart wave" role="presentation"></span><img class="goldart wave" src="art/stroke-wave-gold.png" alt="" width="1200" height="119">';
+      return '<span class="inkart wave" role="presentation"></span><img class="goldart wave" src="art/stroke-wave-gold.png" alt="" width="1200" height="98">';
     }
   };
   function deco(){var f=DECO[lookKey()];return f?'<div class="deco" aria-hidden="true"'+(S.logic==='mammal'?' data-a="critter"':'')+'>'+f()+'</div>':''}
