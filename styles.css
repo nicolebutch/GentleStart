@@ -528,3 +528,8 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .seg.mood button{flex:1;padding:7px 4px;font-size:13px;white-space:nowrap}
 :root[data-look="tide"] .tabs button[data-v="today"]{position:relative;z-index:2}
 :root[data-look="creature"] .deco{cursor:pointer}
+
+/* centered confirm popups */
+.backdrop.mid{align-items:center;padding:20px;z-index:45}
+.backdrop.mid .sheet{border-radius:22px;max-width:360px;padding:26px 20px 20px;text-align:center;align-items:stretch}
+.backdrop.mid .sheet::before{display:none}
