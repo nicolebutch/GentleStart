@@ -505,6 +505,23 @@
 
   /* ---- plinko: a ball picks one of the tasks that fit right now ---- */
   var PLN=5;
+  /* major US holidays, worked out from the calendar so they are always right for any year */
+  S.hol=load('gs-hol',true);
+  var HOLC={};
+  function nthDow(y,m,dow,n){var d=new Date(y,m,1);return 1+((dow-d.getDay()+7)%7)+(n-1)*7}
+  function lastDow(y,m,dow){var l=new Date(y,m+1,0);return l.getDate()-((l.getDay()-dow+7)%7)}
+  function easterOf(y){var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,da)}
+  function holYear(y){
+    if(HOLC[y])return HOLC[y];
+    var o={};function add(m,d,n){var k=y+'-'+pad(m+1)+'-'+pad(d);(o[k]=o[k]||[]).push(n)}
+    add(0,1,"New Year's Day");add(0,nthDow(y,0,1,3),'Martin Luther King Jr. Day');add(1,14,"Valentine's Day");add(1,nthDow(y,1,1,3),"Presidents' Day");
+    var e=easterOf(y);add(e.getMonth(),e.getDate(),'Easter');
+    add(4,nthDow(y,4,0,2),"Mother's Day");add(4,lastDow(y,4,1),'Memorial Day');add(5,19,'Juneteenth');add(5,nthDow(y,5,0,3),"Father's Day");
+    add(6,4,'Independence Day');add(8,nthDow(y,8,1,1),'Labor Day');add(9,nthDow(y,9,1,2),"Columbus / Indigenous Peoples' Day");add(9,31,'Halloween');
+    add(10,11,'Veterans Day');add(10,nthDow(y,10,4,4),'Thanksgiving');add(11,24,'Christmas Eve');add(11,25,'Christmas Day');add(11,31,"New Year's Eve");
+    return HOLC[y]=o;
+  }
+  function holidaysOn(k){return S.hol?(holYear(+k.slice(0,4))[k]||[]):[]}
   var RNDS={plinko:'Plinko',wheel:'Spin wheel',coin:'Coin flip'};
   S.rnd=load('gs-rnd','plinko');if(!RNDS[S.rnd])S.rnd='plinko';
   function rndBtn(u){return S.rnd==='wheel'?'Spin the wheel':S.rnd==='coin'?'Flip a coin':u.plbtn}
@@ -823,7 +840,7 @@
     var h='<p class="small">Swipe sideways for the rest of the week.</p><div class="wkrow" role="list">';
     for(var i=0;i<7;i++){
       var d=addDays(new Date(),i),k=ymd(d),evs=evsOn(k);
-      h+='<div class="wkday'+(i===0?' today':'')+'" role="listitem"><div class="wkhd"><b>'+esc(dayLabel(k))+'</b><span class="small">'+esc(d.toLocaleDateString(undefined,{month:'short',day:'numeric'}))+'</span></div>';
+      h+='<div class="wkday'+(i===0?' today':'')+'" role="listitem"><div class="wkhd"><b>'+esc(dayLabel(k))+'</b><span class="small">'+esc(d.toLocaleDateString(undefined,{month:'short',day:'numeric'}))+'</span>'+holidaysOn(k).map(function(n){return '<span class="holtag">'+esc(n)+'</span>'}).join('')+'</div>';
       if(!evs.length)h+='<p class="small">Open.</p>';
       else evs.forEach(function(ev){h+=wkEv(ev,k)});
       h+='<button class="addbtn wkadd" data-a="evnewon" data-v="'+k+'">+ Add</button></div>';
@@ -839,14 +856,17 @@
     for(var b=0;b<first;b++)h+='<div class="day blank" aria-hidden="true"></div>';
     for(var d=1;d<=dim;d++){
       var key=y+'-'+pad(m+1)+'-'+pad(d),evs=evsOn(key),tiles='';
-      evs.slice(0,3).forEach(function(ev){tiles+='<span class="mt">'+esc(ev.title)+'</span>'});
-      if(evs.length>3)tiles+='<span class="more">+'+(evs.length-3)+' more</span>';
-      h+='<button class="day'+(key===tk?' today':'')+(S.ovDay===key?' sel':'')+'" data-a="ovday" data-k="'+key+'" aria-pressed="'+(S.ovDay===key)+'" aria-label="'+esc(ms.toLocaleDateString(undefined,{month:'long'}))+' '+d+', '+evs.length+' plans"><span>'+d+'</span><span class="tiles">'+tiles+'</span></button>';
+      var hl=holidaysOn(key),room=3;
+      hl.slice(0,2).forEach(function(n){tiles+='<span class="mt hol">'+esc(n)+'</span>';room--});
+      evs.slice(0,room).forEach(function(ev){tiles+='<span class="mt">'+esc(ev.title)+'</span>'});
+      if(evs.length>room)tiles+='<span class="more">+'+(evs.length-room)+' more</span>';
+      h+='<button class="day'+(key===tk?' today':'')+(S.ovDay===key?' sel':'')+'" data-a="ovday" data-k="'+key+'" aria-pressed="'+(S.ovDay===key)+'" aria-label="'+esc(ms.toLocaleDateString(undefined,{month:'long'}))+' '+d+', '+evs.length+' plans'+(hl.length?', '+esc(hl.join(', ')):'')+'"><span>'+d+'</span><span class="tiles">'+tiles+'</span></button>';
     }
     h+='</div>';
     if(S.ovDay){
       var sk=S.ovDay,e2=evsOn(sk);
       h+='<div class="card"><div class="between"><h3>'+esc(parseKey(sk).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}))+'</h3><button class="addbtn" data-a="evnewon" data-v="'+sk+'">+ Add</button></div>';
+      holidaysOn(sk).forEach(function(n){h+='<p class="small"><span class="holtag">'+esc(n)+'</span></p>'});
       if(!e2.length)h+='<p class="small">Nothing planned.</p>';
       else{h+='<div class="evlist">';e2.forEach(function(ev){h+=evRow(ev,sk,SIM[S.part],true)});h+='</div>'}
       h+='</div>';
@@ -969,6 +989,7 @@
   function plans(){
     var tk=ymd(new Date()),now=SIM[S.part],td=evsOn(tk);
     var h='<div class="card"><div class="between"><h3>'+esc(U().plans)+'</h3><button class="addbtn" data-a="evnew">+ Add</button></div>';
+    holidaysOn(tk).forEach(function(n){h+='<p class="small">Today is <b>'+esc(n)+'</b>.</p>'});
     if(!td.length)h+='<p class="small">Nothing on the calendar today. Nothing to get ready for.</p>';
     else{h+='<div class="evlist">';td.forEach(function(ev){h+=evRow(ev,tk,now)});h+='</div>'}
     var up='';
@@ -1405,7 +1426,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       [['plinko','Plinko','A ball drops through the pegs and lands on one of your picks.','<circle cx="10" cy="8" r="2"/><circle cx="22" cy="8" r="2"/><circle cx="16" cy="15" r="2"/><circle cx="16" cy="25" r="3"/>'],['wheel','Spin wheel','Spin once. It slows and lands on one of the things that fit.','<circle cx="16" cy="16" r="11"/><path d="M16 5v22M5 16h22M8.5 8.5l15 15M23.5 8.5l-15 15"/>'],['coin','Coin flip','Two of your things, one flip. Quick and decisive.','<circle cx="16" cy="16" r="11"/><path d="M14 12.5l2.5-1.5v10"/>']].forEach(function(o){
         h+='<button class="opt" data-a="rnd" data-v="'+o[0]+'" aria-pressed="'+(S.rnd===o[0])+'">'+SVGO.replace('class="sprig"','class="mini"')+o[3]+'</svg><span><b>'+o[1]+'</b><span class="small">'+o[2]+'</span></span></button>';
       });
-      h+='</div>';
+      h+='</div><div class="grp"><div class="lab">Calendar</div><div class="chips sm"><button data-a="holtog" aria-pressed="'+!!S.hol+'">Show major US holidays</button></div><p class="small">They appear on Overview and at the top of Plans on the day. They are not plans, so nothing is ever due.</p></div>';
     }else if(S.mt==='routine'){
       h+=routineTab();
     }else if(S.mt==='data'){
@@ -1515,6 +1536,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     mood:function(b){keepSheet(function(){S.mood=b.dataset.v;S.skipPark=[];save('gs-mood',S.mood);render()})},
     season:function(b){keepSheet(function(){S.season=b.dataset.v;save('gs-season',S.season);applyLook();render()})},
     critter:function(){S.cr=(S.cr||0)+1;render()},
+    holtog:function(){S.hol=!S.hol;save('gs-hol',S.hol);keepSheet(render)},
     rnd:function(b){S.rnd=b.dataset.v;save('gs-rnd',S.rnd);keepSheet(render)},
     rndskip:function(){var P=S.pl;if(!P||!P.mode||P.phase==='done')return;clearTimeout(P.timer);P.phase='done';render()},
     rndagain:function(){var P=S.pl;if(!P||!P.mode||P.drops>=2)return;rndStart()},
