@@ -369,7 +369,7 @@
   /* clock mode: start minute and length for each step */
   var TIMES={dailymeds:[540,5],teeth:[545,10],clothes:[555,10],muffin:[565,10],water:[575,5],meal:[580,30],lunch:[750,45],jobs:[810,20],pt:[840,30],muffinpm:[1050,10],dinner:[1080,45],tidy:[1140,10],tomorrow:[1160,10]};
   function isFloor(id){return S.floorIds.indexOf(id)>=0}
-  function floorSteps(p){return FLOORALL[p].filter(isFloor)}
+  function floorSteps(p){return FLOORALL[p].filter(function(id){return isFloor(id)&&!offId(id)})}
   S.logic=load('gs-logic','gentle');if(!LOGICS[S.logic])S.logic='gentle';
   S.mt='themes';S.appear=load('gs-appear','auto');if(['auto','light','dark'].indexOf(S.appear)<0)S.appear='auto';S.shift=0;S.noAI=false;
   S.chat={open:false,msgs:[],busy:false,err:'',retry:''};
@@ -721,7 +721,7 @@
   }
   function plannerCard(){
     var tk=ymd(new Date()),now=SIM[S.part],items=[],rows='';
-    ['morning','afternoon','evening'].forEach(function(p){PARTS[p].steps.forEach(function(id){var sc=schedOf(id);if(sc)items.push({k:'r',id:id,start:sc.start,dur:TIMES[id][1]})})});
+    ['morning','afternoon','evening'].forEach(function(p){PARTS[p].steps.filter(function(id){return !offId(id)}).forEach(function(id){var sc=schedOf(id);if(sc)items.push({k:'r',id:id,start:sc.start,dur:TIMES[id][1]})})});
     evsOn(tk).forEach(function(ev){items.push({k:'e',ev:ev,start:tmin(ev.time),dur:ev.dur||60})});
     var H0=7,H1=22;
     for(var hr=H0;hr<=H1;hr++){
@@ -809,7 +809,10 @@
 
   function U(){var m=UIALT[S.logic];if(!m)return UI0;var o={},k;for(k in UI0)o[k]=UI0[k];for(k in m)o[k]=m[k];return o}
   function moodAlt(id){if(S.logic!=='mammal'||S.mood!=='dreamy')return null;if(id==='teeth')return {t:'Splash in the birdbath',s:'Teeth and face, before you leave the nest. A little splash and a little preening is plenty.'};if(id==='clothes')return {t:'Preen those feathers',s:'Out of pajamas and into something that feels like you. Same trip upstairs, then down you go.'};return null}
-  function stepOf(id){var b=STEPS[id],a=moodAlt(id)||(ALT[S.logic]&&ALT[S.logic][id]),o={},k;for(k in b)o[k]=b[k];if(a)for(k in a)o[k]=a[k];return o}
+  function offId(id){return !(PROF&&PROF.pet)&&(id==='muffin'||id==='muffinpm')}
+  function stepOf(id){var b=STEPS[id],a=moodAlt(id)||(ALT[S.logic]&&ALT[S.logic][id]),o={},k;for(k in b)o[k]=b[k];if(a)for(k in a)o[k]=a[k];
+    if(id==='lunch'&&!(PROF&&PROF.partner)){o.lunch=false;o.meal=true;o.t='Lunch';o.s='Time to eat something. Whatever is easy counts.'}
+    return o}
   function nmOf(id){var a=moodAlt(id)||(ALT[S.logic]&&ALT[S.logic][id]);return a?(a.t||NAMES[id]):NAMES[id]}
   function schedOf(id){if(S.logic!=='clock'||!TIMES[id])return null;var b=TIMES[id],st=b[0]+S.shift;return {start:st,label:fmt(st)+' to '+fmt(st+b[1])}}
 
@@ -956,7 +959,7 @@
     if(S.colors[label]===undefined){var n=Object.keys(S.colors).length;S.colors[label]=n%8;save('gs-colors',S.colors)}
     return 'var(--c'+(S.colors[label]%8)+')';
   }
-  function steps(){if(lowMode())return floorSteps(S.part);return (S.part==='morning'&&S.floor)?floorSteps('morning'):PARTS[S.part].steps}
+  function steps(){if(lowMode())return floorSteps(S.part);return (S.part==='morning'&&S.floor)?floorSteps('morning'):PARTS[S.part].steps.filter(function(id){return !offId(id)})}
   function nextId(){var a=steps();for(var i=0;i<a.length;i++){if(!S.status[a[i]])return a[i]}return null}
   function toast(m){var t=document.getElementById('toast');t.textContent=fxt(m);t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true},3200)}
   function keepAll(fn){var m={};document.querySelectorAll('input[type=text],input[type=time],input[type=date]').forEach(function(i){if(i.id)m[i.id]=i.value});fn();Object.keys(m).forEach(function(id){var e=document.getElementById(id);if(e)e.value=m[id]})}
@@ -985,7 +988,7 @@
       var st=stepOf(id),sc=schedOf(id);
       h+='<section class="hero" aria-live="polite"><div class="kicker">'+esc(sc?u.next+', '+sc.label:u.next)+'</div><h2>'+esc(st.t)+'</h2><p class="sub">'+esc(st.s)+'</p><div class="row">';
       if(st.meal){
-        h+='<a class="btn grow" href="https://www.google.com/search?q=easy+'+(id==='dinner'?'dinner':'breakfast')+'+ideas" target="_blank" rel="noopener" data-a="recime">'+esc(u.food)+'</a><button class="btn alt grow" data-a="done" data-v="'+id+'">'+esc(u.eaten)+'</button>';
+        h+='<a class="btn grow" href="https://www.google.com/search?q=easy+'+(id==='dinner'?'dinner':id==='lunch'?'lunch':'breakfast')+'+ideas" target="_blank" rel="noopener" data-a="recime">'+esc(u.food)+'</a><button class="btn alt grow" data-a="done" data-v="'+id+'">'+esc(u.eaten)+'</button>';
       }else if(st.lunch){
         h+='<button class="btn grow" data-a="lunch">'+esc(u.lunchBtn)+'</button><button class="btn alt grow" data-a="done" data-v="'+id+'">'+esc(u.eaten)+'</button>';
       }else{
