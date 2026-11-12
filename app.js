@@ -312,7 +312,7 @@
     greet:function(l){return 'Good '+l.toLowerCase()+', §N.'},next:'Next',allset:'All set',
     routine:function(p){return 'Your '+p+', in order'},plans:'Plans',up:'Coming up',
     rough:'Rough morning? Tap here.',unrough:'Back to a normal morning',music:'Music, no detours',stuck:'Stuck?',skip:'I skipped this',
-    food:'What should I have?',eaten:'I have eaten already',picked:'I picked something, done',lunchBtn:'Text §P: lunch?',solo:'I will eat on my own',
+    food:'What should I have?',eaten:'I ate',picked:'I picked something, done',lunchBtn:'Text §P: lunch?',solo:'I will eat on my own',
     floorNote:'Floor mode: only your medications, §C, water, and food. Everything else can wait, and nothing is overdue.',
     lowNote:'Low battery mode: just the basics. Everything else can wait, and nothing is overdue.',
     win:60,hello:'Hi. What is going on? Tell me in your own words, or tap one.',ctitle:'Here to help'
@@ -715,6 +715,7 @@
   }
   function doingHero(t){
     var fs=firstStep(t),u=U();
+    if(S.bigDone===t.id)return '<section class="hero" aria-live="polite"><div class="kicker">Working on it</div><h2>'+esc(t.title)+'</h2><p class="sub">That was a big one, and you did it. Really.</p><div class="row"><button class="btn grow bounce" disabled>All done</button><button class="btn alt grow dropaway" disabled tabindex="-1" aria-hidden="true">Did some of it</button></div></section>';
     if(S.askMore){
       var allSteps=t.steps.length>0&&!fs;
       return '<section class="hero" aria-live="polite"><div class="kicker">Nice work</div><h2>That counts. Keep going?</h2><p class="sub">'+esc(t.title)+(fs?'. Next small piece: '+esc(fs.t):'')+(allSteps?'. Every step is ticked.':'.')+' It is saved on the task that you worked on it.</p><div class="row"><button class="btn grow" data-a="tkcont">Keep going</button><button class="btn alt grow" data-a="tkpause">I am done for now</button></div>'+(allSteps?'<div class="row"><button class="quiet" data-a="tkfinish">Mark the whole task done</button></div>':'')+'</section>';
@@ -800,7 +801,7 @@
   function commitStep(){var T=S.tk,v=T.newStep.trim();if(v&&T.steps.length<12){T.steps.push({t:v.slice(0,80),done:false})}T.newStep=''}
   function finishNote(id){
     var bt=taskById(id);
-    if(bt&&bt.bd){S.celeb=null;render();celebrate(64);setTimeout(function(){celebrate(40)},700);toast('That was a big one, and you did it. Really.')}
+    if(bt&&bt.bd){S.celeb=null;S.bigDone=id;render();setTimeout(function(){S.bigDone=null;if(S.doing===id)S.doing=null;render()},3600);celebrate(64);setTimeout(function(){celebrate(40)},700);toast('That was a big one, and you did it. Really.')}
     else if(S.celeb===id){S.celeb=null;render();celebrate();toast('The hard one first. That deserves a little parade.')}
     else{render();toast('Done. Nice.')}
   }
@@ -978,6 +979,7 @@
     var past=isToday&&now>=(ev.dur?end:st+30),cur=isToday&&!past&&now>=st,tags='';
     if(ev.by==='p')tags+=tag('§P\u2019s');
     if(ev.ex)tags+=tag('Example');
+    (ev.tags||[]).forEach(function(t){if(t!==ev.title)tags+=tag(t)});
     if(cur)tags+=tag('Now','now');
     if(isToday&&!past&&!cur&&ev.travel)tags+=tag('Leave by '+fmt(leaveBy(ev)),'now');
     if(S.evReady[ev.id]&&!past)tags+=tag('Ready');
@@ -997,7 +999,8 @@
     if(up)h+='<div class="dayhead">'+esc(U().up)+'</div><div class="evlist">'+up+'</div>';
     return h+'</div>';
   }
-  function newEv(){return {id:null,by:'me',title:'',dk:'today',dateVal:'',time:'',dur:60,place:'',travel:0,prep:'',withJ:false,share:'full',err:''}}
+  S.evtags=load('gs-evtags',['Appointment','Hobby','Dinner out','Call','Errand']);
+  function newEv(){return {tags:[],id:null,by:'me',title:'',dk:'today',dateVal:'',time:'',dur:60,place:'',travel:0,prep:'',withJ:false,share:'full',err:''}}
   function syncEv(){
     var E=S.ev;if(!E)return;
     [['ev-title','title'],['ev-time','time'],['ev-place','place'],['ev-prep','prep'],['ev-date','dateVal']].forEach(function(p){var e=document.getElementById(p[0]);if(e)E[p[1]]=e.value});
@@ -1013,8 +1016,8 @@
     var h='<div class="backdrop" data-a="evbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="'+ttl+'"><div class="between"><h2 style="font-size:24px">'+ttl+'</h2><button class="x" data-a="evclose" aria-label="Close">&times;</button></div>';
     if(E.err)h+='<div class="note" role="alert">'+esc(E.err)+'</div>';
     if(PROF&&PROF.partner)h+='<div class="grp"><div class="lab">Whose is it</div>'+evChips('evby',E.by,[['me','Mine'],['p','§P&rsquo;s']])+(E.by==='p'?'<p class="small">Something on §P&rsquo;s day you want to plan around, like a lunch break or a late shift. It shows with a tag, and it never sends you a leave-by reminder.</p>':'')+'</div>';
-    h+='<div class="grp"><div class="lab">What is it</div><input class="field" type="text" id="ev-title" value="'+esc(E.title)+'" placeholder="e.g. Dentist" aria-label="What is it"><div class="chips sm" style="margin-top:8px">';
-    ['Appointment','Hobby','Dinner out','Call','Errand'].forEach(function(q){h+='<button data-a="evquick" data-v="'+q+'">'+q+'</button>'});
+    h+='<div class="grp"><div class="lab">What is it</div><input class="field" type="text" id="ev-title" value="'+esc(E.title)+'" placeholder="e.g. Dentist" aria-label="What is it"><div class="chips sm" role="group" aria-label="Tags" style="margin-top:8px">';
+    S.evtags.forEach(function(q){h+='<button data-a="evquick" data-v="'+esc(q)+'" aria-pressed="'+((E.tags||[]).indexOf(q)>=0)+'">'+esc(q)+'</button>'});
     h+='</div></div>';
     h+='<div class="grp"><div class="lab">When</div>'+evChips('evday',E.dk,[['today','Today'],['tomorrow','Tomorrow'],['other','Another day']]);
     if(E.dk==='other')h+='<input class="field" type="date" id="ev-date" value="'+esc(E.dateVal)+'" aria-label="Date" style="margin-top:8px">';
@@ -1089,7 +1092,7 @@
       var st=stepOf(id),sc=schedOf(id);
       h+='<section class="hero" aria-live="polite"><div class="kicker">'+esc(sc?u.next+', '+sc.label:u.next)+'</div><h2>'+esc(st.t)+'</h2><p class="sub">'+esc(st.s)+'</p><div class="row">';
       if(st.meal){
-        h+='<a class="btn grow" href="https://www.google.com/search?q=easy+'+(id==='dinner'?'dinner':id==='lunch'?'lunch':'breakfast')+'+ideas" target="_blank" rel="noopener" data-a="recime">'+esc(u.food)+'</a><button class="btn alt grow" data-a="done" data-v="'+id+'">'+esc(u.eaten)+'</button>';
+        h+='<button class="btn grow" data-a="done" data-v="'+id+'">'+esc(u.eaten)+'</button><a class="btn alt grow" href="https://www.google.com/search?q=easy+'+(id==='dinner'?'dinner':id==='lunch'?'lunch':'breakfast')+'+ideas" target="_blank" rel="noopener" data-a="recime">'+esc(u.food)+'</a>';
       }else if(st.lunch){
         h+='<button class="btn grow" data-a="lunch">'+esc(u.lunchBtn)+'</button><button class="btn alt grow" data-a="done" data-v="'+id+'">'+esc(u.eaten)+'</button>';
       }else{
@@ -1097,7 +1100,7 @@
       }
       h+='</div><div class="row">';
       if(st.meal)h+='<button class="quiet" data-a="done" data-v="'+id+'">'+esc(u.picked)+'</button>';
-      if(id==='dailymeds')h+='<button class="quiet" data-a="forgot">Oh shit I forgot</button>';
+      if(id==='dailymeds')h+='<button class="quiet" data-a="forgot">Oops! I forgot</button>';
       if(st.lunch)h+='<button class="quiet" data-a="lunchsolo">'+esc(u.solo)+'</button>';
       if(!isFloor(id))h+='<button class="quiet" data-a="skip" data-v="'+id+'">'+esc(u.skip)+'</button>';
       h+='</div>';
@@ -1462,7 +1465,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       [['plinko','Plinko','A ball drops through the pegs and lands on one of your picks.','<circle cx="10" cy="8" r="2"/><circle cx="22" cy="8" r="2"/><circle cx="16" cy="15" r="2"/><circle cx="16" cy="25" r="3"/>'],['wheel','Spin wheel','Spin once. It slows and lands on one of the things that fit.','<circle cx="16" cy="16" r="11"/><path d="M16 5v22M5 16h22M8.5 8.5l15 15M23.5 8.5l-15 15"/>'],['coin','Coin flip','Two of your things, one flip. Quick and decisive.','<circle cx="16" cy="16" r="11"/><path d="M14 12.5l2.5-1.5v10"/>']].forEach(function(o){
         h+='<button class="opt" data-a="rnd" data-v="'+o[0]+'" aria-pressed="'+(S.rnd===o[0])+'">'+SVGO.replace('class="sprig"','class="mini"')+o[3]+'</svg><span><b>'+o[1]+'</b><span class="small">'+o[2]+'</span></span></button>';
       });
-      h+='</div><div class="grp"><div class="lab">Calendar</div><div class="chips sm"><button data-a="holtog" aria-pressed="'+!!S.hol+'">Show major US holidays</button></div><p class="small">They appear on Overview and at the top of Plans on the day. They are not plans, so nothing is ever due.</p></div>';
+      h+='</div><div class="grp"><div class="lab">Plan tags</div><p class="small">The tags you can pick when adding a plan. Tap one to remove it.</p><div class="chips sm">'+S.evtags.map(function(q,i){return '<button data-a="evtagdel" data-v="'+i+'" aria-label="Remove tag '+esc(q)+'">'+esc(q)+' &times;</button>'}).join('')+'</div><form class="add" data-a="evtagadd"><input type="text" id="evtagnew" maxlength="24" placeholder="New tag, e.g. Gym" aria-label="New plan tag"><button type="submit">Add</button></form></div><div class="grp"><div class="lab">Calendar</div><div class="chips sm"><button data-a="holtog" aria-pressed="'+!!S.hol+'">Show major US holidays</button></div><p class="small">They appear on Overview and at the top of Plans on the day. They are not plans, so nothing is ever due.</p></div>';
     }else if(S.mt==='routine'){
       h+=routineTab();
     }else if(S.mt==='data'){
@@ -1573,6 +1576,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     mood:function(b){keepSheet(function(){S.mood=b.dataset.v;S.skipPark=[];save('gs-mood',S.mood);render()})},
     season:function(b){keepSheet(function(){S.season=b.dataset.v;save('gs-season',S.season);applyLook();render()})},
     critter:function(){S.cr=(S.cr||0)+1;render()},
+    evtagdel:function(b){S.evtags.splice(+b.dataset.v,1);save('gs-evtags',S.evtags);keepSheet(render)},
     holtog:function(){S.hol=!S.hol;save('gs-hol',S.hol);keepSheet(render)},
     rnd:function(b){S.rnd=b.dataset.v;save('gs-rnd',S.rnd);keepSheet(render)},
     rndskip:function(){var P=S.pl;if(!P||!P.mode||P.phase==='done')return;clearTimeout(P.timer);P.phase='done';render()},
@@ -1618,7 +1622,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     tkstepdone:function(b){keepSheet(function(){syncTk();var x=S.tk.steps[+b.dataset.i];if(x)x.done=!x.done;render()})},
     tksave:function(){
       syncTk();var T=S.tk;commitStep();T.err='';
-      if(!T.title.trim()){T.err='Give it a name first. A word or two is plenty.';keepSheet(render);return}
+      if(!T.title.trim()){T.err='Give it a name or pick a tag first.';keepSheet(render);return}
       var old=T.id?taskById(T.id):null;
       var rec={id:T.id||('t'+Date.now()),title:T.title.trim(),h:T.h,nr:T.nr,fun:T.fun,bd:T.bd,mins:T.mins,w:T.w,due:T.due||'',steps:T.steps,work:old?(old.work||[]):[],done:old?old.done:false,created:old?old.created:Date.now(),doneAt:old?old.doneAt:0,snooze:old?old.snooze:''};
       if(old){S.tasks[S.tasks.indexOf(old)]=rec}else S.tasks.unshift(rec);
@@ -1637,7 +1641,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     tkhard:function(b){S.doing=b.dataset.v;S.askMore=false;S.celeb=b.dataset.v;render();window.scrollTo(0,0)},
     tkanother:function(b){S.skipPark.push(b.dataset.v);render()},
     tklater:function(b){var t=taskById(b.dataset.v);if(!t)return;t.snooze=ymd(new Date());saveTasks();render();toast('Back tomorrow. No pressure.')},
-    tkfinish:function(){var t=taskById(S.doing);if(!t)return;t.done=true;t.doneAt=Date.now();saveTasks();S.doing=null;S.askMore=false;finishNote(t.id)},
+    tkfinish:function(){var t=taskById(S.doing);if(!t)return;t.done=true;t.doneAt=Date.now();saveTasks();if(!t.bd)S.doing=null;S.askMore=false;finishNote(t.id)},
     tkstep:function(){
       var t=taskById(S.doing);if(!t)return;var fs=firstStep(t);
       if(fs)fs.done=true;
@@ -1801,12 +1805,12 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     evedit:function(b){
       var ev=S.events.filter(function(x){return x.id===b.dataset.v})[0];if(!ev)return;
       var k=evDate(ev),dk=k===ymd(new Date())?'today':k===ymd(addDays(new Date(),1))?'tomorrow':'other';
-      S.ev={id:ev.id,by:ev.by||'me',title:ev.title,dk:dk,dateVal:k,time:ev.time,dur:ev.dur||0,place:ev.place||'',travel:ev.travel||0,prep:ev.prep||'',withJ:!!ev.withJ,share:ev.share||'full',err:''};
+      S.ev={tags:(ev.tags||[]).slice(),id:ev.id,by:ev.by||'me',title:ev.title,dk:dk,dateVal:k,time:ev.time,dur:ev.dur||0,place:ev.place||'',travel:ev.travel||0,prep:ev.prep||'',withJ:!!ev.withJ,share:ev.share||'full',err:''};
       render();
     },
     evclose:function(){S.ev=null;render()},
     evbg:function(b,e){if(e.target===b){S.ev=null;render()}},
-    evquick:function(b){keepSheet(function(){syncEv();S.ev.title=b.dataset.v;render()})},
+    evquick:function(b){keepSheet(function(){syncEv();var t=S.ev.tags=S.ev.tags||[],i=t.indexOf(b.dataset.v);if(i>=0)t.splice(i,1);else t.push(b.dataset.v);render()})},
     evday:function(b){keepSheet(function(){syncEv();S.ev.dk=b.dataset.v;render()})},
     evdur:function(b){keepSheet(function(){syncEv();S.ev.dur=+b.dataset.v;render()})},
     evtravel:function(b){keepSheet(function(){syncEv();S.ev.travel=+b.dataset.v;render()})},
@@ -1815,12 +1819,13 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     evshare:function(b){keepSheet(function(){syncEv();S.ev.share=b.dataset.v;render()})},
     evsave:function(){
       syncEv();var E=S.ev;E.err='';
+      if(!E.title.trim()&&(E.tags||[]).length)E.title=E.tags[0];
       if(!E.title.trim())E.err='Give it a name first. A word or two is plenty.';
       else if(!E.time)E.err='Add a start time so it lands in the right spot.';
       else if(E.dk==='other'&&!E.dateVal)E.err='Pick the day.';
       if(E.err){keepSheet(render);return}
       var date=E.dk==='today'?ymd(new Date()):E.dk==='tomorrow'?ymd(addDays(new Date(),1)):E.dateVal;
-      var rec={id:E.id||('e'+Date.now()),title:E.title.trim(),date:date,time:E.time,dur:E.dur,place:E.place.trim(),travel:E.travel,prep:E.prep.trim(),withJ:E.withJ,share:E.share,by:E.by==='p'?'p':undefined};
+      var rec={id:E.id||('e'+Date.now()),title:E.title.trim(),date:date,time:E.time,dur:E.dur,place:E.place.trim(),travel:E.travel,prep:E.prep.trim(),withJ:E.withJ,share:E.share,tags:(E.tags||[]).slice(),by:E.by==='p'?'p':undefined};
       var idx=-1;S.events.forEach(function(x,i){if(x.id===rec.id)idx=i});
       if(idx>=0)S.events[idx]=rec;else S.events.push(rec);
       save('gs-events',S.events);S.ev=null;render();toast(E.by==='p'?'Saved. It is on the schedule so you can plan around it.':'Saved. §P sees it the way you set it.');
@@ -1919,6 +1924,9 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       var rp=f.dataset.p,rid='c'+Date.now();
       S.cust.push({id:rid,t:v.slice(0,50)});S.rtn.parts[rp].push(rid);syncSteps();saveRtn();
       keepSheet(render);var rn=document.getElementById('rtadd-'+rp);if(rn)rn.focus();
+    }else if(f.dataset.a==='evtagadd'){
+      if(S.evtags.length<16&&S.evtags.indexOf(v)<0){S.evtags.push(v.slice(0,24));save('gs-evtags',S.evtags)}
+      keepSheet(render);var en=document.getElementById('evtagnew');if(en)en.focus();
     }else if(f.dataset.a==='careadd'){
       S.care.push(v);save('gs-care',S.care);S.careIdx=S.care.length-1;render();toast('Added.');
     }else if(f.dataset.a==='tkquick'){
