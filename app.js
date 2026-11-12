@@ -709,6 +709,7 @@
     });h+='</ul>'}
     h+='<div class="add" style="margin-top:0"><input type="text" id="tk-step" placeholder="Add a step" aria-label="Add a step" value="'+esc(T.newStep)+'"><button type="button" data-a="tkstepadd">Add</button></div>';
     if(!S.noAI)h+='<button class="quiet" data-a="tkbreak" style="align-self:flex-start"'+(S.tkBusy?' disabled':'')+'>'+(S.tkBusy?'Thinking...':'Break it into tiny steps for me')+'</button>';
+    else h+='<button class="quiet" data-a="tksuggest" style="align-self:flex-start">Suggest steps for me</button><p class="small">You can edit or delete any of them afterwards.</p>';
     h+='</div>';
     if(T.work&&T.work.length)h+='<p class="small">Worked on '+T.work.length+(T.work.length===1?' time':' times')+', most recently '+esc(new Date(T.work[T.work.length-1]).toLocaleDateString(undefined,{month:'short',day:'numeric'}))+'.</p>';
     h+='<button class="btn" data-a="tksave">Save</button>'+(T.id?'<button class="btn alt" data-a="tkgo">Start this now</button><button class="quiet" data-a="tkdel">Delete</button>':'')+'<button class="quiet" data-a="tkclose">Cancel</button></div></div>';
@@ -717,6 +718,25 @@
   function syncTk(){
     var T=S.tk;if(!T)return;
     [['tk-title','title'],['tk-due','due'],['tk-step','newStep']].forEach(function(p){var e=document.getElementById(p[0]);if(e)T[p[1]]=e.value});
+  }
+  var STEPIDEAS=[
+    [/\b(call|phone|ring|text|email|e-mail|reply|respond|message|write back)\b/i,['Find the number or open the message','Write or say just the first line','Send it or press call']],
+    [/\b(pay|bill|invoice|insurance|tax|taxes|form|paperwork|claim|renew|register|sign up)\b/i,['Find the login or the paper','Open it and put it where you can see it','Fill in just the first part','Finish and submit, or note what is still missing']],
+    [/\b(book|schedule|appointment|reserve|reservation)\b/i,['Find the number or booking page','Check two times that could work','Book one']],
+    [/\b(apply|application|resume|cv|cover letter|job)\b/i,['Open the document or the posting','Write one rough line, no editing','Work on it for ten minutes, then stop if you like']],
+    [/\b(write|draft|essay|report|article|post|letter|notes)\b/i,['Open a blank page','Write one rough sentence','Ten minutes, messy is fine']],
+    [/\b(clean|tidy|declutter|laundry|dishes|vacuum|sweep|mop|wipe|organi[sz]e|trash|bins?)\b/i,['Put on something to listen to','Set a five-minute timer','Do the nearest corner or one load','Stop when the timer does, or keep going']],
+    [/\b(buy|shop|shopping|order|groceries|grocery|pick up|errand)\b/i,['Open the list or the site','Add the first three things','Check out, or grab your keys']],
+    [/\b(exercise|workout|stretch|stretches|walk|run|gym|yoga|pt|physio)\b/i,['Get into the clothes or lay out the mat','Do two minutes','Decide if you want to keep going']],
+    [/\b(art|draw|drawing|paint|sketch|craft|knit|crochet|sew|hobby|create|make)\b/i,['Get the supplies out where you can see them','Make one mark or one stitch','Ten minutes, no judging']],
+    [/\b(plant|plants|water|watering|garden)\b/i,['Fill the watering can or glass','Do the nearest plant','Do the rest if you feel like it']],
+    [/\b(cook|meal prep|bake|dinner|lunch|breakfast)\b/i,['Pick one thing to make','Get out the main ingredient','Start the first step']],
+    [/\b(read|study|learn|course|class|homework)\b/i,['Get the book or open the page','Read or work for five minutes','Note where you stopped']]
+  ];
+  function suggestSteps(title){
+    var t=title||'',hit=null;
+    for(var i=0;i<STEPIDEAS.length;i++)if(STEPIDEAS[i][0].test(t)){hit=STEPIDEAS[i][1];break}
+    return hit||['Get out or open whatever you need','Do the smallest first piece for two minutes','Decide if you want to keep going'];
   }
   function commitStep(){var T=S.tk,v=T.newStep.trim();if(v&&T.steps.length<12){T.steps.push({t:v.slice(0,80),done:false})}T.newStep=''}
   function finishNote(id){
@@ -1476,6 +1496,13 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     tktag:function(b){keepSheet(function(){syncTk();var k=b.dataset.v;S.tk[k]=!S.tk[k];render()})},
     tkw:function(b){keepSheet(function(){syncTk();S.tk.w=b.dataset.v;render()})},
     tkclr:function(){keepSheet(function(){syncTk();S.tk.due='';render()})},
+    tksuggest:function(){
+      keepSheet(function(){
+        syncTk();commitStep();var T=S.tk,have=T.steps.map(function(x){return x.t.toLowerCase()}),added=0;
+        suggestSteps(T.title).forEach(function(s){if(T.steps.length<12&&have.indexOf(s.toLowerCase())<0){T.steps.push({t:s,done:false});added++}});
+        render();toast(added?'Added '+added+' to start you off. Change them however you like.':'Those are already in there.')
+      })
+    },
     tkstepadd:function(){keepSheet(function(){syncTk();commitStep();render();var i=document.getElementById('tk-step');if(i)i.focus()})},
     tkstepdel:function(b){keepSheet(function(){syncTk();S.tk.steps.splice(+b.dataset.i,1);render()})},
     tkstepdone:function(b){keepSheet(function(){syncTk();var x=S.tk.steps[+b.dataset.i];if(x)x.done=!x.done;render()})},
