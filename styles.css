@@ -647,5 +647,7 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 @keyframes gsdrop{0%{transform:translateY(0);opacity:1}100%{transform:translateY(160px) rotate(8deg);opacity:0}}
 @media (prefers-reduced-motion:reduce){.btn.bounce,.btn.dropaway{animation:none}.btn.dropaway{opacity:0}}
 
-/* Canvas: completed step is a gold-leaf blot */
-:root[data-look="birch"] .steps li.done .dot{background:url("art/gold.png") center/contain no-repeat;-webkit-mask:none;mask:none;opacity:1;width:26px;height:26px;margin:-3.5px;transform:none}
+/* Canvas: completed step is an ink blot (light) or a gold-leaf blot (dark) */
+:root[data-look="birch"] .steps li.done .dot{background:var(--ink);-webkit-mask:url("art/blot.png") center/contain no-repeat;mask:url("art/blot.png") center/contain no-repeat;opacity:1;width:21px;height:21px;margin:-1px;transform:none}
+:root[data-theme="dark"][data-look="birch"] .steps li.done .dot{background:url("art/gold.png") center/contain no-repeat;-webkit-mask:none;mask:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-look="birch"] .steps li.done .dot{background:url("art/gold.png") center/contain no-repeat;-webkit-mask:none;mask:none}}

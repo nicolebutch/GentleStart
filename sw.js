@@ -1,6 +1,6 @@
 /* Offline support. Bump VERSION whenever app files change so installed copies update. */
-var VERSION='gs-v53';
-var SHELL=['./','index.html','styles.css','app.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/apple-touch-icon.png','art/library-light.png','art/library-dark.png','art/stroke-long-ink.png','art/stroke-long-gold.png','art/stroke-short-ink.png','art/stroke-short-gold.png','art/stroke-wave-ink.png','art/stroke-wave-gold.png','art/quill-ink.png','art/quill-gold.png','art/birch-trunk.png','art/vine.png','art/gold.png'];
+var VERSION='gs-v54';
+var SHELL=['./','index.html','styles.css','app.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/apple-touch-icon.png','art/library-light.png','art/library-dark.png','art/stroke-long-ink.png','art/stroke-long-gold.png','art/stroke-short-ink.png','art/stroke-short-gold.png','art/stroke-wave-ink.png','art/stroke-wave-gold.png','art/quill-ink.png','art/quill-gold.png','art/birch-trunk.png','art/vine.png','art/gold.png','art/blot.png'];
 self.addEventListener('install',function(e){
   e.waitUntil(caches.open(VERSION).then(function(c){return c.addAll(SHELL)}).then(function(){return self.skipWaiting()}));
 });
