@@ -678,7 +678,7 @@
     h+='<div class="subtabs lotabs" role="group" aria-label="Sections"><button data-a="lottab" data-v="week" aria-pressed="'+(tab==='week')+'">Weekly</button><button data-a="lottab" data-v="month" aria-pressed="'+(tab==='month')+'">Monthly</button><button data-a="lottab" data-v="groups" aria-pressed="'+(tab==='groups')+'">Groups</button></div>';
     if(tab==='groups')h+='<div class="lotnote">Groups are coming. Think errands, house, or hobbies, each with its own little lot.</div>';
     else{
-      h+='<form class="add lotadd" data-a="tkquick" data-h="'+tab+'"><input type="text" id="tkq" placeholder="'+(tab==='week'?'Something for this week':'Something for this month')+'" aria-label="Add something"><button type="submit">'+esc(u.parkIt)+'</button></form>';
+      h+='<form class="add lotadd" data-a="tkquick" data-h="'+tab+'"><input type="text" id="tkq" placeholder="'+(tab==='week'?'Something for this week':'Something for this month')+'" aria-label="Add something"><button type="submit">'+esc(u.parkIt)+'</button></form><div class="lotnote">Tip: hold the button to fill in details first.</div>';
       var list=S.tasks.filter(function(t){return !t.done&&(t.h||'week')===tab}).sort(function(a,b){
         var da=dueOf(a),db=dueOf(b);
         if(da&&db)return da<db?-1:da>db?1:0;
@@ -1741,6 +1741,23 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
   function simEnd(){if(S.simDrag){S.simDrag=false;render()}}
   document.addEventListener('pointerdown',function(e){if(e.target&&e.target.id==='simslider')S.simDrag=true});
   document.addEventListener('pointerup',simEnd);document.addEventListener('pointercancel',simEnd);
+  (function(){
+    var T=null;
+    function clear(){if(T){clearTimeout(T.id);if(T.btn)T.btn.classList.remove('hold');T=null}}
+    document.addEventListener('pointerdown',function(e){
+      var b=e.target.closest&&e.target.closest('.lotadd button[type=submit]');if(!b)return;
+      clear();b.classList.add('hold');
+      var f=b.closest('form');
+      T={btn:b,id:setTimeout(function(){
+        var inp=f.querySelector('input'),title=inp?inp.value.trim():'',h=f.dataset.h||'week';
+        T=null;S.lpFired=true;setTimeout(function(){S.lpFired=false},600);
+        S.tk={id:null,title:title,h:h,nr:false,fun:false,bd:false,work:[],mins:0,w:'med',due:'',steps:[],newStep:'',err:''};
+        render();
+      },600)};
+    });
+    ['pointerup','pointercancel','pointerleave'].forEach(function(n){document.addEventListener(n,function(e){if(T&&(n!=='pointerleave'||(e.target.closest&&e.target.closest('.lotadd button'))))clear()},true)});
+    document.addEventListener('contextmenu',function(e){if(e.target.closest&&e.target.closest('.lotadd button[type=submit]'))e.preventDefault()});
+  })();
   document.addEventListener('mousedown',function(e){if(e.target.closest&&e.target.closest('.medsugg button'))e.preventDefault()});
   document.addEventListener('toggle',function(e){var t=e.target;if(t&&t.dataset&&t.dataset.f)S.filt=t.open},true);
   document.addEventListener('submit',function(e){
@@ -1765,6 +1782,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     }else if(f.dataset.a==='careadd'){
       S.care.push(v);save('gs-care',S.care);S.careIdx=S.care.length-1;render();toast('Added.');
     }else if(f.dataset.a==='tkquick'){
+      if(S.lpFired)return;
       S.tasks.unshift({id:'t'+Date.now(),title:v,h:f.dataset.h||'week',nr:false,fun:false,work:[],mins:0,w:'med',due:'',steps:[],done:false,created:Date.now()});saveTasks();render();
       var q=document.getElementById('tkq');if(q)q.focus();toast('Parked. It can wait there.');
     }else if(f.dataset.a==='newlist'){

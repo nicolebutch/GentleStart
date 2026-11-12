@@ -614,3 +614,9 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .rtb{display:flex;gap:4px}
 .rtb button{width:38px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;font-size:16px}
 .rtb button:disabled{opacity:.35}
+
+/* long-press the park it button to open the full task editor */
+.lotadd button[type=submit]{position:relative;overflow:hidden;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.lotadd button[type=submit]::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.22);transform:scaleX(0);transform-origin:left;pointer-events:none}
+.lotadd button[type=submit].hold::before{transform:scaleX(1);transition:transform .6s linear}
+@media (prefers-reduced-motion:reduce){.lotadd button[type=submit].hold::before{transition:none}}
