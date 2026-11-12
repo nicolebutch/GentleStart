@@ -605,3 +605,12 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .sim b{font-weight:700;color:var(--ink)}
 
 .pi.pj{border-left-color:var(--accent)}
+
+/* routine tab */
+.rtl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.rtl li{display:flex;gap:6px;align-items:stretch}
+.rtn{flex:1;min-width:0;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:9px 12px;font-size:15px}
+.rtn small{color:var(--ink2);font-size:12px;flex:none}
+.rtb{display:flex;gap:4px}
+.rtb button{width:38px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;font-size:16px}
+.rtb button:disabled{opacity:.35}

@@ -289,6 +289,8 @@
     f:{sels:[],sev:null,meds:[],trig:[],symp:[]}};
   BASE_CHIPS.forEach(function(c,i){if(S.colors[c]===undefined)S.colors[c]=i});
   S.floorIds=load('gs-floor',null);if(!Array.isArray(S.floorIds))S.floorIds=FLOORDEF.slice();
+  S.rtn=load('gs-rtn',null);if(!S.rtn||!S.rtn.parts)S.rtn={parts:{morning:PARTS.morning.steps.slice(),afternoon:PARTS.afternoon.steps.slice(),evening:PARTS.evening.steps.slice()},hidden:[],names:{}};
+  S.cust=load('gs-cust',[]);S.reps=load('gs-reps',[]);S.repSeen=load('gs-repseen',{});S.se=null;S.re=null;
   S.cats=load('gs-cats',null);if(!S.cats)S.cats=BASE_CHIPS.filter(function(c){return c!=='Migraine'}).concat(S.custom);S.ce=null;S.catEdit=false;S.justOpen=null;
   S.look=load('gs-look','original');if(S.look==='greenhouse')S.look='original';if(!LOOKS[S.look])S.look='original';
   S.cw=load('gs-cw',null);if(!CWS[S.cw])S.cw=LOOKS[S.look].cw;
@@ -368,8 +370,23 @@
   };
   /* clock mode: start minute and length for each step */
   var TIMES={dailymeds:[540,5],teeth:[545,10],clothes:[555,10],muffin:[565,10],water:[575,5],meal:[580,30],lunch:[750,45],jobs:[810,20],pt:[840,30],muffinpm:[1050,10],dinner:[1080,45],tidy:[1140,10],tomorrow:[1160,10]};
+  syncSteps();
   function isFloor(id){return S.floorIds.indexOf(id)>=0}
-  function floorSteps(p){return FLOORALL[p].filter(function(id){return isFloor(id)&&!offId(id)})}
+  function floorAll(p){var base=FLOORALL[p].filter(function(id){return S.rtn.hidden.indexOf(id)<0});S.rtn.parts[p].forEach(function(id){if(base.indexOf(id)<0&&S.cust.some(function(x){return x.id===id}))base.push(id)});return base}
+  function floorSteps(p){return floorAll(p).filter(function(id){return isFloor(id)&&!offId(id)})}
+  function repDue(r,d){if(r.rep==='w')return r.days.indexOf(d.getDay())>=0;var dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();return d.getDate()===Math.min(r.dom||1,dim)}
+  function partSteps(p){var a=S.rtn.parts[p].filter(function(id){return !offId(id)}),now=new Date();S.reps.forEach(function(r){if(r.as==='step'&&r.part===p&&repDue(r,now))a.push('r_'+r.id)});return a}
+  function syncSteps(){S.cust.forEach(function(x){STEPS[x.id]={t:x.t,s:'One small step.',c:'Done'};NAMES[x.id]=x.t});S.reps.forEach(function(r){var id='r_'+r.id;STEPS[id]={t:r.t,s:'Repeating, and due today.',c:'Done'};NAMES[id]=r.t})}
+  function saveRtn(){save('gs-rtn',S.rtn);save('gs-cust',S.cust);save('gs-reps',S.reps)}
+  function genReps(){
+    var tk=ymd(new Date()),now=new Date(),ch=false;
+    S.reps.forEach(function(r){
+      if(r.as!=='lot'||!repDue(r,now)||S.repSeen[r.id]===tk)return;
+      S.repSeen[r.id]=tk;ch=true;
+      if(!S.tasks.some(function(t){return !t.done&&t.rep===r.id}))S.tasks.unshift({id:'t'+Date.now()+r.id,rep:r.id,title:r.t,h:'week',nr:false,fun:false,work:[],mins:0,w:'med',due:'',steps:[],done:false,created:Date.now()});
+    });
+    if(ch){save('gs-repseen',S.repSeen);saveTasks()}
+  }
   S.logic=load('gs-logic','gentle');if(!LOGICS[S.logic])S.logic='gentle';
   S.mt='themes';S.appear=load('gs-appear','auto');if(['auto','light','dark'].indexOf(S.appear)<0)S.appear='auto';S.shift=0;S.noAI=false;
   S.chat={open:false,msgs:[],busy:false,err:'',retry:''};
@@ -721,7 +738,7 @@
   }
   function plannerCard(){
     var tk=ymd(new Date()),now=SIM[S.part],items=[],rows='';
-    ['morning','afternoon','evening'].forEach(function(p){PARTS[p].steps.filter(function(id){return !offId(id)}).forEach(function(id){var sc=schedOf(id);if(sc)items.push({k:'r',id:id,start:sc.start,dur:TIMES[id][1]})})});
+    ['morning','afternoon','evening'].forEach(function(p){partSteps(p).forEach(function(id){var sc=schedOf(id);if(sc)items.push({k:'r',id:id,start:sc.start,dur:TIMES[id][1]})})});
     evsOn(tk).forEach(function(ev){items.push({k:'e',ev:ev,start:tmin(ev.time),dur:ev.dur||60})});
     var H0=7,H1=22;
     for(var hr=H0;hr<=H1;hr++){
@@ -811,9 +828,10 @@
   function moodAlt(id){if(S.logic!=='mammal'||S.mood!=='dreamy')return null;if(id==='teeth')return {t:'Splash in the birdbath',s:'Teeth and face, before you leave the nest. A little splash and a little preening is plenty.'};if(id==='clothes')return {t:'Preen those feathers',s:'Out of pajamas and into something that feels like you. Same trip upstairs, then down you go.'};return null}
   function offId(id){return !(PROF&&PROF.pet)&&(id==='muffin'||id==='muffinpm')}
   function stepOf(id){var b=STEPS[id],a=moodAlt(id)||(ALT[S.logic]&&ALT[S.logic][id]),o={},k;for(k in b)o[k]=b[k];if(a)for(k in a)o[k]=a[k];
+    if(S.rtn.names[id])o.t=S.rtn.names[id];
     if(id==='lunch'&&!(PROF&&PROF.partner)){o.lunch=false;o.meal=true;o.t='Lunch';o.s='Time to eat something. Whatever is easy counts.'}
     return o}
-  function nmOf(id){var a=moodAlt(id)||(ALT[S.logic]&&ALT[S.logic][id]);return a?(a.t||NAMES[id]):NAMES[id]}
+  function nmOf(id){if(S.rtn.names[id])return S.rtn.names[id];var a=moodAlt(id)||(ALT[S.logic]&&ALT[S.logic][id]);return a?(a.t||NAMES[id]):NAMES[id]}
   function schedOf(id){if(S.logic!=='clock'||!TIMES[id])return null;var b=TIMES[id],st=b[0]+S.shift;return {start:st,label:fmt(st)+' to '+fmt(st+b[1])}}
 
   /* ---- tile stacks ---- */
@@ -959,7 +977,7 @@
     if(S.colors[label]===undefined){var n=Object.keys(S.colors).length;S.colors[label]=n%8;save('gs-colors',S.colors)}
     return 'var(--c'+(S.colors[label]%8)+')';
   }
-  function steps(){if(lowMode())return floorSteps(S.part);return (S.part==='morning'&&S.floor)?floorSteps('morning'):PARTS[S.part].steps.filter(function(id){return !offId(id)})}
+  function steps(){if(lowMode())return floorSteps(S.part);return (S.part==='morning'&&S.floor)?floorSteps('morning'):partSteps(S.part)}
   function nextId(){var a=steps();for(var i=0;i<a.length;i++){if(!S.status[a[i]])return a[i]}return null}
   function toast(m){var t=document.getElementById('toast');t.textContent=fxt(m);t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true},3200)}
   function keepAll(fn){var m={};document.querySelectorAll('input[type=text],input[type=time],input[type=date]').forEach(function(i){if(i.id)m[i.id]=i.value});fn();Object.keys(m).forEach(function(id){var e=document.getElementById(id);if(e)e.value=m[id]})}
@@ -1243,11 +1261,63 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     return '<div class="backdrop" style="z-index:40"><div class="sheet" role="dialog" aria-modal="true" aria-label="Welcome"><h2 style="font-size:26px">Welcome</h2><p class="small">A few names make this feel like yours. All of it is optional, it stays on this device, and you can change it any time in the menu.</p><form id="welcomeform" style="display:flex;flex-direction:column;gap:4px">'+nameFields({})+'<button class="btn" type="submit" style="margin-top:14px">Start</button></form><button class="quiet" data-a="wskip">Skip for now</button></div></div>';
   }
   function saveProf(o){PROF={name:(o.name||'').trim(),partner:(o.partner||'').trim(),pet:(o.pet||'').trim()};try{localStorage.setItem('gs-profile',JSON.stringify(PROF))}catch(e){}}
+
+  /* ---- Routine tab: daily steps and repeating tasks ---- */
+  var DAYN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  function defPart(id){var ps=['morning','afternoon','evening'];for(var i=0;i<3;i++)if(PARTS[ps[i]].steps.indexOf(id)>=0)return ps[i];return 'morning'}
+  function ord(n){var s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
+  function repLabel(r){
+    var w=r.rep==='w'?(r.days.length===7?'Every day':'Every '+r.days.slice().sort().map(function(d){return DAYN[d]}).join(', ')):'Monthly on the '+ord(r.dom||1);
+    return w+', '+r.part+', '+(r.as==='lot'?'parking lot':'routine step');
+  }
+  function routineTab(){
+    var h='<p class="small">Shape your day. Hide what you do not need, reorder, rename, or add your own steps. Nothing here ever turns into overdue.</p>';
+    [['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].forEach(function(p){
+      var ids=S.rtn.parts[p[0]].filter(function(id){return !offId(id)});
+      h+='<div class="grp"><div class="lab">'+p[1]+'</div><ul class="rtl">';
+      ids.forEach(function(id,i){
+        h+='<li><button class="rtn" data-a="rtedit" data-v="'+esc(id)+'"><span>'+esc(nmOf(id))+'</span>'+(isFloor(id)?'<small>always counts</small>':'')+'</button><span class="rtb"><button aria-label="Move up" data-a="rtmv" data-p="'+p[0]+'" data-v="'+esc(id)+'" data-d="-1"'+(i===0?' disabled':'')+'>&uarr;</button><button aria-label="Move down" data-a="rtmv" data-p="'+p[0]+'" data-v="'+esc(id)+'" data-d="1"'+(i===ids.length-1?' disabled':'')+'>&darr;</button></span></li>';
+      });
+      h+='</ul>';
+      var hid=S.rtn.hidden.filter(function(id){return defPart(id)===p[0]&&!offId(id)});
+      if(hid.length){h+='<div class="chips sm" style="margin-top:6px"><span class="small">Hidden, tap to put back:</span>';hid.forEach(function(id){h+='<button data-a="rtback" data-v="'+esc(id)+'">'+esc(NAMES[id])+'</button>'});h+='</div>'}
+      h+='<form class="add" data-a="rtadd" data-p="'+p[0]+'" style="margin-top:8px"><input type="text" id="rtadd-'+p[0]+'" placeholder="Add a step" aria-label="Add a step to '+p[1]+'" maxlength="50"><button type="submit">Add</button></form></div>';
+    });
+    h+='<div class="grp"><div class="lab">Don&rsquo;t let me skip these</div><p class="small">Pick the things that always count. They never get a skip button, and they are what shows in floor mode and on low-battery days.</p>';
+    [['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].forEach(function(p){
+      h+='<div class="lab" style="margin-top:8px">'+p[1]+'</div><div class="chips sm" role="group" aria-label="'+p[1]+'">';
+      floorAll(p[0]).filter(function(id){return !offId(id)}).forEach(function(id){h+='<button data-a="flrtog" data-v="'+esc(id)+'" aria-pressed="'+isFloor(id)+'">'+esc(nmOf(id))+'</button>'});
+      h+='</div>';
+    });
+    h+='</div><div class="grp"><div class="lab">Repeating tasks</div><p class="small">Things that come back every week or month. If one slips by, it just resets for next time. It never piles up.</p>';
+    if(S.reps.length){h+='<div class="evlist">';S.reps.forEach(function(r){h+='<button class="ev" data-a="reedit" data-v="'+esc(r.id)+'"><span class="bd"><b>'+esc(r.t)+'</b><span class="small">'+esc(repLabel(r))+'</span></span></button>'});h+='</div>'}
+    else h+='<p class="small">None yet.</p>';
+    return h+'<button class="btn alt" data-a="renew" style="margin-top:8px">+ Add a repeating task</button></div>';
+  }
+  function newRe(){return {id:null,t:'',rep:'w',days:[],dom:1,part:'afternoon',as:'step',err:''}}
+  function syncRe(){var R=S.re;if(!R)return;var t=document.getElementById('re-t'),d=document.getElementById('re-dom');if(t)R.t=t.value;if(d)R.dom=Math.max(1,Math.min(31,parseInt(d.value,10)||1))}
+  function seSheet(){
+    if(!S.se)return '';
+    var id=S.se.id,cu=S.cust.some(function(x){return x.id===id});
+    return '<div class="backdrop mid" data-a="sebg"><div class="sheet" role="dialog" aria-modal="true" aria-label="Edit step"><h2 style="font-size:22px;text-align:center">Edit step</h2><input class="field" type="text" id="se-name" maxlength="50" value="'+esc(S.se.name)+'" aria-label="Step name"><button class="btn" data-a="sesave">Save name</button><button class="quiet" style="text-align:center" data-a="sedel">'+(cu?'Delete this step':'Hide this step')+'</button><button class="quiet" style="text-align:center" data-a="secancel">Cancel</button></div></div>';
+  }
+  function reSheet(){
+    var R=S.re;if(!R)return '';
+    var h='<div class="backdrop mid" data-a="rebg"><div class="sheet" role="dialog" aria-modal="true" aria-label="Repeating task"><h2 style="font-size:22px;text-align:center">'+(R.id?'Edit repeating task':'Repeating task')+'</h2>';
+    if(R.err)h+='<div class="note" role="alert">'+esc(R.err)+'</div>';
+    h+='<div class="grp"><div class="lab">What is it</div><input class="field" type="text" id="re-t" maxlength="50" value="'+esc(R.t)+'" placeholder="e.g. Water the plants" aria-label="What is it"></div>';
+    h+='<div class="grp"><div class="lab">Repeats</div>'+evChips('retype',R.rep,[['w','Weekly'],['m','Monthly']]);
+    if(R.rep==='w'){h+='<div class="chips sm" style="margin-top:8px" role="group" aria-label="Days">';DAYN.forEach(function(d,i){h+='<button data-a="reday" data-v="'+i+'" aria-pressed="'+(R.days.indexOf(i)>=0)+'">'+d+'</button>'});h+='</div>'}
+    else h+='<div class="lab" style="margin-top:8px">On day of the month</div><input class="field" type="number" min="1" max="31" id="re-dom" value="'+R.dom+'" aria-label="Day of the month"><p class="small">In shorter months it lands on the last day.</p>';
+    h+='</div><div class="grp"><div class="lab">Time of day</div>'+evChips('repart',R.part,[['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']])+'</div>';
+    h+='<div class="grp"><div class="lab">Shows up as</div>'+evChips('reas',R.as,[['step','A routine step'],['lot','A parking lot task']])+'<p class="small">'+(R.as==='step'?'It joins that part of the day on its day, like any other step.':'It lands in your weekly parking lot on its day and stays until you do it.')+'</p></div>';
+    return h+'<button class="btn" data-a="resave">Save</button>'+(R.id?'<button class="quiet" style="text-align:center" data-a="redel">Delete this repeating task</button>':'')+'<button class="quiet" style="text-align:center" data-a="recancel">Cancel</button></div></div>';
+  }
   function menuSheet(){
     if(!S.menu)return '';
     var h='<div class="backdrop" data-a="mbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="Menu"><div class="between"><h2 style="font-size:24px">Menu</h2><button class="x" data-a="mclose" aria-label="Close menu">&times;</button></div>';
     h+='<div class="subtabs" role="group" aria-label="Menu sections">';
-    [['themes','Themes'],['logic','Logic'],['data','You']].forEach(function(t){h+='<button data-a="mt" data-v="'+t[0]+'" aria-pressed="'+(S.mt===t[0])+'">'+t[1]+'</button>'});
+    [['themes','Themes'],['logic','Logic'],['routine','Routine'],['data','You']].forEach(function(t){h+='<button data-a="mt" data-v="'+t[0]+'" aria-pressed="'+(S.mt===t[0])+'">'+t[1]+'</button>'});
     h+='</div>';
     var paused=creature()&&S.mt!=='logic'?'<div class="note">Little mammal has its own storybook look, so themes and colorways are paused while it is on.</div>':'';
     if(S.mt==='themes'){
@@ -1268,6 +1338,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       h+='</div><p class="small">Colorways only change the colors, and they work with any theme.</p></div>';
       }
 
+    }else if(S.mt==='routine'){
+      h+=routineTab();
     }else if(S.mt==='data'){
       h+='<form id="profform" class="grp" style="display:flex;flex-direction:column;gap:4px"><div class="lab">About you</div>'+nameFields(PROF)+'<button class="btn alt" type="submit" style="margin-top:10px">Save names</button></form>';
       h+='<div class="grp"><div class="lab">Back up your data</div><p class="small">Everything lives on this device only for now. A backup is one small file with your tasks, plans, lists, log and settings. Keep it somewhere safe, or use it to move to a new phone.</p><button class="btn" data-a="dexport">Save a backup</button></div>';
@@ -1286,15 +1358,6 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
         h+='</div><p class="small">Auto follows the calendar. Pick one to preview its colors and creatures.</p></div>';
       }
     }
-    if(S.mt==='logic'){
-      h+='<div class="grp"><div class="lab">Don&rsquo;t let me skip these</div><p class="small">Pick the things that always count. They never get a skip button, and they are what shows in floor mode and on low-battery days.</p>';
-      [['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].forEach(function(p){
-        h+='<div class="lab" style="margin-top:8px">'+p[1]+'</div><div class="chips sm" role="group" aria-label="'+p[1]+'">';
-        FLOORALL[p[0]].forEach(function(id){h+='<button data-a="flrtog" data-v="'+id+'" aria-pressed="'+isFloor(id)+'">'+esc(NAMES[id])+'</button>'});
-        h+='</div>';
-      });
-      h+='</div>';
-    }
     h+='<p class="small">More settings will live here as we build them.</p></div></div>';
     return h;
   }
@@ -1308,6 +1371,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
   }
 
   function render(){
+    genReps();
     var app=document.getElementById('app');
     var _sl=document.getElementById('simslider'),keepSl=(_sl&&document.activeElement===_sl)?_sl:null;
     app.classList.toggle('wide',S.tab==='ov');
@@ -1318,7 +1382,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     if(_hk&&_hk===render.lastHero){app.querySelectorAll('.hero').forEach(function(e){e.style.animation='none'})}
     render.lastHero=_hk;
     var _l=document.querySelector('.lot'),_st=_l?_l.scrollTop:0;
-    document.getElementById('sheetRoot').innerHTML=fx(roughSheet()+menuSheet()+evSheet()+skipSheet()+forgotSheet()+catSheet()+nameSheet()+tkSheet()+lotSheet()+plSheet()+fab()+welcomeSheet());
+    document.getElementById('sheetRoot').innerHTML=fx(roughSheet()+menuSheet()+evSheet()+skipSheet()+forgotSheet()+catSheet()+seSheet()+reSheet()+nameSheet()+tkSheet()+lotSheet()+plSheet()+fab()+welcomeSheet());
     var _l2=document.querySelector('.lot');if(_l2)_l2.scrollTop=_st;
   }
 
@@ -1337,7 +1401,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
   function keepOpen(){var ids=openIds();render();reopen(ids)}
   function resetForm(){S.f={sels:[],sev:null,meds:[],trig:[],symp:[]}}
   function keepSheet(fn){var sh=document.querySelector('.sheet'),st=sh?sh.scrollTop:0;fn();var s2=document.querySelector('.sheet');if(s2)s2.scrollTop=st}
-  function closeSheets(){S.menu=false;S.rp=null;S.ev=null;S.ns=null;S.tk=null;S.pl=null;S.sq=null;S.fg=null;S.ce=null}
+  function closeSheets(){S.menu=false;S.rp=null;S.ev=null;S.ns=null;S.tk=null;S.pl=null;S.sq=null;S.fg=null;S.ce=null;S.se=null;S.re=null}
 
   var A={
     appear:function(b){keepSheet(function(){S.appear=b.dataset.v;save('gs-appear',S.appear);applyLook();render()})},
@@ -1512,6 +1576,50 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       if(id==='mig'){var was=S.f.sels.indexOf('Migraine')>=0;toggleSel('Migraine');if(!was)S.justOpen='mig'}
       else{var i=S.openStacks.indexOf(id);if(i>=0)S.openStacks.splice(i,1);else{S.openStacks.push(id);S.justOpen=id}}
       render();S.justOpen=null})},
+    rtmv:function(b){
+      var p=b.dataset.p,a=S.rtn.parts[p],i=a.indexOf(b.dataset.v),d=+b.dataset.d,j=i+d;
+      while(j>=0&&j<a.length&&offId(a[j]))j+=d;
+      if(i<0||j<0||j>=a.length)return;
+      var t=a[i];a[i]=a[j];a[j]=t;saveRtn();keepSheet(render)
+    },
+    rtedit:function(b){S.se={id:b.dataset.v,name:nmOf(b.dataset.v)};render();var i=document.getElementById('se-name');if(i){i.focus();i.select()}},
+    sesave:function(){
+      var se=S.se,i=document.getElementById('se-name'),v=(i?i.value:'').trim().slice(0,50);if(!se)return;
+      if(!v){toast('A step needs a name.');return}
+      var cu=S.cust.filter(function(x){return x.id===se.id})[0];
+      if(cu){cu.t=v;delete S.rtn.names[se.id]}
+      else if(v===NAMES[se.id])delete S.rtn.names[se.id];else S.rtn.names[se.id]=v;
+      syncSteps();saveRtn();S.se=null;render();toast('Saved.')
+    },
+    sedel:function(){
+      var se=S.se;if(!se)return;var id=se.id;
+      ['morning','afternoon','evening'].forEach(function(p){S.rtn.parts[p]=S.rtn.parts[p].filter(function(x){return x!==id})});
+      if(S.cust.some(function(x){return x.id===id})){S.cust=S.cust.filter(function(x){return x.id!==id});S.floorIds=S.floorIds.filter(function(x){return x!==id});save('gs-floor',S.floorIds);delete S.rtn.names[id]}
+      else if(S.rtn.hidden.indexOf(id)<0)S.rtn.hidden.push(id);
+      saveRtn();S.se=null;render();toast('Done. You can put a hidden step back from the Routine tab.')
+    },
+    secancel:function(){S.se=null;render()},
+    sebg:function(b,e){if(e.target===b){S.se=null;render()}},
+    rtback:function(b){var id=b.dataset.v;S.rtn.hidden=S.rtn.hidden.filter(function(x){return x!==id});var p=defPart(id);if(S.rtn.parts[p].indexOf(id)<0)S.rtn.parts[p].push(id);saveRtn();keepSheet(render)},
+    renew:function(){S.re=newRe();render()},
+    reedit:function(b){var r=S.reps.filter(function(x){return x.id===b.dataset.v})[0];if(!r)return;S.re={id:r.id,t:r.t,rep:r.rep,days:r.days.slice(),dom:r.dom||1,part:r.part,as:r.as,err:''};render()},
+    retype:function(b){keepSheet(function(){syncRe();S.re.rep=b.dataset.v;render()})},
+    reday:function(b){keepSheet(function(){syncRe();var d=+b.dataset.v,i=S.re.days.indexOf(d);if(i>=0)S.re.days.splice(i,1);else S.re.days.push(d);render()})},
+    repart:function(b){keepSheet(function(){syncRe();S.re.part=b.dataset.v;render()})},
+    reas:function(b){keepSheet(function(){syncRe();S.re.as=b.dataset.v;render()})},
+    resave:function(){
+      syncRe();var R=S.re;R.err='';
+      if(!R.t.trim())R.err='Give it a name first.';
+      else if(R.rep==='w'&&!R.days.length)R.err='Pick at least one day.';
+      if(R.err){keepSheet(render);return}
+      var rec={id:R.id||('p'+Date.now()),t:R.t.trim().slice(0,50),rep:R.rep,days:R.days.slice(),dom:R.dom,part:R.part,as:R.as};
+      var ix=-1;S.reps.forEach(function(x,i){if(x.id===rec.id)ix=i});
+      if(ix>=0)S.reps[ix]=rec;else S.reps.push(rec);
+      syncSteps();genReps();saveRtn();S.re=null;render();toast('Saved. It comes back on its own, never overdue.')
+    },
+    redel:function(){var id=S.re&&S.re.id;S.reps=S.reps.filter(function(x){return x.id!==id});saveRtn();S.re=null;render();toast('Removed.')},
+    recancel:function(){S.re=null;render()},
+    rebg:function(b,e){if(e.target===b){S.re=null;render()}},
     flrtog:function(b){keepSheet(function(){var id=b.dataset.v,i=S.floorIds.indexOf(id);if(i>=0)S.floorIds.splice(i,1);else S.floorIds.push(id);save('gs-floor',S.floorIds);render()})},
     catmode:function(){S.catEdit=!S.catEdit;keepAll(render)},
     catedit:function(b){S.ce={label:b.dataset.v,name:b.dataset.v};render();var i=document.getElementById('ce-name');if(i){i.focus();i.select()}},
@@ -1650,6 +1758,10 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     }else if(f.dataset.a==='additem'){
       var L=S.lists[+f.dataset.l];L.items.push({t:v,done:false});save('gs-lists',S.lists);render();reopen(ids);
       var el=document.getElementById('add-'+L.id);if(el)el.focus();
+    }else if(f.dataset.a==='rtadd'){
+      var rp=f.dataset.p,rid='c'+Date.now();
+      S.cust.push({id:rid,t:v.slice(0,50)});S.rtn.parts[rp].push(rid);syncSteps();saveRtn();
+      keepSheet(render);var rn=document.getElementById('rtadd-'+rp);if(rn)rn.focus();
     }else if(f.dataset.a==='careadd'){
       S.care.push(v);save('gs-care',S.care);S.careIdx=S.care.length-1;render();toast('Added.');
     }else if(f.dataset.a==='tkquick'){
