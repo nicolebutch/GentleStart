@@ -332,7 +332,7 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
   -webkit-mask-image:var(--gm);mask-image:var(--gm)}
 :root[data-look="birch"] .hello{font-size:33px;font-weight:500;line-height:1.12;letter-spacing:.01em}
 :root[data-look="birch"] .emblem{position:relative;background:transparent;border:0;color:var(--ink)}
-:root[data-look="birch"] .emblem::before{content:"";position:absolute;inset:-5px;background:var(--brush-dot);opacity:.78;-webkit-mask:var(--enso) center/100% 100% no-repeat;mask:var(--enso) center/100% 100% no-repeat;pointer-events:none}
+:root[data-look="birch"] .emblem::before{content:"";position:absolute;inset:-5px;background:var(--brush-dot);opacity:.78;-webkit-mask:url(art/enso-thin.png) center/100% 100% no-repeat;mask:url(art/enso-thin.png) center/100% 100% no-repeat;pointer-events:none}
 :root[data-look="birch"] .hero,:root[data-look="birch"] .card{position:relative;background:transparent;border:0;border-radius:0;box-shadow:none}
 :root[data-look="birch"] .hero{padding:26px 2px 6px}
 :root[data-look="birch"] .card{padding:20px 2px 6px}
@@ -345,7 +345,7 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 :root[data-look="birch"] .steps{gap:0}
 :root[data-look="birch"] .steps li{border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent);padding:11px 2px}
 :root[data-look="birch"] .steps li:last-child{border-bottom:0}
-:root[data-look="birch"] .steps li .dot{width:19px;height:19px;border:0;border-radius:0;background:var(--brush-dot);opacity:.55;-webkit-mask:var(--enso) center/contain no-repeat;mask:var(--enso) center/contain no-repeat;transform:rotate(-25deg)}
+:root[data-look="birch"] .steps li .dot{width:19px;height:19px;border:0;border-radius:0;background:var(--brush-dot);opacity:.55;-webkit-mask:url(art/enso.png) center/contain no-repeat;mask:url(art/enso.png) center/contain no-repeat;transform:rotate(-25deg)}
 :root[data-look="birch"] .steps li.now .dot{opacity:1;transform:rotate(-25deg) scale(1.18)}
 :root[data-look="birch"] .steps li.done .dot{opacity:1;width:24px;height:24px;margin:-2.5px;-webkit-mask-image:var(--blot);mask-image:var(--blot);transform:none}
 :root[data-look="birch"] .tabs{border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
@@ -546,9 +546,9 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .grp:focus-within .medsugg{display:flex}
 .medsugg button{border:1.5px dashed var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;font-size:14px}
 
-.deco img.vine{display:block;width:82%;max-width:420px;height:auto;margin-left:auto}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .deco img.vine{filter:brightness(1.25) contrast(.8)}}
-:root[data-theme="dark"] .deco img.vine{filter:brightness(1.25) contrast(.8)}
+.deco img.vine{display:block;width:100%;max-width:none;height:auto;margin:0 auto;filter:hue-rotate(var(--vh,19deg)) saturate(1.12)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .deco img.vine{filter:hue-rotate(var(--vh,19deg)) saturate(1.12) brightness(1.25) contrast(.8)}}
+:root[data-theme="dark"] .deco img.vine{filter:hue-rotate(var(--vh,19deg)) saturate(1.12) brightness(1.25) contrast(.8)}
 .opt .mini.qm{display:flex;align-items:center;justify-content:center;width:30px;height:30px}
 
 /* overview week: horizontal day columns */
@@ -651,3 +651,23 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 :root[data-look="birch"] .steps li.done .dot{background:var(--ink);-webkit-mask:url("art/blot.png") center/contain no-repeat;mask:url("art/blot.png") center/contain no-repeat;opacity:1;width:21px;height:21px;margin:-1px;transform:none}
 :root[data-theme="dark"][data-look="birch"] .steps li.done .dot{background:url("art/gold.png") center/contain no-repeat;-webkit-mask:none;mask:none}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-look="birch"] .steps li.done .dot{background:url("art/gold.png") center/contain no-repeat;-webkit-mask:none;mask:none}}
+
+/* vine follows the colorway */
+:root[data-cw="library"]{--vh:90deg}:root[data-cw="peri"]{--vh:144deg}:root[data-cw="ocean"]{--vh:62deg}:root[data-cw="oak"]{--vh:-83deg}
+/* wide screens: centre the page even with the birch trunk (the trunk may sit under the page) */
+@media (min-width:760px){:root[data-look="original"] body,:root[data-look="original"] .tabs{padding-left:0}}
+:root[data-look="original"] body::before{background-position:-1px 0}
+/* stuck button: no glow in dark mode, soft drop shadow stays in light mode */
+:root[data-theme="dark"] .fab{box-shadow:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fab{box-shadow:none}}
+/* menu quill follows the colorway */
+.opt .mini.qm .inkart{background:var(--accent)}
+/* phone: show a Time label on the empty time field */
+.tfield{position:relative}
+@media (max-width:760px),(pointer:coarse){
+  .tfield::before{content:"";position:absolute;right:14px;top:50%;width:18px;height:18px;transform:translateY(-50%);pointer-events:none;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2' stroke-linecap='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v5l3 2'/></svg>") center/contain no-repeat;opacity:.8}
+  .tfield input::-webkit-calendar-picker-indicator{opacity:0}
+  .tfield input:invalid{color:transparent}
+  .tfield:has(input:invalid)::after{content:"Time";position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink2);opacity:.7;pointer-events:none}
+}
+.ytnote{margin:6px 0 0}

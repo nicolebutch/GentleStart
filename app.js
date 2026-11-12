@@ -1000,6 +1000,8 @@
     return h+'</div>';
   }
   S.evtags=load('gs-evtags',['Appointment','Hobby','Dinner out','Call','Errand']);
+  S.ytl=load('gs-ytl','');
+  function ytLink(){return S.ytl||'https://youtube.com/playlist?list=PLObp3SAH0hnY&si=vXpF5x_9PXO8uPWp'}
   function newEv(){return {tags:[],id:null,by:'me',title:'',dk:'today',dateVal:'',time:'',dur:60,place:'',travel:0,prep:'',withJ:false,share:'full',err:''}}
   function syncEv(){
     var E=S.ev;if(!E)return;
@@ -1021,7 +1023,7 @@
     h+='</div></div>';
     h+='<div class="grp"><div class="lab">When</div>'+evChips('evday',E.dk,[['today','Today'],['tomorrow','Tomorrow'],['other','Another day']]);
     if(E.dk==='other')h+='<input class="field" type="date" id="ev-date" value="'+esc(E.dateVal)+'" aria-label="Date" style="margin-top:8px">';
-    h+='<input class="field" type="time" id="ev-time" value="'+esc(E.time)+'" aria-label="Start time" style="margin-top:8px"></div>';
+    h+='<div class="tfield" style="margin-top:8px"><input class="field" type="time" id="ev-time" required value="'+esc(E.time)+'" aria-label="Start time"></div></div>';
     h+='<div class="grp"><div class="lab">How long</div>'+evChips('evdur',E.dur,[[0,'No end time'],[30,'30 min'],[60,'1 hr'],[90,'1.5 hr'],[120,'2 hr'],[180,'3 hr']])+'</div>';
     h+='<div class="grp"><div class="lab">Where (optional)</div><input class="field" type="text" id="ev-place" value="'+esc(E.place)+'" placeholder="e.g. Main Street clinic" aria-label="Where"></div>';
     if(E.by!=='p')h+='<div class="grp"><div class="lab">Travel time (optional)</div>'+evChips('evtravel',E.travel,[[0,'None'],[10,'10 min'],[20,'20 min'],[30,'30 min'],[45,'45 min'],[60,'1 hr']])+'<p class="small">Used to tell you when to start getting ready. It adds 10 minutes of buffer.</p></div>';
@@ -1125,7 +1127,7 @@
     h+='</ul></div>';
     }
     if(id&&!S.doing)h+=parkCard();
-    h+='<div class="sect"><h3>'+esc(u.music)+'</h3><div class="music"><a class="btn alt" href="https://open.spotify.com" target="_blank" rel="noopener">Spotify</a><a class="btn alt" href="https://youtube.com/playlist?list=PLObp3SAH0hnY&si=vXpF5x_9PXO8uPWp" target="_blank" rel="noopener">YouTube playlist</a></div></div>';
+    h+='<div class="sect"><h3>'+esc(u.music)+'</h3><div class="music"><a class="btn alt" href="https://open.spotify.com" target="_blank" rel="noopener">Spotify</a><a class="btn alt" href="'+esc(ytLink())+'" target="_blank" rel="noopener">YouTube playlist</a></div>'+(S.ytl?'':'<p class="small ytnote">The YouTube playlist is one I made. Feel free to use it, or swap in your own music in settings.</p>')+'</div>';
     return h;
   }
 
@@ -1465,7 +1467,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       [['plinko','Plinko','A ball drops through the pegs and lands on one of your picks.','<circle cx="10" cy="8" r="2"/><circle cx="22" cy="8" r="2"/><circle cx="16" cy="15" r="2"/><circle cx="16" cy="25" r="3"/>'],['wheel','Spin wheel','Spin once. It slows and lands on one of the things that fit.','<circle cx="16" cy="16" r="11"/><path d="M16 5v22M5 16h22M8.5 8.5l15 15M23.5 8.5l-15 15"/>'],['coin','Coin flip','Two of your things, one flip. Quick and decisive.','<circle cx="16" cy="16" r="11"/><path d="M14 12.5l2.5-1.5v10"/>']].forEach(function(o){
         h+='<button class="opt" data-a="rnd" data-v="'+o[0]+'" aria-pressed="'+(S.rnd===o[0])+'">'+SVGO.replace('class="sprig"','class="mini"')+o[3]+'</svg><span><b>'+o[1]+'</b><span class="small">'+o[2]+'</span></span></button>';
       });
-      h+='</div><div class="grp"><div class="lab">Plan tags</div><p class="small">The tags you can pick when adding a plan. Tap one to remove it.</p><div class="chips sm">'+S.evtags.map(function(q,i){return '<button data-a="evtagdel" data-v="'+i+'" aria-label="Remove tag '+esc(q)+'">'+esc(q)+' &times;</button>'}).join('')+'</div><form class="add" data-a="evtagadd"><input type="text" id="evtagnew" maxlength="24" placeholder="New tag, e.g. Gym" aria-label="New plan tag"><button type="submit">Add</button></form></div><div class="grp"><div class="lab">Calendar</div><div class="chips sm"><button data-a="holtog" aria-pressed="'+!!S.hol+'">Show major US holidays</button></div><p class="small">They appear on Overview and at the top of Plans on the day. They are not plans, so nothing is ever due.</p></div>';
+      h+='</div><div class="grp"><div class="lab">YouTube playlist</div><p class="small">The playlist button on Today opens the one I made, which you are welcome to use. Paste a link to your own playlist to swap it, or use the link to your playlists page.</p><form class="add" data-a="ytsave"><input type="text" id="ytlink" inputmode="url" placeholder="https://youtube.com/playlist?list=..." value="'+esc(S.ytl)+'" aria-label="YouTube playlist link"><button type="submit">Save</button></form><div class="chips sm"><button data-a="ytpl">Use my playlists page</button>'+(S.ytl?'<button data-a="ytreset">Back to the original</button>':'')+'</div></div><div class="grp"><div class="lab">Plan tags</div><p class="small">The tags you can pick when adding a plan. Tap one to remove it.</p><div class="chips sm">'+S.evtags.map(function(q,i){return '<button data-a="evtagdel" data-v="'+i+'" aria-label="Remove tag '+esc(q)+'">'+esc(q)+' &times;</button>'}).join('')+'</div><form class="add" data-a="evtagadd"><input type="text" id="evtagnew" maxlength="24" placeholder="New tag, e.g. Gym" aria-label="New plan tag"><button type="submit">Add</button></form></div><div class="grp"><div class="lab">Calendar</div><div class="chips sm"><button data-a="holtog" aria-pressed="'+!!S.hol+'">Show major US holidays</button></div><p class="small">They appear on Overview and at the top of Plans on the day. They are not plans, so nothing is ever due.</p></div>';
     }else if(S.mt==='routine'){
       h+=routineTab();
     }else if(S.mt==='data'){
@@ -1576,6 +1578,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     mood:function(b){keepSheet(function(){S.mood=b.dataset.v;S.skipPark=[];save('gs-mood',S.mood);render()})},
     season:function(b){keepSheet(function(){S.season=b.dataset.v;save('gs-season',S.season);applyLook();render()})},
     critter:function(){S.cr=(S.cr||0)+1;render()},
+    ytpl:function(){S.ytl='https://www.youtube.com/feed/playlists';save('gs-ytl',S.ytl);keepSheet(render);toast('Saved.')},
+    ytreset:function(){S.ytl='';save('gs-ytl','');keepSheet(render);toast('Back to the original playlist.')},
     evtagdel:function(b){S.evtags.splice(+b.dataset.v,1);save('gs-evtags',S.evtags);keepSheet(render)},
     holtog:function(){S.hol=!S.hol;save('gs-hol',S.hol);keepSheet(render)},
     rnd:function(b){S.rnd=b.dataset.v;save('gs-rnd',S.rnd);keepSheet(render)},
@@ -1689,9 +1693,11 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     },
     stepclick:function(b){
       var sid=b.dataset.v;
-      if(S.status[sid]){delete S.status[sid];render()}
-      var hero=document.querySelector('.hero');
-      if(hero){hero.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'center'});hero.classList.remove('pulse');void hero.offsetWidth;hero.classList.add('pulse');setTimeout(function(){hero.classList.remove('pulse')},1100)}
+      var undid=!!S.status[sid];
+      if(undid){delete S.status[sid];render()}
+      var go=function(){var hero=document.querySelector('.hero');
+      if(hero){hero.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'center'});hero.classList.remove('pulse');void hero.offsetWidth;hero.classList.add('pulse');setTimeout(function(){hero.classList.remove('pulse')},1100)}};
+      if(undid)setTimeout(go,900);else go();
     },
     forgot:function(){S.fg=true;render()},
     fgok:function(){S.fg=null;logIt('Forgot morning meds',null,false);S.status.dailymeds='skip';render()},
@@ -1924,6 +1930,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       var rp=f.dataset.p,rid='c'+Date.now();
       S.cust.push({id:rid,t:v.slice(0,50)});S.rtn.parts[rp].push(rid);syncSteps();saveRtn();
       keepSheet(render);var rn=document.getElementById('rtadd-'+rp);if(rn)rn.focus();
+    }else if(f.dataset.a==='ytsave'){
+      if(/^https:\/\/(www\.|m\.|music\.)?(youtube\.com|youtu\.be)\//i.test(v)){S.ytl=v;save('gs-ytl',v);keepSheet(render);toast('Saved.')}else toast('Paste a youtube.com link, starting with https://')
     }else if(f.dataset.a==='evtagadd'){
       if(S.evtags.length<16&&S.evtags.indexOf(v)<0){S.evtags.push(v.slice(0,24));save('gs-evtags',S.evtags)}
       keepSheet(render);var en=document.getElementById('evtagnew');if(en)en.focus();
