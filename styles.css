@@ -428,8 +428,7 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .lotbg{position:fixed;inset:0;background:color-mix(in srgb,var(--ink) 45%,transparent);z-index:18;display:flex;justify-content:flex-end}
 .lot{width:min(92%,390px);height:100%;overflow-y:auto;padding:calc(18px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) 16px;display:flex;flex-direction:column;gap:14px;color:var(--paint);
   background-color:var(--pave);
-  background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1.3px),radial-gradient(rgba(0,0,0,.22) 1px,transparent 1.5px),radial-gradient(rgba(255,255,255,.05) 2px,transparent 2.5px);
-  background-size:7px 7px,11px 11px,19px 19px;background-position:0 0,4px 5px,9px 3px;box-shadow:-18px 0 40px -20px rgba(0,0,0,.5)}
+  background-image:url(art/asphalt.jpg);background-size:cover;background-position:center;box-shadow:-18px 0 40px -20px rgba(0,0,0,.5)}
 .lot.enter{animation:lotin .22s ease-out}
 @keyframes lotin{from{transform:translateX(30px);opacity:.4}to{transform:none;opacity:1}}
 .lottitle{font-size:26px;color:var(--paint);border-bottom:3px double var(--paintY);padding-bottom:6px;flex:1}
