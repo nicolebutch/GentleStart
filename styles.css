@@ -223,7 +223,7 @@ details.tuck ul{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:15p
 .kss{display:flex;gap:3px}
 .ks{width:9px;height:9px;border-radius:3px;display:block;box-shadow:0 0 0 1.5px var(--surface)}
 [data-drag]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
-.dragging{opacity:.35}
+.dragging{transform:scale(1.07) rotate(-2deg);box-shadow:0 16px 28px -10px color-mix(in srgb,var(--ink) 55%,transparent);transition:none!important;cursor:grabbing}
 .drop-hot{outline:3px solid var(--accent);outline-offset:3px;transform:scale(1.06)}
 .ghost{position:fixed;z-index:60;pointer-events:none;transform:translate(-50%,-150%);background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:8px 16px;font-weight:600;font-size:15px;box-shadow:0 14px 28px -10px color-mix(in srgb,var(--ink) 60%,transparent)}
 .outzone{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));z-index:40;border:2px dashed var(--accent);background:var(--surface);color:var(--ink);border-radius:16px;padding:14px 20px;font-size:15px;max-width:min(380px,90%);text-align:center}

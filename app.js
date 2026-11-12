@@ -1820,7 +1820,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
 
   /* ---- long-press, then drag a tile onto another tile (new stack) or onto a stack (move in) ---- */
   var D=null,noClick=0;
-  function moveGhost(x,y){if(D&&D.ghost){D.ghost.style.left=x+'px';D.ghost.style.top=y+'px'}}
+  function moveGhost(x,y){if(D&&D.active&&D.el){D.el.style.left=(x-D.ox)+'px';D.el.style.top=(y-D.oy)+'px'}}
   function setHot(t){if(D.hot&&D.hot!==t)D.hot.classList.remove('drop-hot');D.hot=t;if(t)t.classList.add('drop-hot')}
   function hitAt(x,y){
     var el=document.elementFromPoint(x,y);if(!el)return null;
@@ -1831,8 +1831,14 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
   }
   function startDrag(){
     if(!D||D.active)return;
-    D.active=true;D.el.classList.add('dragging');
-    var g=document.createElement('div');g.className='ghost';g.textContent=D.label;document.body.appendChild(g);D.ghost=g;
+    D.active=true;
+    var el=D.el,r=el.getBoundingClientRect(),cs=getComputedStyle(el);
+    D.ox=D.x-r.left;D.oy=D.y-r.top;D.oldStyle=el.getAttribute('style');
+    var ph=document.createElement('span');ph.setAttribute('aria-hidden','true');
+    ph.style.cssText='display:inline-block;flex:none;width:'+r.width+'px;height:'+r.height+'px;margin:'+cs.margin;
+    el.parentNode.insertBefore(ph,el);D.ph=ph;
+    el.classList.add('dragging');
+    el.style.cssText=(D.oldStyle||'')+';position:fixed;left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;height:'+r.height+'px;margin:0;z-index:60;pointer-events:none';
     moveGhost(D.x,D.y);
     if(D.from)document.getElementById('outzone').hidden=false;
     try{var sel=window.getSelection();if(sel)sel.removeAllRanges()}catch(e){}
@@ -1844,8 +1850,9 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     var d=D;D=null;clearTimeout(d.timer);clearInterval(d.scroller);
     if(!d.active)return;
     noClick=Date.now()+450;
-    if(d.ghost)d.ghost.remove();
     d.el.classList.remove('dragging');
+    if(d.oldStyle===null||d.oldStyle===undefined)d.el.removeAttribute('style');else d.el.setAttribute('style',d.oldStyle);
+    if(d.ph&&d.ph.parentNode)d.ph.parentNode.removeChild(d.ph);
     if(d.hot)d.hot.classList.remove('drop-hot');
     var oz=document.getElementById('outzone');oz.hidden=true;oz.classList.remove('drop-hot');
     if(commit&&d.hot)applyDrop(d,d.hot);
