@@ -20,7 +20,7 @@ self.addEventListener('fetch',function(e){
   }
   if(u.origin!==location.origin)return;
   // app files: network first so updates arrive, cache as the offline fallback
-  e.respondWith(fetch(r).then(function(res){
+  e.respondWith(fetch(r,{cache:'no-cache'}).then(function(res){
     if(res&&res.ok){var cp=res.clone();caches.open(VERSION).then(function(c){c.put(r,cp)})}
     return res;
   }).catch(function(){return caches.match(r).then(function(hit){return hit||caches.match('index.html')})}));
