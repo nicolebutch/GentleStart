@@ -505,6 +505,47 @@
 
   /* ---- plinko: a ball picks one of the tasks that fit right now ---- */
   var PLN=5;
+  var RNDS={plinko:'Plinko',wheel:'Spin wheel',coin:'Coin flip'};
+  S.rnd=load('gs-rnd','plinko');if(!RNDS[S.rnd])S.rnd='plinko';
+  function rndBtn(u){return S.rnd==='wheel'?'Spin the wheel':S.rnd==='coin'?'Flip a coin':u.plbtn}
+  function wedge(i,n,R){var s=2*Math.PI/n,a0=i*s,a1=(i+1)*s,x0=150+R*Math.sin(a0),y0=150-R*Math.cos(a0),x1=150+R*Math.sin(a1),y1=150-R*Math.cos(a1);return 'M150 150L'+x0.toFixed(1)+' '+y0.toFixed(1)+'A'+R+' '+R+' 0 '+(s>Math.PI?1:0)+' 1 '+x1.toFixed(1)+' '+y1.toFixed(1)+'Z'}
+  function rndStart(){
+    var P=S.pl,n=P.ids.length,reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    P.k=Math.floor(Math.random()*n);P.drops=(P.drops||0)+1;P.phase=reduce?'done':'spin';P.go=false;
+    if(P.mode==='wheel'){var seg=360/n;P.final=360*5+(360-(P.k+.5)*seg)}else P.final=360*4+(P.k?180:0);
+    render();
+    if(reduce)return;
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      if(S.pl!==P||P.phase!=='spin')return;
+      var el=document.getElementById('rndspin');if(el){P.go=true;el.style.transform=P.mode==='wheel'?'rotate('+P.final+'deg)':'rotateY('+P.final+'deg)'}
+      P.timer=setTimeout(function(){if(S.pl===P&&P.phase==='spin'){P.phase='done';render()}},P.mode==='wheel'?3800:1700);
+    })});
+  }
+  function rndSheet(){
+    var P=S.pl,u=U(),n=P.ids.length,tasks=P.ids.map(taskById).filter(Boolean),done=P.phase==='done',i;
+    var title=P.mode==='wheel'?'Spin wheel':'Coin flip';
+    var h='<div class="backdrop" data-a="plbg"><div class="sheet plsheet" role="dialog" aria-modal="true" aria-label="'+title+'"><div class="between"><h2 style="font-size:24px">'+title+'</h2><button class="x" data-a="plclose" aria-label="Close">&times;</button></div>';
+    h+='<p class="small">'+(done?'Landed. These all fit the time you have, so any of them is a fine pick.':(P.mode==='wheel'?'Everything on the wheel fits the time you have right now. Tap it to skip the wait.':'Two things that fit the time you have. Tap the coin to skip the wait.'))+'</p>';
+    var tf=done?(P.mode==='wheel'?'rotate('+P.final+'deg)':'rotateY('+P.final+'deg)'):(P.mode==='wheel'?'rotate(0deg)':'rotateY(0deg)');
+    var st='transform:'+tf+(done?';transition:none':'');
+    if(P.mode==='wheel'){
+      h+='<div class="whlbox"'+(done?'':' data-a="rndskip"')+'><svg viewBox="0 0 300 300" role="img" aria-label="Wheel with '+n+' sections"><g id="rndspin" class="whl" style="'+st+'">';
+      for(i=0;i<n;i++){var ang=(i+.5)*2*Math.PI/n;h+='<path d="'+wedge(i,n,136)+'" style="fill:var(--c'+i+');stroke:var(--surface);stroke-width:3;opacity:'+(done&&P.k!==i?'.4':'.92')+'"/><text x="'+(150+86*Math.sin(ang)).toFixed(1)+'" y="'+(150-86*Math.cos(ang)+7).toFixed(1)+'" text-anchor="middle" style="fill:#fff;stroke:rgba(0,0,0,.35);stroke-width:3;paint-order:stroke;font:700 22px var(--font-body)">'+(i+1)+'</text>'}
+      h+='<circle cx="150" cy="150" r="14" style="fill:var(--surface);stroke:var(--ink2)" stroke-width="3"/></g><path d="M138 4h24l-12 26z" style="fill:var(--ink);stroke:var(--surface);stroke-width:2"/></svg></div>';
+    }else{
+      h+='<div class="coinwrap"'+(done?'':' data-a="rndskip"')+'><div id="rndspin" class="coin" style="'+st+'"><div class="face f1" style="background:var(--c0)">1</div><div class="face f2" style="background:var(--c1)">2</div></div></div>';
+    }
+    h+='<ol class="plleg">';
+    tasks.forEach(function(t,j){h+='<li'+(done&&P.k===j?' class="win"':'')+'><i style="background:var(--c'+j+')">'+(j+1)+'</i><span>'+esc(t.title)+'</span></li>'});
+    h+='</ol>';
+    if(done&&tasks[P.k]){
+      var w=tasks[P.k];
+      h+='<div class="sugg"><b>'+esc(w.title)+'</b>'+taskTags(w)+'</div><div class="row"><button class="btn grow" data-a="plstart" data-v="'+esc(w.id)+'">'+esc(u.start)+'</button>'+(P.drops<2?'<button class="btn alt grow" data-a="rndagain">'+(P.mode==='wheel'?'Spin again':'Flip again')+'</button>':'')+'</div>';
+      h+='<div class="row"><button class="quiet" data-a="plclose">'+(P.drops<2?'Not now':'Maybe later')+'</button></div>';
+      if(P.drops>=2)h+='<p class="small">That is the second go, so this one is the pick. Closing leaves everything as it was.</p>';
+    }else h+='<div class="row"><button class="quiet" data-a="rndskip">Skip the wait</button></div>';
+    return h+'</div></div>';
+  }
   function plPool(){return rank(function(t){return !t.nr}).list.map(function(x){return x.t})}
   function plSample(list){var a=list.slice(),o=[];while(a.length&&o.length<PLN){o.push(a.splice(Math.floor(Math.random()*a.length),1)[0])}return o}
   /* a field of pegs, whatever the number of slots. Positions are whole multiples of 30px (u = x/30); row s allows u with (u+s) odd. */
@@ -602,10 +643,11 @@
   function plBtn(){
     if(plPool().length<2)return '';
     var u=U(),hot=S.skipPark.length>=2;
-    return (hot?'<p class="small">Cannot decide? Let it fall.</p>':'')+'<div class="row"><button class="'+(hot?'btn alt grow':'quiet')+'" data-a="plopen">'+esc(u.plbtn)+'</button></div>';
+    return (hot?'<p class="small">Cannot decide? Let chance pick.</p>':'')+'<div class="row"><button class="'+(hot?'btn alt grow':'quiet')+'" data-a="plopen">'+esc(rndBtn(u))+'</button></div>';
   }
   function plSheet(){
     var P=S.pl;if(!P)return '';
+    if(P.mode)return rndSheet();
     var u=U(),n=P.ids.length,g=plGeo(),tasks=P.ids.map(taskById).filter(Boolean),done=P.phase==='done',i;
     var h='<div class="backdrop" data-a="plbg"><div class="sheet plsheet" role="dialog" aria-modal="true" aria-label="'+esc(u.plinko)+'"><div class="between"><h2 style="font-size:24px">'+esc(u.plinko)+'</h2><button class="x" data-a="plclose" aria-label="Close">&times;</button></div>';
     h+='<p class="small">'+(done?'Landed. These all fit the time you have, so any of them is a fine pick.':'Everything on the board fits the time you have right now. Tap the board to skip the wait.')+'</p>';
@@ -1337,7 +1379,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     if(!S.menu)return '';
     var h='<div class="backdrop" data-a="mbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="Menu"><div class="between"><h2 style="font-size:24px">Menu</h2><button class="x" data-a="mclose" aria-label="Close menu">&times;</button></div>';
     h+='<div class="subtabs" role="group" aria-label="Menu sections">';
-    [['themes','Themes'],['logic','Logic'],['routine','Routine'],['data','You']].forEach(function(t){h+='<button data-a="mt" data-v="'+t[0]+'" aria-pressed="'+(S.mt===t[0])+'">'+t[1]+'</button>'});
+    [['themes','Themes'],['logic','Logic'],['routine','Routine'],['other','Other'],['data','You']].forEach(function(t){h+='<button data-a="mt" data-v="'+t[0]+'" aria-pressed="'+(S.mt===t[0])+'">'+t[1]+'</button>'});
     h+='</div>';
     var paused=creature()&&S.mt!=='logic'?'<div class="note">Little mammal has its own storybook look, so themes and colorways are paused while it is on.</div>':'';
     if(S.mt==='themes'){
@@ -1358,6 +1400,12 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       h+='</div><p class="small">Colorways only change the colors, and they work with any theme.</p></div>';
       }
 
+    }else if(S.mt==='other'){
+      h+='<div class="grp"><div class="lab">How should chance pick for you?</div><p class="small">This is what happens when you tap the button to let chance choose from the things that fit your time. It never picks anything that is not already a good fit.</p>';
+      [['plinko','Plinko','A ball drops through the pegs and lands on one of your picks.','<circle cx="10" cy="8" r="2"/><circle cx="22" cy="8" r="2"/><circle cx="16" cy="15" r="2"/><circle cx="16" cy="25" r="3"/>'],['wheel','Spin wheel','Spin once. It slows and lands on one of the things that fit.','<circle cx="16" cy="16" r="11"/><path d="M16 5v22M5 16h22M8.5 8.5l15 15M23.5 8.5l-15 15"/>'],['coin','Coin flip','Two of your things, one flip. Quick and decisive.','<circle cx="16" cy="16" r="11"/><path d="M14 12.5l2.5-1.5v10"/>']].forEach(function(o){
+        h+='<button class="opt" data-a="rnd" data-v="'+o[0]+'" aria-pressed="'+(S.rnd===o[0])+'">'+SVGO.replace('class="sprig"','class="mini"')+o[3]+'</svg><span><b>'+o[1]+'</b><span class="small">'+o[2]+'</span></span></button>';
+      });
+      h+='</div>';
     }else if(S.mt==='routine'){
       h+=routineTab();
     }else if(S.mt==='data'){
@@ -1467,10 +1515,13 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     mood:function(b){keepSheet(function(){S.mood=b.dataset.v;S.skipPark=[];save('gs-mood',S.mood);render()})},
     season:function(b){keepSheet(function(){S.season=b.dataset.v;save('gs-season',S.season);applyLook();render()})},
     critter:function(){S.cr=(S.cr||0)+1;render()},
-    plopen:function(){var pool=plPool();if(pool.length<2)return;S.pl={ids:plSample(pool).map(function(t){return t.id}),drops:0};plDrop();render();plAnimate()},
+    rnd:function(b){S.rnd=b.dataset.v;save('gs-rnd',S.rnd);keepSheet(render)},
+    rndskip:function(){var P=S.pl;if(!P||!P.mode||P.phase==='done')return;clearTimeout(P.timer);P.phase='done';render()},
+    rndagain:function(){var P=S.pl;if(!P||!P.mode||P.drops>=2)return;rndStart()},
+    plopen:function(){var pool=plPool();if(pool.length<2)return;if(S.rnd!=='plinko'){var sm=plSample(pool);if(S.rnd==='coin')sm=sm.slice(0,2);S.pl={ids:sm.map(function(t){return t.id}),drops:0,mode:S.rnd};rndStart();return}S.pl={ids:plSample(pool).map(function(t){return t.id}),drops:0};plDrop();render();plAnimate()},
     plagain:function(){if(!S.pl||S.pl.drops>=2)return;plDrop();render();plAnimate()},
     plskip:function(){plLand()},
-    plclose:function(){plAnimate.id++;S.pl=null;render()},
+    plclose:function(){plAnimate.id++;if(S.pl&&S.pl.timer)clearTimeout(S.pl.timer);S.pl=null;render()},
     plbg:function(b,e){if(e.target===b)A.plclose()},
     plstart:function(b){var id=b.dataset.v;plAnimate.id++;S.pl=null;S.lot=false;S.doing=id;S.askMore=false;S.celeb=null;S.tab='today';render();window.scrollTo(0,0)},
     lot:function(){S.lot=true;S.lotAnim=true;render();S.lotAnim=false},
@@ -1915,13 +1966,13 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       "Wiped out":{a:"Then the goal is not to get going, just to get one small thing started. Sit up, sip some water, and see how you feel after. If today needs a gentler morning, there is a page for that.",act:['rough']},
       "Dreading the day":{a:"That makes sense. The first step does not have to touch the dread. Feet down, water, bathroom, nothing else. We can look at the day once you are up.",act:['rough']},
       "Not sure":{a:"That is okay. Try the smallest version: sit up and take one slow breath. After that you can decide again, and it only has to be the very next thing.",act:[]}}},
-    "I don't know what to do first":{a:"Then let's skip deciding. The ball can pick from the things that fit the time you have, and anything on that board is a fine place to start.",act:['pl']},
+    "I don't know what to do first":{a:"Then let's skip deciding. Chance can pick from the things that fit the time you have, and anything it lands on is a fine place to start.",act:['pl']},
     "I can't start something":{q:"What does it feel like?",o:{
       "It feels huge":{a:"Make it smaller than feels reasonable. Open it, then stop. Ten seconds with it counts as starting, and you are allowed to stop after that.",act:[]},
       "I don't know the first step":{a:"Then the first step is finding the first step. Write one line about what done looks like, then name the very first thing your hands would do, like opening the file or finding the form.",act:[]},
       "I'm avoiding it":{a:"Avoiding usually means something about it feels boring, uncomfortable or fuzzy. Boring gets music or company, uncomfortable gets a two-minute timer, fuzzy gets one line about what done looks like. Which one sounds closest?",act:[]},
       "It's boring":{a:"Then pair it with something that is not boring: music, a warm drink, or someone nearby doing their own thing in the same room. Start with just five minutes.",act:[]}}},
-    "I'm stuck on a decision":{a:"You do not have to decide. Let the ball choose, and if the result makes you wince or relax, that tells you something too.",act:['pl']}
+    "I'm stuck on a decision":{a:"You do not have to decide. Let chance choose, and if the result makes you wince or relax, that tells you something too.",act:['pl']}
   };
   function helpPick(l){
     var c=S.chat,node=(c.opts&&c.opts[l])||HELP[l];if(!node)return;

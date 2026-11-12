@@ -620,3 +620,13 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .lotadd button[type=submit]::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.22);transform:scaleX(0);transform-origin:left;pointer-events:none}
 .lotadd button[type=submit].hold::before{transform:scaleX(1);transition:transform .6s linear}
 @media (prefers-reduced-motion:reduce){.lotadd button[type=submit].hold::before{transition:none}}
+
+/* spin wheel and coin flip */
+.whlbox{display:grid;place-items:center}
+.whlbox svg{width:min(100%,300px);height:auto;overflow:visible}
+.whl{transform-origin:150px 150px;transition:transform 3.6s cubic-bezier(.12,.72,.14,1)}
+.coinwrap{perspective:800px;display:grid;place-items:center;height:170px}
+.coin{position:relative;width:120px;height:120px;transform-style:preserve-3d;transition:transform 1.5s cubic-bezier(.2,.7,.2,1)}
+.coin .face{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;font:700 48px var(--font-display);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:inset 0 0 0 7px rgba(255,255,255,.35),0 10px 20px -10px rgba(0,0,0,.5)}
+.coin .face.f2{transform:rotateY(180deg)}
+@media (prefers-reduced-motion:reduce){.whl,.coin{transition:none}}
