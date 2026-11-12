@@ -4,7 +4,7 @@
     nook:{name:'Library',cw:'library',blurb:'A bookshelf (with a cat) across the top, a chapter-list routine with dotted leaders, a ribbon bookmark on your next step, and ribbon tabs.'},
     meadow:{name:'Meadow',cw:'peri',blurb:'A flower garland, blossom bullets, pastel gradient edges, polka-dot paper, and a floating pill tab bar.'},
     tide:{name:'Ocean',cw:'ocean',blurb:'A rippling pool header, a ripple ring on your next step, a wave along the main card, and a wavy tab bar.'},
-    birch:{name:'Canvas',cw:'oak',blurb:'Paper-and-ink calm: canvas texture, a brush-stroke and ensō header, brush-stroke dividers, and open-circle step markers.'}
+    birch:{name:'Canvas',cw:'oak',blurb:'Paper-and-ink calm: canvas texture, a brush-stroke and ensō header, brush-stroke dividers, open-circle step markers, and an ink blot (gold leaf in dark mode) for finished steps.'}
   };
   var CWS={
     sea:{name:'Fern',sw:['#E9EDDF','#3D754F','#A9CC9B']},

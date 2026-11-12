@@ -28,7 +28,14 @@
 <script src="app.js"></script>
 <script>
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){
-  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+  window.addEventListener('load',function(){
+    var had=!!navigator.serviceWorker.controller,reloaded=false;
+    navigator.serviceWorker.addEventListener('controllerchange',function(){if(had&&!reloaded){reloaded=true;location.reload()}});
+    navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(function(r){
+      document.addEventListener('visibilitychange',function(){if(!document.hidden)r.update().catch(function(){})});
+      r.update().catch(function(){});
+    }).catch(function(){});
+  });
 }
 </script>
 </body>
