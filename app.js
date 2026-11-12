@@ -304,7 +304,7 @@
   var LOGICS={
     gentle:{name:'Gentle (default)',blurb:'How it works now: one next step at a time, nothing overdue, plenty of slack.',icon:MOTIFS.original,voice:'Warm, plain and calm.'},
     clock:{name:'On the clock',blurb:'Cares about time. Steps get start times and lengths, plans warn you earlier, and you can slide the whole schedule if you run behind.',icon:'<circle cx="16" cy="16" r="11"/><path d="M16 9v7l5 3"/>',voice:'Practical and time-aware. You may say how long something realistically takes or suggest a short timer, but never rush or scold.'},
-    mammal:{name:'Little mammal',blurb:'A woodland storybook. The whole look changes with the season, you pick your mood (slow, energetic, dreamy or balanced), the parking lot becomes the stash, and the words turn into a small animal tending its den.',icon:'<ellipse cx="16" cy="21" rx="6" ry="5"/><circle cx="8" cy="14" r="2.4"/><circle cx="13" cy="9" r="2.4"/><circle cx="19" cy="9" r="2.4"/><circle cx="24" cy="14" r="2.4"/>',voice:'Lightly playful: frame things as if she were a small animal tending a den and foraging, but keep the actual advice clear and kind. A light touch, not constant.'},
+    mammal:{name:'Woodland creatures',blurb:'A woodland storybook theme, the first of several story worlds planned. The whole look changes with the season, you pick your mood (slow, energetic, dreamy or balanced), the parking lot becomes the stash, and the words turn into a small animal tending its den.',icon:'<ellipse cx="16" cy="21" rx="6" ry="5"/><circle cx="8" cy="14" r="2.4"/><circle cx="13" cy="9" r="2.4"/><circle cx="19" cy="9" r="2.4"/><circle cx="24" cy="14" r="2.4"/>',voice:'Lightly playful: frame things as if she were a small animal tending a den and foraging, but keep the actual advice clear and kind. A light touch, not constant.'},
     tiny:{name:'Tiny steps',blurb:'Every step shrinks to its first 30 seconds. For days when starting is the whole problem.',icon:'<path d="M4 26h7v-7h7v-7h7V6h3"/>',voice:'Always shrink any suggestion to something doable in about 30 seconds.'},
     low:{name:'Low battery',blurb:'Only the basics today: medications, §C, water, and food. Quiet words, nothing extra.',icon:'<rect x="4" y="10" width="21" height="12" rx="3"/><path d="M28 14v4M8 14v4"/>',voice:'She is low on energy: keep replies very short, offer only the minimum, and give permission to do less.'}
   };
@@ -1127,13 +1127,13 @@
   }
 
   function lists(){
-    var h=head({title:'Lists',sub:'Separate from today. Nothing here is due.'});
+    var h=head({title:'Lists',sub:'Separate from today. Nothing here is due. Tap Park it on anything you want to actually do this week.'});
     h+='<div class="note">Sample items are marked. Edit, check off, or delete them. They are saved in this browser only.</div>';
     S.lists.forEach(function(L,li){
       var n=L.items.filter(function(i){return !i.done}).length;
       h+='<details class="card lcard"'+(li===0?' open':'')+' data-id="'+L.id+'"><summary><span>'+esc(L.name)+'</span><span class="count">'+n+' item'+(n===1?'':'s')+'</span></summary><ul class="items">';
       L.items.forEach(function(it,ii){
-        h+='<li class="item'+(it.done?' done':'')+'"><button class="check" role="checkbox" aria-checked="'+it.done+'" aria-label="'+esc(it.t)+'" data-a="tick" data-l="'+li+'" data-i="'+ii+'">'+(it.done?'<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-7"/></svg>':'')+'</button><span class="t">'+esc(it.t)+'</span><button class="x" aria-label="Delete item" data-a="del" data-l="'+li+'" data-i="'+ii+'">&times;</button></li>';
+        h+='<li class="item'+(it.done?' done':'')+'"><button class="check" role="checkbox" aria-checked="'+it.done+'" aria-label="'+esc(it.t)+'" data-a="tick" data-l="'+li+'" data-i="'+ii+'">'+(it.done?'<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-7"/></svg>':'')+'</button><span class="t">'+esc(it.t)+'</span>'+(it.done?'':'<button class="lpk" aria-label="Move to the '+esc(U().lot.toLowerCase())+'" data-a="lpark" data-l="'+li+'" data-i="'+ii+'">'+esc(U().parkIt)+'</button>')+'<button class="x" aria-label="Delete item" data-a="del" data-l="'+li+'" data-i="'+ii+'">&times;</button></li>';
       });
       h+='</ul><form class="add" data-a="additem" data-l="'+li+'"><input type="text" id="add-'+L.id+'" placeholder="Add to '+esc(L.name)+'" aria-label="Add to '+esc(L.name)+'"><button type="submit">Add</button></form></details>';
     });
@@ -1289,6 +1289,41 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     return h;
   }
 
+  function usDays(){
+    var out=[];[0,1,2,3,4,5,6].forEach(function(n){
+      var k=ymd(addDays(new Date(),n)),ls=[];
+      evsOn(k).forEach(function(ev){if(ev.by==='p'||ev.share==='hidden')return;
+        ls.push(fmtRange(tmin(ev.time),ev.dur)+': '+(ev.share==='generic'?'Appointment':ev.title+(ev.place?', '+ev.place:''))+(ev.withJ?' (together)':''))});
+      if(ls.length)out.push([n===0?'Today':n===1?'Tomorrow':dayLabel(k),ls]);
+    });return out;
+  }
+  function usText(){
+    var d=usDays(),t=fxt('§N\u2019s plans')+'\n';
+    if(!d.length)return t+'\nNothing shared for the next few days.';
+    d.forEach(function(g){t+='\n'+g[0]+'\n';g[1].forEach(function(l){t+='\u2022 '+fxt(l)+'\n'})});
+    return t.trim();
+  }
+  function usLink(){
+    var o={n:(PROF&&PROF.name)||'',d:usDays().map(function(g){return [g[0],g[1].map(fxt)]})};
+    var b=btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    return location.href.split('#')[0]+'#share='+b;
+  }
+  function sendOut(text,url,msg){
+    if(navigator.share){navigator.share(url?{title:'Plans',url:url}:{text:text}).catch(function(){});return}
+    var v=url||text;
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(v).then(function(){toast(msg)},function(){toast('Could not copy on this browser.')});
+    else toast('Could not copy on this browser.');
+  }
+  function pvParse(){
+    var m=/^#share=([\w-]+)$/.exec(location.hash||'');if(!m)return null;
+    try{var s=m[1].replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';var o=JSON.parse(decodeURIComponent(escape(atob(s))));return o&&Array.isArray(o.d)?o:null}catch(e){return null}
+  }
+  function pvHtml(o){
+    var h='<div class="pv"><h1>'+(o.n?esc(o.n)+'&rsquo;s plans':'Plans')+'</h1><p class="small">A snapshot of what was shared. It does not update by itself, so ask for a fresh link any time.</p>';
+    if(!o.d.length)h+='<div class="card"><p class="small">Nothing shared for the next few days.</p></div>';
+    o.d.forEach(function(g){h+='<div class="dayhead">'+esc(g[0])+'</div><div class="card">';g[1].forEach(function(l){h+='<div class="him"><b>'+esc(l)+'</b></div>'});h+='</div>'});
+    return h+'</div>';
+  }
   function usRow(ev){
     var rng=fmtRange(tmin(ev.time),ev.dur),who=ev.withJ?'§N and §P':'§N';
     var line=ev.share==='generic'?who+', Appointment, '+rng:who+', '+ev.title+', '+rng+(ev.place?', '+ev.place:'');
@@ -1315,6 +1350,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     if(hidden)h+='<p class="small">'+hidden+' private plan'+(hidden===1?'':'s')+' not shown to §P.</p>';
     h+='<div class="card"><details class="tuck"><summary>Flexible today (3)</summary><ul><li>Chores</li><li>Project work</li><li>Art project</li></ul></details></div>';
     h+='<p class="small">Shared plans, like dinner out, appear once for both of you.</p>';
+    h+='<div class="card"><h3>Send this to §P</h3><p class="small">A plain bulleted list of the next week, using what you chose to share. The link opens a simple read-only page, with no sign-in and no questions. It is a snapshot from right now.</p><div class="chips sm"><button data-a="ustext">'+(navigator.share?'Share as text':'Copy as text')+'</button><button data-a="uslink">'+(navigator.share?'Share a link':'Copy a link')+'</button></div></div>';
     if(PROF&&PROF.partner){
       h+='<div class="card"><div class="between"><h3>§P&rsquo;s schedule</h3><button class="addbtn" data-a="evnewp">+ Add</button></div><p class="small">Things on §P&rsquo;s day you want to plan around, like a lunch break or a late shift. Only you see these, and they show up on your Overview.</p>';
       var pr='';
@@ -1402,7 +1438,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     h+='<div class="subtabs" role="group" aria-label="Menu sections">';
     [['themes','Themes'],['logic','Logic'],['routine','Routine'],['other','Other'],['data','You']].forEach(function(t){h+='<button data-a="mt" data-v="'+t[0]+'" aria-pressed="'+(S.mt===t[0])+'">'+t[1]+'</button>'});
     h+='</div>';
-    var paused=creature()&&S.mt!=='logic'?'<div class="note">Little mammal has its own storybook look, so themes and colorways are paused while it is on.</div>':'';
+    var paused=creature()&&S.mt!=='logic'?'<div class="note">Woodland creatures has its own storybook look, so themes and colorways are paused while it is on.</div>':'';
     if(S.mt==='themes'){
       h+='<p class="small">Picking a theme switches to its own colorway. Then try any other colorway on top, further down.</p>'+paused;
       h+='<div class="grp"><div class="lab">Appearance</div><div class="chips sm" role="group" aria-label="Light or dark">';
@@ -1460,6 +1496,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
   }
 
   function render(){
+    if(S.pv){document.getElementById('app').innerHTML=pvHtml(S.pv);document.getElementById('tabs').innerHTML='';document.getElementById('sheetRoot').innerHTML='';return}
     genReps();
     var app=document.getElementById('app');
     var _sl=document.getElementById('simslider'),keepSl=(_sl&&document.activeElement===_sl)?_sl:null;
@@ -1820,6 +1857,9 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     prevmo:function(){S.mo-=1;S.day=null;render()},
     nextmo:function(){if(S.mo<0){S.mo+=1;S.day=null;render()}},
     tick:function(b){var it=S.lists[+b.dataset.l].items[+b.dataset.i];it.done=!it.done;save('gs-lists',S.lists);keepOpen()},
+    ustext:function(){sendOut(usText(),null,'Copied. Paste it anywhere.')},
+    uslink:function(){sendOut('',usLink(),'Link copied.')},
+    lpark:function(b){var L=S.lists[+b.dataset.l],it=L.items[+b.dataset.i];if(!it)return;S.tasks.unshift({id:'t'+Date.now(),title:it.t,h:'week',nr:false,fun:false,work:[],mins:0,w:'med',due:'',steps:[],done:false,created:Date.now()});L.items.splice(+b.dataset.i,1);saveTasks();save('gs-lists',S.lists);toast('Moved to the '+U().lot.toLowerCase()+'.');keepOpen()},
     del:function(b){S.lists[+b.dataset.l].items.splice(+b.dataset.i,1);save('gs-lists',S.lists);keepOpen()}
   };
 
@@ -2107,6 +2147,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
   document.addEventListener('touchend',swEnd);document.addEventListener('touchcancel',swEnd);
   document.addEventListener('keydown',function(e){if(e.key!=='Escape')return;if(D&&D.active){endDrag(false);return}if(S.chat.open){chatClose();return}if(S.pl){A.plclose();return}if(S.rp||S.menu||S.ev||S.ns||S.tk){closeSheets();render();return}if(S.lot){S.lot=false;render()}});
   try{var _mq=window.matchMedia('(prefers-color-scheme: dark)');var _fn=function(){applyLook()};if(_mq.addEventListener)_mq.addEventListener('change',_fn)}catch(e){}
+  S.pv=pvParse();
+  window.addEventListener('hashchange',function(){S.pv=pvParse();render()});
   seedSamples();
   try{applyLook()}catch(e){}
   render();
