@@ -802,3 +802,10 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 .emblem.fancy .embsvg{width:56px;height:56px;margin:-5px;overflow:visible;display:block}
 .emblem.fancy:hover{transform:rotate(-6deg) scale(1.04)}
 @media (prefers-reduced-motion:reduce){.emblem.fancy{transition:none}.emblem.fancy:hover{transform:none}}
+
+/* Meadow: wax seal with a flower */
+.emblem.fancy .seal{position:relative;display:block;width:54px;height:54px;margin:-4px}
+.seal i{position:absolute;inset:0}
+.seal .sb{background:var(--accent);-webkit-mask:url(art/seal-body.png) center/contain no-repeat;mask:url(art/seal-body.png) center/contain no-repeat;filter:drop-shadow(0 2px 2px rgba(0,0,0,.18))}
+.seal .sl{background:var(--surface);-webkit-mask:url(art/seal-lines.png) center/contain no-repeat;mask:url(art/seal-lines.png) center/contain no-repeat}
+.seal .ss{background:#fff;opacity:.55;-webkit-mask:url(art/seal-shine.png) center/contain no-repeat;mask:url(art/seal-shine.png) center/contain no-repeat}
