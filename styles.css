@@ -794,3 +794,4 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .durin .field{width:84px;flex:none}
 .durin span{color:var(--ink2)}
 @media (max-width:760px),(pointer:coarse){.fab{bottom:calc(91px + env(safe-area-inset-bottom,0px))}}
+body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
