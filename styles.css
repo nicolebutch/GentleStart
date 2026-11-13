@@ -712,3 +712,6 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 :root[data-look="creature"] .lotadd button{color:#FBF3E4}
 :root[data-theme="dark"][data-look="creature"] .lotadd button{color:#4A3520}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-look="creature"] .lotadd button{color:#4A3520}}
+/* menu quill: always the accent-coloured ink version so it matches the other icons in dark mode too */
+.opt .mini.qm .inkart{display:block!important;background:var(--accent)}
+.opt .mini.qm .goldart,.opt .mini.qm img.goldart{display:none!important}
