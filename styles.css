@@ -900,3 +900,4 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 :root[data-cw="creature"][data-season="winter"]{--hot:#9E3B4E;--hot-ink:#FFFFFF}
 :root[data-theme="dark"][data-cw="creature"][data-season="winter"]{--hot:#9E3B4E;--hot-ink:#FFFFFF}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-cw="creature"][data-season="winter"]{--hot:#9E3B4E;--hot-ink:#FFFFFF}}
+.music .btn{display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.25}
