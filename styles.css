@@ -780,3 +780,5 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 
 .musset{display:block;margin:6px 0 0;padding-left:0;font-size:13px;color:var(--ink2);text-align:left;align-self:flex-start}
 .music .btn{flex:1 1 0;min-width:0;padding-left:8px;padding-right:8px}
+
+.sheet[aria-label="Menu"] .grp>.lab:not(.big){font-size:15px;font-weight:600;color:var(--ink)}
