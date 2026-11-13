@@ -29,6 +29,7 @@
 
   /* extra animals per mood; the scene shows one a day, and tapping the scene brings the next */
   var WHO={slow:['sleepy bear','slow turtle','little snail'],energetic:['busy squirrel','bouncy rabbit','springy grasshopper'],dreamy:['little songbird','leaping dolphin','dreamy butterfly'],balanced:['little hedgehog','clever fox','quiet deer']};
+  function bearFirst(){var d=new Date(),doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);S.cr=(3-doy%3)%3}
   function critterIdx(){var d=new Date(),doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);return (doy+(S.cr||0))%3}
 
   /* storybook hedgehog: soft gradients, many fine spines, warm face, adventure gear */
@@ -325,7 +326,7 @@
       rough:'Rough morning? Curl up here.',unrough:'Back to a regular den morning',music:'Sounds for the burrow',stuck:'Lost in the brush?',skip:'I let this one go',
       food:'What should I forage?',eaten:'I already foraged',picked:'I found something, done',lunchBtn:'Howl to §P: lunch?',solo:'I will forage alone',
       floorNote:'Floor mode: only your medicine, §C, water, and food. Everything else can wait. The den will still be there.',
-      lowNote:'Low battery: just the essentials. The den can wait. Nothing is overdue.',
+      lowNote:'Bear minimum: just the essentials. The den can wait. Nothing is overdue.',
       hello:'Hello, little one. What is going on in the den?',ctitle:'Lost in the brush?'
     },
     tiny:{next:'First 30 seconds',allset:'That was enough',routine:function(p){return 'Tiny steps for '+p},skip:"I'm skipping",sq:true,hello:'Hi. Tell me what you are stuck on. Small is fine.'},
@@ -388,7 +389,7 @@
     if(ch){save('gs-repseen',S.repSeen);saveTasks()}
   }
   S.logic=load('gs-logic','gentle');if(!LOGICS[S.logic])S.logic='gentle';
-  function lowRevert(){var t=load('gs-lowtmp',null);if(!t)return;if(t.day!==ymd(new Date())){S.logic=(LOGICS[t.prev]&&t.prev)||'gentle';save('gs-logic',S.logic);try{localStorage.removeItem('gs-lowtmp')}catch(e){}return true}}
+  function lowRevert(){var mt=load('gs-moodtmp',null);if(mt&&mt.day!==ymd(new Date())){S.mood=MOODS[mt.prev]?mt.prev:'balanced';save('gs-mood',S.mood);try{localStorage.removeItem('gs-moodtmp')}catch(e){}}var t=load('gs-lowtmp',null);if(!t)return;if(t.day!==ymd(new Date())){S.logic=(LOGICS[t.prev]&&t.prev)||'gentle';save('gs-logic',S.logic);try{localStorage.removeItem('gs-lowtmp')}catch(e){}return true}}
   function clearLowTmp(){try{localStorage.removeItem('gs-lowtmp')}catch(e){}}
   S.mt='themes';S.appear=load('gs-appear','auto');if(['auto','light','dark'].indexOf(S.appear)<0)S.appear='auto';S.shift=0;S.noAI=false;
   S.chat={open:false,msgs:[],busy:false,err:'',retry:''};
@@ -1374,9 +1375,9 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
 
   function roughSheet(){
     if(!S.rp)return '';
-    var h='<div class="backdrop" data-a="rbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="Rough morning"><h2 style="font-size:22px">Rough morning. Migraine?</h2><p class="small">Totally optional. The rough morning gets logged either way, then we switch to low battery mode for the rest of today. You can add symptoms and triggers later in the Log tab.</p><div class="chips"><button class="gchip" data-a="rmig" aria-pressed="'+S.rp.mig+'" aria-expanded="'+S.rp.mig+'">'+STACK+'<span>Migraine</span>'+CHEV+'</button></div>';
+    var h='<div class="backdrop" data-a="rbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="Rough morning"><h2 style="font-size:22px">Rough morning. Migraine?</h2><p class="small">Totally optional. The rough morning gets logged either way, then we switch to '+(creature()?'bear minimum':'low battery mode')+' for the rest of today. You can add symptoms and triggers later in the Log tab.</p><div class="chips"><button class="gchip" data-a="rmig" aria-pressed="'+S.rp.mig+'" aria-expanded="'+S.rp.mig+'">'+STACK+'<span>Migraine</span>'+CHEV+'</button></div>';
     if(S.rp.mig)h+='<div class="gpanel">'+sevUI(S.rp.sev,'rsev')+pickUI('meds','rp',S.rp.meds)+'</div>';
-    h+='<button class="btn" data-a="rgo">Switch to low battery mode</button><button class="quiet" data-a="rcancel">Never mind</button></div></div>';
+    h+='<button class="btn" data-a="rgo">'+(creature()?'Switch to bear minimum':'Switch to low battery mode')+'</button><button class="quiet" data-a="rcancel">Never mind</button></div></div>';
     return h;
   }
 
@@ -1406,7 +1407,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       var ids=S.rtn.parts[p[0]].filter(function(id){return !offId(id)});
       h+='<div class="grp"><div class="lab">'+p[1]+'</div><ul class="rtl">';
       ids.forEach(function(id,i){
-        h+='<li data-id="'+esc(id)+'" data-p="'+p[0]+'"><div class="rtbox"><button class="rtn" data-a="rtedit" data-v="'+esc(id)+'"><span>'+esc(nmOf(id))+'</span></button><button class="fpill'+(isFloor(id)?' on':'')+'" data-a="flrtog" data-v="'+esc(id)+'" aria-pressed="'+isFloor(id)+'">'+(isFloor(id)?'Always counts':'Don&rsquo;t let me skip this')+'</button></div><span class="grip" role="button" tabindex="0" aria-label="Drag to reorder '+esc(nmOf(id))+'. Arrow keys also move it." data-p="'+p[0]+'" data-v="'+esc(id)+'"><svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><rect x="3" y="4" width="12" height="2" rx="1"/><rect x="3" y="8" width="12" height="2" rx="1"/><rect x="3" y="12" width="12" height="2" rx="1"/></svg></span></li>';
+        h+='<li data-id="'+esc(id)+'" data-p="'+p[0]+'"><div class="rtbox"><button class="rtn" data-a="rtedit" data-v="'+esc(id)+'"><span>'+esc(nmOf(id))+'</span></button><button class="fpill'+(isFloor(id)?' on':'')+'" data-a="flrtog" data-v="'+esc(id)+'" aria-pressed="'+isFloor(id)+'">'+(creature()?(isFloor(id)?'Bear minimum \u2713':'Bear minimum'):(isFloor(id)?'Anchored':'Anchor it'))+'</button></div><span class="grip" role="button" tabindex="0" aria-label="Drag to reorder '+esc(nmOf(id))+'. Arrow keys also move it." data-p="'+p[0]+'" data-v="'+esc(id)+'"><svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><rect x="3" y="4" width="12" height="2" rx="1"/><rect x="3" y="8" width="12" height="2" rx="1"/><rect x="3" y="12" width="12" height="2" rx="1"/></svg></span></li>';
       });
       h+='</ul>';
       var hid=S.rtn.hidden.filter(function(id){return defPart(id)===p[0]&&!offId(id)});
@@ -1583,7 +1584,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     },
     dno:function(){S.dataPending=null;S.dataMsg='';keepSheet(render)},
     rmsample:function(){S.log=S.log.filter(function(e){return !e.smp});save('gs-log',S.log);render();toast('Sample entries removed.')},
-    mood:function(b){keepSheet(function(){S.mood=b.dataset.v;S.skipPark=[];save('gs-mood',S.mood);render()})},
+    mood:function(b){keepSheet(function(){try{localStorage.removeItem('gs-moodtmp')}catch(e){}S.mood=b.dataset.v;if(S.mood==='slow')bearFirst();S.skipPark=[];save('gs-mood',S.mood);render()})},
     season:function(b){keepSheet(function(){S.season=b.dataset.v;save('gs-season',S.season);applyLook();render()})},
     critter:function(){S.cr=(S.cr||0)+1;render()},
     ytpl:function(){S.ytl='https://www.youtube.com/feed/playlists';save('gs-ytl',S.ytl);keepSheet(render);toast('Saved.')},
@@ -1725,6 +1726,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       logIt('Rough morning');
       if(S.rp.mig)logIt('Migraine',{sev:S.rp.sev,meds:S.rp.meds});
       S.rp=null;
+      if(creature()){var mt=load('gs-moodtmp',null);save('gs-moodtmp',{prev:(mt&&mt.prev)?mt.prev:(S.mood==='slow'?'balanced':S.mood),day:ymd(new Date())});S.mood='slow';save('gs-mood','slow');bearFirst();S.skipPark=[];S.status={};render();toast('Bear minimum until tomorrow. Logged.');return}
       var tmp=load('gs-lowtmp',null);var prev=(tmp&&tmp.prev)?tmp.prev:(S.logic==='low'?'gentle':S.logic);
       save('gs-lowtmp',{prev:prev,day:ymd(new Date())});S.logic='low';save('gs-logic','low');S.shift=0;S.skipPark=[];applyLook();S.status={};render();toast('Low battery mode is on until tomorrow. Logged.');
     },
