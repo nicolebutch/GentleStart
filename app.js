@@ -1459,7 +1459,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
         var sw='';CWS[k].sw.forEach(function(c){sw+='<i style="background:'+c+'"></i>'});
         h+='<button class="cw" data-a="cw" data-v="'+k+'" aria-pressed="'+(S.cw===k)+'"><span class="sws">'+sw+'</span>'+esc(CWS[k].name)+'</button>';
       });
-      h+='</div><p class="small">Colorways only change the colors, and they work with any theme.</p></div>';
+      h+='</div><p class="small">Colorways only change the colors, and they work with any Basic theme.</p></div>';
       }
       var wc=creature();
       h+='<div class="grp"><div class="lab">Premium Themes</div><button class="opt" data-a="prem" aria-pressed="'+wc+'">'+SVGO.replace('class="sprig"','class="mini"')+LOGICS.mammal.icon+'</svg><span><b>'+esc(LOGICS.mammal.name)+'</b>'+(wc?'<span class="small">'+esc(LOGICS.mammal.blurb)+'</span>':'')+'</span></button>';
