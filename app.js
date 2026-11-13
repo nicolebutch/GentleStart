@@ -323,7 +323,7 @@
     {id:'hobbies',name:'Hobbies to try',items:[{t:'Something with plants (sample item)',done:false}]},
     {id:'groc',name:'Grocery run',items:[{t:'Easy breakfast foods (sample item)',done:false}]}
   ];
-  var S={tab:'today',part:'morning',floor:false,status:{},lists:load('gs-lists',DEFAULT_LISTS),log:load('gs-log',[]),custom:load('gs-custom',[]),
+  var S={tab:'today',part:'morning',status:{},lists:load('gs-lists',DEFAULT_LISTS),log:load('gs-log',[]),custom:load('gs-custom',[]),
     colors:load('gs-colors',{}),hide:{},mo:0,day:null,lv:'everyday',filt:false,rp:null,menu:false,
     opts:{meds:load('gs-meds',[]),trig:load('gs-trig',['Poor sleep','Skipped a meal','Dehydration','Weather change','Stress','Bright light']),symp:load('gs-symp',['Aura','Nausea','Light sensitivity','Sound sensitivity','Brain fog','Neck tension'])},
     f:{sels:[],sev:null,meds:[],trig:[],symp:[]}};
@@ -351,9 +351,8 @@
   var UI0={
     greet:function(l){return 'Good '+l.toLowerCase()+', §N.'},next:'Next',allset:'All set',
     routine:function(p){return 'Your '+p+', in order'},plans:'Plans',up:'Coming up',
-    rough:'Rough morning? Tap here.',unrough:'Back to a normal morning',music:'Music, no detours',stuck:'Stuck?',skip:'I skipped this',
+    rough:'Rough morning? Tap here.',music:'Music, no detours',stuck:'Stuck?',skip:'I skipped this',
     food:'What should I have?',eaten:'I ate',picked:'I picked something, done',lunchBtn:'Text §P: lunch?',solo:'I will eat on my own',
-    floorNote:'Low battery mode: only your medications, §C, water, and food. Everything else can wait, and nothing is overdue.',
     lowNote:'Low battery mode: just the basics. Everything else can wait, and nothing is overdue.',
     win:60,hello:'Hi. What is going on? Tell me in your own words, or tap one.',ctitle:'Here to help'
   };
@@ -362,9 +361,8 @@
     mammal:{
       greet:function(l){return 'Good '+l.toLowerCase()+', little mammal.'},next:'Next in the den',allset:'Settled in',
       routine:function(p){return 'Your '+p+' in the den, in order'},plans:'Places to be',up:'Further down the trail',
-      rough:'Rough morning? Curl up here.',unrough:'Back to a regular den morning',music:'Sounds for the burrow',stuck:'Lost in the brush?',skip:'I let this one go',
+      rough:'Rough morning? Curl up here.',music:'Sounds for the burrow',stuck:'Lost in the brush?',skip:'I let this one go',
       food:'What should I forage?',eaten:'I already foraged',picked:'I found something, done',lunchBtn:'Howl to §P: lunch?',solo:'I will forage alone',
-      floorNote:'Bear minimum: only your medicine, §C, water, and food. Everything else can wait. The den will still be there.',
       lowNote:'Bear minimum: just the essentials. The den can wait. Nothing is overdue.',
       hello:'Hello, little one. What is going on in the den?',ctitle:'Lost in the brush?'
     },
@@ -474,7 +472,7 @@
   function dueOf(t){return t.ex&&t.offDue!=null?ymd(addDays(new Date(),t.offDue)):(t.due||'')}
   function dueDays(t){var d=dueOf(t);if(!d)return null;return Math.round((parseKey(d)-parseKey(ymd(new Date())))/864e5)}
   function fmtMins(m){return m<60?m+' min':(m%60?(m/60).toFixed(1):(m/60))+' hr'}
-  function basicsDay(){return lowMode()||(S.part==='morning'&&S.floor)}
+  function basicsDay(){return lowMode()}
   function availMin(){
     var now=SIM[S.part],lim={morning:720,afternoon:1020,evening:1320}[S.part];
     evsOn(ymd(new Date())).forEach(function(ev){if(tmin(ev.time)>now){var lb=leaveBy(ev);if(lb<lim)lim=lb}});
@@ -519,9 +517,10 @@
   }
   /* anything a randomizer (plinko, roulette, and so on) may pick from: parked tasks not marked as excluded */
   function randPool(){return S.tasks.filter(function(t){return !t.done&&!t.nr})}
-  function taskTags(t){
+  function taskTags(t){var _gn=t.g&&groupName(t.g);
     var g='',d=dueOf(t);
     if(t.ex)g+=tag('Example');
+    if(_gn&&S.lotTab!=='groups')g+=tag(_gn);
     if(t.mins)g+=tag(fmtMins(t.mins));
     if(t.w==='big')g+=tag('A lot');else if(t.w==='small')g+=tag('A little');
     if(t.bd)g+=tag('Big deal');
@@ -781,11 +780,29 @@
     var u=U();
     return '<div class="lotbg" data-a="lbg"><aside class="lot'+(S.lotAnim?' enter':'')+'" role="dialog" aria-modal="true" aria-label="'+esc(u.lot)+'">'+lotInner(false)+'</aside></div>';
   }
+  S.groups=load('gs-groups',[{id:'g1',name:'Errands'},{id:'g2',name:'House'},{id:'g3',name:'Hobbies'}]);S.lotGroup=null;
+  function groupName(id){for(var i=0;i<S.groups.length;i++)if(S.groups[i].id===id)return S.groups[i].name;return ''}
+  function lotSort(a,b){var da=dueOf(a),db=dueOf(b);if(da&&db)return da<db?-1:da>db?1:0;if(da)return -1;if(db)return 1;return (b.created||0)-(a.created||0)}
+  function groupsView(u){
+    var h='';
+    if(S.lotGroup&&groupName(S.lotGroup)){
+      var gid=S.lotGroup,list=S.tasks.filter(function(t){return !t.done&&t.g===gid}).sort(lotSort);
+      h+='<div class="between"><button class="quiet" data-a="lgback">&larr; All groups</button><button class="quiet" data-a="lgdel" data-v="'+gid+'">Delete group</button></div><h3 class="lgtitle">'+esc(groupName(gid))+'</h3>';
+      h+='<form class="add lotadd" data-a="tkquick" data-h="week" data-g="'+gid+'"><input type="text" id="tkq" placeholder="Add to '+esc(groupName(gid))+'" aria-label="Add to this group"><button type="submit">'+esc(u.parkIt)+'</button></form>';
+      if(!list.length)h+='<div class="lotnote">Nothing in this group yet. Add something above, or pick this group when you edit a task.</div>';
+      else{h+='<div class="spaces">';list.forEach(function(t,i){h+=bay(t,i+1,false)});h+='</div>'}
+      return h;
+    }
+    h+='<div class="lotnote">Little lots for things that belong together. A task can be in one group and still show up in Weekly or Monthly.</div><div class="lgrid">';
+    S.groups.forEach(function(g){var n=S.tasks.filter(function(t){return !t.done&&t.g===g.id}).length;h+='<button class="lgcard" data-a="lgopen" data-v="'+g.id+'"><b>'+esc(g.name)+'</b><span>'+n+' task'+(n===1?'':'s')+'</span></button>'});
+    h+='</div><form class="add lotadd" data-a="lgadd"><input type="text" id="lgnew" maxlength="24" placeholder="New group, e.g. Car" aria-label="New group name"><button type="submit">Add</button></form>';
+    return h;
+  }
   function lotInner(embedded){
     var u=U(),tab=S.lotTab;
     var h='<div class="between"><h2 class="lottitle">'+esc(u.lot)+'</h2>'+(embedded?'':'<button class="x lotx" data-a="lclose" aria-label="Close">&times;</button>')+'</div>';
     h+='<div class="subtabs lotabs" role="group" aria-label="Sections"><button data-a="lottab" data-v="week" aria-pressed="'+(tab==='week')+'">Weekly</button><button data-a="lottab" data-v="month" aria-pressed="'+(tab==='month')+'">Monthly</button><button data-a="lottab" data-v="groups" aria-pressed="'+(tab==='groups')+'">Groups</button></div>';
-    if(tab==='groups')h+='<div class="lotnote">Groups are coming. Think errands, house, or hobbies, each with its own little lot.</div>';
+    if(tab==='groups')h+=groupsView(u);
     else{
       h+='<form class="add lotadd" data-a="tkquick" data-h="'+tab+'"><input type="text" id="tkq" placeholder="'+(tab==='week'?'Something for this week':'Something for this month')+'" aria-label="Add something"><button type="submit">'+esc(u.parkIt)+'</button></form><div class="lotnote">Tip: hold the button to fill in details first.</div>';
       var list=S.tasks.filter(function(t){return !t.done&&(t.h||'week')===tab}).sort(function(a,b){
@@ -810,6 +827,7 @@
     h+='<div class="grp"><div class="lab">What is it</div><input class="field" type="text" id="tk-title" value="'+esc(T.title)+'" placeholder="e.g. Call about the bill" aria-label="What is it"></div>';
     h+='<div class="grp"><div class="lab">Where it lives</div>'+evChips('tkh',T.h,[['week','This week'],['month','This month']])+'</div>';
     h+=rptUI('tk',T.rpt||(T.rpt=rptNew()));
+    if(S.groups.length)h+='<div class="grp"><div class="lab">Group (optional)</div>'+evChips('tkg',T.g||'',[['','None']].concat(S.groups.map(function(g){return [g.id,esc(g.name)]})))+'</div>';
     h+='<div class="grp"><div class="lab">How long might it take (optional)</div>'+evChips('tkmins',T.mins,[[0,'Not sure'],[5,'5 min'],[15,'15 min'],[30,'30 min'],[60,'1 hr'],[120,'2 hr+']])+'</div>';
     h+='<div class="grp"><div class="lab">How much it matters (optional)</div>'+evChips('tkw',T.w,[['small','A little'],['med','In between'],['big','A lot']])+'</div>';
     h+='<div class="grp"><div class="lab">A date, only if it really has one (optional)</div><input class="field" type="date" id="tk-due" value="'+esc(T.due)+'" aria-label="Date">'+(T.due?'<button class="quiet" data-a="tkclr" style="align-self:flex-start">No date</button>':'')+'</div>';
@@ -1144,12 +1162,12 @@
     if(S.colors[label]===undefined){var n=Object.keys(S.colors).length;S.colors[label]=n%8;save('gs-colors',S.colors)}
     return 'var(--c'+(S.colors[label]%8)+')';
   }
-  function steps(){if(lowMode())return floorSteps(S.part);return (S.part==='morning'&&S.floor)?floorSteps('morning'):partSteps(S.part)}
+  function steps(){return lowMode()?floorSteps(S.part):partSteps(S.part)}
   function nextId(){var a=steps();for(var i=0;i<a.length;i++){if(!S.status[a[i]])return a[i]}return null}
   function toast(m){var t=document.getElementById('toast');t.textContent=fxt(m);t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true},3200)}
   function keepAll(fn){var m={};document.querySelectorAll('input[type=text],input[type=time],input[type=date]').forEach(function(i){if(i.id)m[i.id]=i.value});fn();Object.keys(m).forEach(function(id){var e=document.getElementById(id);if(e)e.value=m[id]})}
 
-  function roughRow(u){return (S.part==='morning'&&!lowMode())?'<div class="row">'+(S.floor?'<button class="quiet" data-a="unfloor">'+esc(u.unrough)+'</button>':'<button class="quiet" data-a="rough">'+esc(u.rough)+'</button>')+'</div>':''}
+  function roughRow(u){return (S.part==='morning'&&!lowMode())?'<div class="row"><button class="quiet" data-a="rough">'+esc(u.rough)+'</button></div>':''}
   function today(){
     var u=U(),d=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
     var P=PARTS[S.part];
@@ -1160,7 +1178,6 @@
       h+='<div class="sim"><small>Prototype control: see the day at <b id="simlbl">'+fmt(simT)+'</b><span id="simpart"> ('+PARTS[S.part].label.toLowerCase()+')</span></small><input type="range" id="simslider" min="360" max="1380" step="15" value="'+simT+'" aria-label="Time of day, for testing" aria-valuetext="'+fmt(simT)+'"><div class="simticks" aria-hidden="true"><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>11 PM</span></div><small>For app testing only. The finished app follows your real clock.</small></div>';
     }
     if(lowMode())h+='<div class="note">'+esc(u.lowNote)+'</div>';
-    else if(S.part==='morning'&&S.floor)h+='<div class="note">'+esc(u.floorNote)+'</div>';
     var id=nextId(),ue=urgentEv();
     if(ue){
       var ust=tmin(ue.time),when=ue.travel?'Leave by '+fmt(leaveBy(ue))+' to be there at '+fmt(ust)+(ue.place?', '+ue.place:'')+'.':'Starts at '+fmt(ust)+(ue.place?', '+ue.place:'')+'.';
@@ -1709,7 +1726,10 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     lot:function(){S.lot=true;S.lotAnim=true;render();S.lotAnim=false},
     lclose:function(){S.lot=false;render()},
     lbg:function(b,e){if(e.target===b){S.lot=false;render()}},
-    lottab:function(b){S.lotTab=b.dataset.v;render()},
+    lottab:function(b){S.lotTab=b.dataset.v;S.lotGroup=null;render()},
+    lgopen:function(b){S.lotGroup=b.dataset.v;render()},
+    lgback:function(){S.lotGroup=null;render()},
+    lgdel:function(b){var id=b.dataset.v,n=S.tasks.filter(function(t){return !t.done&&t.g===id}).length;if(n&&!confirm('Delete this group? Its '+n+' task'+(n===1?'':'s')+' stay in the parking lot, just without a group.'))return;S.groups=S.groups.filter(function(g){return g.id!==id});S.tasks.forEach(function(t){if(t.g===id)delete t.g});save('gs-groups',S.groups);saveTasks();S.lotGroup=null;render()},
     ovv:function(b){S.ovv=b.dataset.v;render()},
     ovprev:function(){S.ovMo-=1;S.ovDay=null;render()},
     ovnext:function(){S.ovMo+=1;S.ovDay=null;render()},
@@ -1720,7 +1740,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     carenext:function(){S.careIdx=(S.careIdx+1)%S.care.length;render()},
     tkopen:function(b){
       var t=taskById(b.dataset.v);if(!t)return;
-      S.tk={rpt:(function(){var r=t.rep&&S.reps.filter(function(x){return x.id===t.rep})[0];return r?rptCopy(r):rptNew()})(),repId:t.rep||null,id:t.id,title:t.title,h:t.h||'week',nr:!!t.nr,fun:!!t.fun,bd:!!t.bd,work:(t.work||[]).slice(),mins:t.mins||0,w:t.w||'med',due:dueOf(t),steps:t.steps.map(function(x){return {t:x.t,done:x.done}}),newStep:'',err:''};render();
+      S.tk={g:t.g||'',rpt:(function(){var r=t.rep&&S.reps.filter(function(x){return x.id===t.rep})[0];return r?rptCopy(r):rptNew()})(),repId:t.rep||null,id:t.id,title:t.title,h:t.h||'week',nr:!!t.nr,fun:!!t.fun,bd:!!t.bd,work:(t.work||[]).slice(),mins:t.mins||0,w:t.w||'med',due:dueOf(t),steps:t.steps.map(function(x){return {t:x.t,done:x.done}}),newStep:'',err:''};render();
     },
     tkclose:function(){S.tk=null;render()},
     tkbg:function(b,e){if(e.target===b){S.tk=null;render()}},
@@ -1744,13 +1764,13 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       if(!T.title.trim()){T.err='Give it a name or pick a tag first.';keepSheet(render);return}
       if(T.rpt&&T.rpt.rep==='w'&&!T.rpt.days.length){T.err='Pick which days it repeats.';keepSheet(render);return}
       if(T.id&&T.repId&&!T.scope){T.ask='save';keepSheet(render);var _a=document.querySelector('.askseries');if(_a)_a.scrollIntoView({block:'center'});return}
-      if(T.scope==='one'){var o1=taskById(T.id);if(o1){o1.title=T.title.trim();o1.h=T.h;o1.nr=T.nr;o1.fun=T.fun;o1.bd=T.bd;o1.mins=T.mins;o1.w=T.w;o1.due=T.due||'';o1.steps=T.steps}saveTasks();S.tk=null;render();toast('Saved for this one. The repeat stays as it was.');return}
+      if(T.scope==='one'){var o1=taskById(T.id);if(o1){o1.title=T.title.trim();o1.g=T.g||undefined;o1.h=T.h;o1.nr=T.nr;o1.fun=T.fun;o1.bd=T.bd;o1.mins=T.mins;o1.w=T.w;o1.due=T.due||'';o1.steps=T.steps}saveTasks();S.tk=null;render();toast('Saved for this one. The repeat stays as it was.');return}
       var old=T.id?taskById(T.id):null,repId=T.repId||null;
       if(T.rpt&&T.rpt.rep!=='none'){
         var rr=rptCopy(T.rpt);rr.anchor=T.rpt.anchor||ymd(new Date());rr.id=repId||('p'+Date.now());rr.t=T.title.trim().slice(0,50);rr.part='afternoon';rr.as='lot';
         var ri=-1;S.reps.forEach(function(x,i){if(x.id===rr.id)ri=i});if(ri>=0)S.reps[ri]=rr;else S.reps.push(rr);repId=rr.id;S.repSeen[rr.id]=ymd(new Date());save('gs-repseen',S.repSeen);syncSteps();saveRtn();
       }else if(repId){S.reps=S.reps.filter(function(x){return x.id!==repId});repId=null;saveRtn()}
-      var rec={rep:repId||undefined,id:T.id||('t'+Date.now()),title:T.title.trim(),h:T.h,nr:T.nr,fun:T.fun,bd:T.bd,mins:T.mins,w:T.w,due:T.due||'',steps:T.steps,work:old?(old.work||[]):[],done:old?old.done:false,created:old?old.created:Date.now(),doneAt:old?old.doneAt:0,snooze:old?old.snooze:''};
+      var rec={g:T.g||undefined,rep:repId||undefined,id:T.id||('t'+Date.now()),title:T.title.trim(),h:T.h,nr:T.nr,fun:T.fun,bd:T.bd,mins:T.mins,w:T.w,due:T.due||'',steps:T.steps,work:old?(old.work||[]):[],done:old?old.done:false,created:old?old.created:Date.now(),doneAt:old?old.doneAt:0,snooze:old?old.snooze:''};
       if(old){S.tasks[S.tasks.indexOf(old)]=rec}else S.tasks.unshift(rec);
       saveTasks();S.tk=null;render();toast('Saved.');
     },
@@ -1845,7 +1865,6 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       var tmp=load('gs-lowtmp',null);var prev=(tmp&&tmp.prev)?tmp.prev:(S.logic==='low'?'gentle':S.logic);
       save('gs-lowtmp',{prev:prev,day:ymd(new Date())});S.logic='low';save('gs-logic','low');S.shift=0;S.skipPark=[];applyLook();S.status={};render();toast('Low battery mode is on until tomorrow. Logged.');
     },
-    unfloor:function(){S.floor=false;S.status={};render()},
     chip:function(b){keepAll(function(){toggleSel(b.dataset.v);render()})},
     stack:function(b){keepAll(function(){
       var id=b.dataset.v;
@@ -1885,6 +1904,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     rptmode:function(b){keepSheet(function(){var r=rptObj(b.dataset.k);if(!r)return;rptSyncAll(b.dataset.k);r.mode=b.dataset.v;var n=new Date();if(r.mode==='nth'&&!r.nth){r.nth=Math.ceil(n.getDate()/7);if(r.nth>4)r.nth=5;r.dow=n.getDay()}render()})},
     rptnth:function(b){keepSheet(function(){var r=rptObj(b.dataset.k);if(!r)return;rptSyncAll(b.dataset.k);r.nth=+b.dataset.v;if(r.dow===undefined)r.dow=new Date().getDay();render()})},
     rptdow:function(b){keepSheet(function(){var r=rptObj(b.dataset.k);if(!r)return;rptSyncAll(b.dataset.k);r.dow=+b.dataset.v;if(!r.nth)r.nth=1;render()})},
+    tkg:function(b){keepSheet(function(){syncTk();S.tk.g=b.dataset.v;render()})},
     rpt:function(b){keepSheet(function(){var r=rptObj(b.dataset.k);if(!r)return;rptSyncAll(b.dataset.k);r.rep=b.dataset.v;if(b.dataset.v==='w'&&!r.days.length)r.days=[new Date().getDay()];if(b.dataset.v==='m'&&!r.domSet){r.dom=new Date().getDate();r.domSet=true}render()})},
     rptday:function(b){keepSheet(function(){var r=rptObj(b.dataset.k);if(!r)return;rptSyncAll(b.dataset.k);var a=r.days,i=a.indexOf(+b.dataset.v);if(i>=0)a.splice(i,1);else a.push(+b.dataset.v);render()})},
     redur:function(b){keepSheet(function(){syncRe();S.re.dur=+b.dataset.v;render()})},
@@ -2054,11 +2074,11 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     document.addEventListener('pointerdown',function(e){
       var b=e.target.closest&&e.target.closest('.lotadd button[type=submit]');if(!b)return;
       clear();b.classList.add('hold');
-      var f=b.closest('form');
+      var f=b.closest('form');if(f&&f.dataset.a!=='tkquick'){b.classList.remove('hold');return}
       T={btn:b,id:setTimeout(function(){
         var inp=f.querySelector('input'),title=inp?inp.value.trim():'',h=f.dataset.h||'week';
         T=null;S.lpFired=true;setTimeout(function(){S.lpFired=false},600);
-        S.tk={rpt:rptNew(),repId:null,id:null,title:title,h:h,nr:false,fun:false,bd:false,work:[],mins:0,w:'med',due:'',steps:[],newStep:'',err:''};
+        S.tk={g:f.dataset.g||'',rpt:rptNew(),repId:null,id:null,title:title,h:h,nr:false,fun:false,bd:false,work:[],mins:0,w:'med',due:'',steps:[],newStep:'',err:''};
         render();
       },600)};
     });
@@ -2086,6 +2106,9 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       var rp=f.dataset.p,rid='c'+Date.now();
       S.cust.push({id:rid,t:v.slice(0,50)});S.rtn.parts[rp].push(rid);syncSteps();saveRtn();
       keepSheet(render);var rn=document.getElementById('rtadd-'+rp);if(rn)rn.focus();
+    }else if(f.dataset.a==='lgadd'){
+      if(S.groups.length<20&&!S.groups.some(function(g){return g.name.toLowerCase()===v.toLowerCase()})){S.groups.push({id:'g'+Date.now(),name:v.slice(0,24)});save('gs-groups',S.groups)}
+      render();var gn=document.getElementById('lgnew');if(gn)gn.focus();
     }else if(f.dataset.a==='ytsave'){
       if(/^https:\/\/(www\.|m\.|music\.)?(youtube\.com|youtu\.be)\//i.test(v)){S.ytl=v;save('gs-ytl',v);keepSheet(render);toast('Saved.')}else toast('Paste a youtube.com link, starting with https://')
     }else if(f.dataset.a==='evtagadd'){
@@ -2095,7 +2118,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       S.care.push(v);save('gs-care',S.care);S.careIdx=S.care.length-1;render();toast('Added.');
     }else if(f.dataset.a==='tkquick'){
       if(S.lpFired)return;
-      S.tasks.unshift({id:'t'+Date.now(),title:v,h:f.dataset.h||'week',nr:false,fun:false,work:[],mins:0,w:'med',due:'',steps:[],done:false,created:Date.now()});saveTasks();render();
+      S.tasks.unshift({g:f.dataset.g||undefined,id:'t'+Date.now(),title:v,h:f.dataset.h||'week',nr:false,fun:false,work:[],mins:0,w:'med',due:'',steps:[],done:false,created:Date.now()});saveTasks();render();
       var q=document.getElementById('tkq');if(q)q.focus();toast('Parked. It can wait there.');
     }else if(f.dataset.a==='newlist'){
       S.lists.push({id:'l'+Date.now(),name:v,items:[]});save('gs-lists',S.lists);render();reopen(ids);

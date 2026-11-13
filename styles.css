@@ -901,3 +901,11 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 :root[data-theme="dark"][data-cw="creature"][data-season="winter"]{--hot:#9E3B4E;--hot-ink:#FFFFFF}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-cw="creature"][data-season="winter"]{--hot:#9E3B4E;--hot-ink:#FFFFFF}}
 .music .btn{display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.25}
+
+/* parking lot groups */
+.lgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lgcard{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;font:inherit;color:inherit;background:rgba(255,255,255,.08);border:2px dashed currentColor;border-radius:14px;padding:12px 14px;cursor:pointer;min-height:64px}
+.lgcard b{font-family:var(--font-display);font-weight:400;font-size:18px}
+.lgcard span{font-size:13px;opacity:.8}
+.lgtitle{font-family:var(--font-display);font-weight:400;font-size:22px;margin:2px 0 4px;color:inherit}
+.lot .between .quiet{color:inherit}
