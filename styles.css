@@ -428,7 +428,7 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .lotbg{position:fixed;inset:0;background:color-mix(in srgb,var(--ink) 45%,transparent);z-index:18;display:flex;justify-content:flex-end}
 .lot{width:min(92%,390px);height:100%;overflow-y:auto;padding:calc(18px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) 16px;display:flex;flex-direction:column;gap:14px;color:var(--paint);
   background-color:var(--pave);
-  background-image:url(art/asphalt.jpg);background-size:cover;background-position:center;box-shadow:-18px 0 40px -20px rgba(0,0,0,.5)}
+  background-image:url(art/stone.jpg);background-size:cover;background-position:center;box-shadow:-18px 0 40px -20px rgba(0,0,0,.5)}
 .lot.enter{animation:lotin .22s ease-out}
 @keyframes lotin{from{transform:translateX(30px);opacity:.4}to{transform:none;opacity:1}}
 .lottitle{font-size:26px;color:var(--paint);border-bottom:3px double var(--paintY);padding-bottom:6px;flex:1}
@@ -705,3 +705,14 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 :root:not([data-theme="light"])[data-look="creature"] .bay .tag{border-color:#E8CFA0;color:#FBF3E4}
 :root:not([data-theme="light"])[data-look="creature"] .bay .small,:root:not([data-theme="light"])[data-look="creature"] .lotnote{color:#F0E2C8;border-color:#E8CFA0}
 }
+
+/* parking lot: stone in light mode (dark ink), darkened stone at night (cream paint) */
+:root{--pave:#B3ABA2;--pave2:#9C948B;--paint:#2B2622;--paintY:#7A5C0E}
+:root[data-theme="dark"] .lot{background-image:url(art/stone-dark.jpg)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lot{background-image:url(art/stone-dark.jpg)}}
+:root .lotadd button{color:#FFF9EC}
+:root[data-theme="dark"] .lotadd button{color:var(--pave2)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lotadd button{color:var(--pave2)}}
+:root[data-look="creature"] .lotadd button{color:#FBF3E4}
+:root[data-theme="dark"][data-look="creature"] .lotadd button{color:#4A3520}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-look="creature"] .lotadd button{color:#4A3520}}
