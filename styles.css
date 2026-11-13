@@ -789,3 +789,7 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 
 .ev.nt{grid-template-columns:minmax(0,1fr)}
 .askseries .quiet{margin-top:4px}
+
+.durin{display:flex;align-items:center;gap:8px;margin-top:8px}
+.durin .field{width:84px;flex:none}
+.durin span{color:var(--ink2)}

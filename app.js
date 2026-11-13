@@ -1038,7 +1038,7 @@
   function rptSync(k,R){var d=document.getElementById(k+'-dom');if(d&&R)R.dom=Math.max(1,Math.min(31,parseInt(d.value,10)||1))}
   function newEv(){return {rpt:rptNew(),tags:[],id:null,by:'me',title:'',dk:'today',dateVal:'',time:'',dur:60,place:'',travel:0,prep:'',withJ:false,share:'full',err:''}}
   function syncEv(){
-    var E=S.ev;if(!E)return;rptSync('ev',E.rpt);
+    var E=S.ev;if(!E)return;rptSync('ev',E.rpt);var tr=document.getElementById('ev-trm');if(E.trOther&&tr)E.travel=Math.max(0,Math.min(600,parseInt(tr.value,10)||0));var dh=document.getElementById('ev-durh'),dm=document.getElementById('ev-durm');if(E.durOther&&dh&&dm){E.dur=Math.max(0,Math.min(23,parseInt(dh.value,10)||0))*60+Math.max(0,Math.min(59,parseInt(dm.value,10)||0))}
     [['ev-title','title'],['ev-time','time'],['ev-place','place'],['ev-prep','prep'],['ev-date','dateVal']].forEach(function(p){var e=document.getElementById(p[0]);if(e)E[p[1]]=e.value});
   }
   function evChips(act,cur,list){
@@ -1052,7 +1052,7 @@
     var h='<div class="backdrop" data-a="evbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="'+ttl+'"><div class="between"><h2 style="font-size:24px">'+ttl+'</h2><button class="x" data-a="evclose" aria-label="Close">&times;</button></div>';
     if(E.err)h+='<div class="note" role="alert">'+esc(E.err)+'</div>';
     if(E.ask)h+='<div class="note askseries" role="alert"><b>This plan repeats.</b> '+(E.ask==='del'?'Delete':'Change')+' just this one, or every one?<div class="row" style="margin-top:10px">'+(E.occ?'<button class="btn alt grow" data-a="evscope" data-v="one">Just '+esc(dayLabel(E.occ))+'</button>':'')+'<button class="btn grow" data-a="evscope" data-v="all">Every one</button></div><button class="quiet" data-a="evscope" data-v="cancel">Cancel</button></div>';
-    if(PROF&&PROF.partner)h+='<div class="grp"><div class="lab">Whose is it</div>'+evChips('evby',E.by,[['me','Mine'],['p','§P&rsquo;s']])+(E.by==='p'?'<p class="small">Something on §P&rsquo;s day you want to plan around, like a lunch break or a late shift. It shows with a tag, and it never sends you a leave-by reminder.</p>':'')+'</div>';
+    if(E.by==='p')h+='<p class="small">Something on §P&rsquo;s day you want to plan around, like a lunch break or a late shift. It shows with a tag, and it never sends you a leave-by reminder.</p>';
     h+='<div class="grp"><div class="lab">What is it</div><input class="field" type="text" id="ev-title" value="'+esc(E.title)+'" placeholder="e.g. Dentist" aria-label="What is it"><div class="chips sm" role="group" aria-label="Tags" style="margin-top:8px">';
     S.evtags.forEach(function(q){h+='<button data-a="evquick" data-v="'+esc(q)+'" aria-pressed="'+((E.tags||[]).indexOf(q)>=0)+'">'+esc(q)+'</button>'});
     h+='</div></div>';
@@ -1060,9 +1060,12 @@
     if(E.dk==='other')h+='<input class="field" type="date" id="ev-date" value="'+esc(E.dateVal)+'" aria-label="Date" style="margin-top:8px">';
     h+='<div class="tfield" style="margin-top:8px"><input class="field" type="time" id="ev-time" required value="'+esc(E.time)+'" aria-label="Start time"></div></div>';
     h+=rptUI('ev',E.rpt||(E.rpt=rptNew()));
-    h+='<div class="grp"><div class="lab">How long</div>'+evChips('evdur',E.dur,[[0,'No end time'],[30,'30 min'],[60,'1 hr'],[90,'1.5 hr'],[120,'2 hr'],[180,'3 hr']])+'</div>';
+    var DPRE=[0,30,60,90,120];if(E.durOther===undefined)E.durOther=DPRE.indexOf(+E.dur)<0;
+    h+='<div class="grp"><div class="lab">How long</div>'+evChips('evdur',E.durOther?'other':E.dur,[[0,'No end time'],[30,'30 min'],[60,'1 hr'],[90,'1.5 hr'],[120,'2 hr'],['other','Other']]);
+    if(E.durOther)h+='<div class="durin"><input class="field" type="number" min="0" max="23" inputmode="numeric" id="ev-durh" value="'+Math.floor((E.dur||0)/60)+'" aria-label="Hours"><span>hr</span><input class="field" type="number" min="0" max="59" step="5" inputmode="numeric" id="ev-durm" value="'+((E.dur||0)%60)+'" aria-label="Minutes"><span>min</span></div>';
+    h+='</div>';
     h+='<div class="grp"><div class="lab">Where (optional)</div><input class="field" type="text" id="ev-place" value="'+esc(E.place)+'" placeholder="e.g. Main Street clinic" aria-label="Where"></div>';
-    if(E.by!=='p')h+='<div class="grp"><div class="lab">Travel time (optional)</div>'+evChips('evtravel',E.travel,[[0,'None'],[10,'10 min'],[20,'20 min'],[30,'30 min'],[45,'45 min'],[60,'1 hr']])+'<p class="small">Used to tell you when to start getting ready. It adds 10 minutes of buffer.</p></div>';
+    if(E.by!=='p')h+='<div class="grp"><div class="lab">Travel time (optional)</div>'+(function(){var TP=[0,10,20,30,45];if(E.trOther===undefined)E.trOther=TP.indexOf(+E.travel)<0;return evChips('evtravel',E.trOther?'other':E.travel,[[0,'None'],[10,'10 min'],[20,'20 min'],[30,'30 min'],[45,'45 min'],['other','Other']])+(E.trOther?'<div class="durin"><input class="field" type="number" min="0" max="600" step="5" inputmode="numeric" id="ev-trm" value="'+(E.travel||0)+'" aria-label="Travel minutes"><span>min</span></div>':'')})()+'<p class="small">Used to tell you when to start getting ready. It adds 10 minutes of buffer.</p></div>';
     if(E.by!=='p')h+='<div class="grp"><div class="lab">Before you go (optional)</div><input class="field" type="text" id="ev-prep" value="'+esc(E.prep)+'" placeholder="e.g. Bring your insurance card" aria-label="Before you go"></div>';
     if(E.by!=='p')h+='<div class="grp"><div class="lab">§P</div><div class="chips sm"><button data-a="evwj" aria-pressed="'+E.withJ+'">§P is coming too</button></div>'
       +'<div class="lab" style="margin-top:8px">What §P sees</div>'+evChips('evshare',E.share,[['full','Show details'],['generic','Just "Appointment"'],['hidden','Keep private']])+'</div>';
@@ -1889,8 +1892,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     evbg:function(b,e){if(e.target===b){S.ev=null;render()}},
     evquick:function(b){keepSheet(function(){syncEv();var t=S.ev.tags=S.ev.tags||[],i=t.indexOf(b.dataset.v);if(i>=0)t.splice(i,1);else t.push(b.dataset.v);render()})},
     evday:function(b){keepSheet(function(){syncEv();S.ev.dk=b.dataset.v;render()})},
-    evdur:function(b){keepSheet(function(){syncEv();S.ev.dur=+b.dataset.v;render()})},
-    evtravel:function(b){keepSheet(function(){syncEv();S.ev.travel=+b.dataset.v;render()})},
+    evdur:function(b){keepSheet(function(){syncEv();if(b.dataset.v==='other'){S.ev.durOther=true;if(!S.ev.dur)S.ev.dur=180}else{S.ev.durOther=false;S.ev.dur=+b.dataset.v}render();if(S.ev.durOther){var x=document.getElementById('ev-durh');if(x)x.focus()}})},
+    evtravel:function(b){keepSheet(function(){syncEv();if(b.dataset.v==='other'){S.ev.trOther=true;if(!S.ev.travel)S.ev.travel=60}else{S.ev.trOther=false;S.ev.travel=+b.dataset.v}render();if(S.ev.trOther){var x=document.getElementById('ev-trm');if(x)x.focus()}})},
     evby:function(b){keepSheet(function(){syncEv();S.ev.by=b.dataset.v;render()})},
     evwj:function(){keepSheet(function(){syncEv();S.ev.withJ=!S.ev.withJ;render()})},
     evshare:function(b){keepSheet(function(){syncEv();S.ev.share=b.dataset.v;render()})},
