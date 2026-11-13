@@ -823,3 +823,7 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 :root[data-look="nook"] .emblem.fancy{background:transparent;box-shadow:none}
 
 .flmini{display:block;width:24px;height:24px;background:var(--accent);-webkit-mask:url(art/flower-line.png) center/contain no-repeat;mask:url(art/flower-line.png) center/contain no-repeat}
+/* Meadow seal, softer: pale wax, accent lines, no lift */
+.seal:not(.lib) .sb{background:color-mix(in srgb,var(--accent) 26%,var(--surface));filter:none}
+.seal:not(.lib) .sl{background:var(--accent);opacity:.85}
+.seal:not(.lib) .ss{opacity:.35}
