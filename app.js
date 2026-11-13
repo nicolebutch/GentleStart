@@ -749,9 +749,10 @@
         top.forEach(function(x){h+='<div class="sugg"><b>'+esc(x.t.title)+'</b>'+taskTags(x.t)+'<div class="row"><button class="btn grow" data-a="tkstart" data-v="'+esc(x.t.id)+'">'+esc(u.start)+'</button><button class="quiet" data-a="tklater" data-v="'+esc(x.t.id)+'">'+esc(u.later)+'</button></div></div>'});
       }
     }else if(creature()&&S.mood==='dreamy'){
-      var fun=pickTask(function(t){return t.fun}),hard=pickTask(function(t){return !t.fun});
-      if(!fun&&!hard)h+='<p class="small">That is everything for now. They come back tomorrow.</p>';
-      if(fun)h+=(hard?suggBlock(fun,u,'Start this one',true,true,'The fun one'):'<p class="small">Fun is on the menu today.</p>'+suggBlock(fun,u,'Start this one',true,true));
+      var hardDone=load('gs-harddone','')===ymd(new Date()),fun=pickTask(function(t){return t.fun}),hard=hardDone?null:pickTask(function(t){return !t.fun});
+      if(!fun&&!hard&&!hardDone)h+='<p class="small">That is everything for now. They come back tomorrow.</p>';
+      if(hardDone)h+='<p class="small">'+(fun?'The important one is done for today. The rest of the day is yours, and fun is on the menu.':'The important one is done for today. The rest of the day is yours.')+'</p>';
+      if(fun)h+=(hard?suggBlock(fun,u,'Start this one',true,true,'The fun one'):(hardDone?'':'<p class="small">Fun is on the menu today.</p>')+suggBlock(fun,u,'Start this one',true,true));
       if(hard)h+=(fun?'<div class="orsep" aria-hidden="true"><span>or</span></div>':'<p class="small">Nothing fun is stashed yet, so here is the important one.</p>')+'<div class="sugg"><span class="kick">The important one</span><b>'+esc(hard.t.title)+'</b><span class="small">'+(fun?'Doing it first earns a little celebration. Fun first is fine too.':'Doing it first earns a little celebration.')+'</span>'+(fun?'':taskTags(hard.t))+'</div><div class="row"><button class="btn hot grow" data-a="tkhard" data-v="'+esc(hard.t.id)+'">Do this one first</button></div><div class="row"><button class="quiet" data-a="tkanother" data-v="'+esc(hard.t.id)+'">Give me a different important task</button></div>';
       if(hard)return h+'</div>';
     }else{
@@ -850,7 +851,7 @@
   }
   function commitStep(){var T=S.tk,v=T.newStep.trim();if(v&&T.steps.length<12){T.steps.push({t:v.slice(0,80),done:false})}T.newStep=''}
   function finishNote(id){
-    var bt=taskById(id);
+    var bt=taskById(id);if(S.celeb===id)save('gs-harddone',ymd(new Date()));
     if(bt&&bt.bd){S.celeb=null;S.bigDone=id;render();setTimeout(function(){S.bigDone=null;if(S.doing===id)S.doing=null;render()},3600);celebrate(64);setTimeout(function(){celebrate(40)},700);toast('That was a big one, and you did it. Really.')}
     else if(S.celeb===id){S.celeb=null;render();celebrate();toast('The hard one first. That deserves a little parade.')}
     else{render();toast('Done. Nice.')}
