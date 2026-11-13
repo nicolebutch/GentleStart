@@ -1582,6 +1582,32 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     return h;
   }
 
+
+  /* Meadow: wavy ribbon frame with a bow on cards, drawn to each card's size */
+  function wavyPath(w,h,inset,amp,lam,r){
+    var x0=inset,y0=inset,W=w-2*inset,H=h-2*inset;r=Math.min(r,W/2,H/2);
+    var segs=[[x0+r,y0,1,0,W-2*r],[x0+W,y0+r,0,1,H-2*r],[x0+W-r,y0+H,-1,0,W-2*r],[x0,y0+H-r,0,-1,H-2*r]];
+    var per=2*(W-2*r)+2*(H-2*r)+2*Math.PI*r,n=Math.max(4,Math.round(per/lam)),L=per/n,pts=[],s=0,step=3;
+    function push(x,y,nx,ny){var o=amp*Math.sin(2*Math.PI*s/L);pts.push((x+nx*o).toFixed(1)+' '+(y+ny*o).toFixed(1))}
+    segs.forEach(function(g,i){
+      for(var t=0;t<g[4];t+=step){push(g[0]+g[2]*t,g[1]+g[3]*t,g[3],-g[2]);s+=step}
+      var cx=[x0+W-r,x0+W-r,x0+r,x0+r][i],cy=[y0+r,y0+H-r,y0+H-r,y0+r][i],a0=[-Math.PI/2,0,Math.PI/2,Math.PI][i],arc=Math.PI/2*r;
+      for(var u=0;u<arc;u+=step){var a=a0+u/r;push(cx+r*Math.cos(a),cy+r*Math.sin(a),Math.cos(a),Math.sin(a));s+=step}
+    });
+    return 'M'+pts.join('L')+'Z';
+  }
+  function meadowFrames(){
+    if(lookKey()!=='meadow')return;
+    document.querySelectorAll('#app .card,#app .hero').forEach(function(el){
+      var w=el.offsetWidth,h=el.offsetHeight;if(!w||!h)return;
+      var f=el.querySelector(':scope>.mframe');if(f&&f.dataset.sz===w+'x'+h)return;
+      if(!f){f=document.createElement('span');f.className='mframe';f.setAttribute('aria-hidden','true');el.insertBefore(f,el.firstChild)}
+      f.dataset.sz=w+'x'+h;var d=wavyPath(w,h,6,3.2,46,22);
+      f.innerHTML='<svg width="'+w+'" height="'+h+'"><path d="'+d+'" style="fill:var(--surface);stroke:var(--accent)" stroke-width="5.5" stroke-linejoin="round"/><path d="'+d+'" fill="none" style="stroke:var(--surface)" stroke-width="2"/></svg><i class="bw bl"></i><i class="bw bf"></i>';
+    });
+  }
+  window.addEventListener('resize',function(){clearTimeout(meadowFrames.t);meadowFrames.t=setTimeout(meadowFrames,120)});
+  document.addEventListener('toggle',function(){meadowFrames()},true);
   function render(){
     if(S.pv){document.getElementById('app').innerHTML=pvHtml(S.pv);document.getElementById('tabs').innerHTML='';document.getElementById('sheetRoot').innerHTML='';return}
     if(lowRevert()){S.shift=0;S.skipPark=[];try{applyLook()}catch(e){}}
@@ -1600,6 +1626,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     document.getElementById('sheetRoot').innerHTML=fx(roughSheet()+menuSheet()+evSheet()+skipSheet()+forgotSheet()+catSheet()+seSheet()+reSheet()+nameSheet()+tkSheet()+lotSheet()+plSheet()+fab()+welcomeSheet());
     document.querySelectorAll('#sheetRoot .sheet[aria-label]').forEach(function(s){var k=s.getAttribute('aria-label');if(_sc[k])s.scrollTop=_sc[k]});
     var _l2=document.querySelector('.lot');if(_l2)_l2.scrollTop=_st;
+    try{meadowFrames()}catch(e){}
   }
 
   function logIt(label,extra,onDay){

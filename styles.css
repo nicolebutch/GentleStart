@@ -870,3 +870,17 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 .garland .h-tl{background:#fff;opacity:0.35;-webkit-mask-image:url(art/mv2-tl.png);mask-image:url(art/mv2-tl.png)}
 .garland .h-td{background:#000;opacity:0.18;-webkit-mask-image:url(art/mv2-td.png);mask-image:url(art/mv2-td.png)}
 .garland .h-ink{background:var(--ink);opacity:0.9;-webkit-mask-image:url(art/mv2-ink.png);mask-image:url(art/mv2-ink.png)}
+
+/* Meadow ribbon frames */
+:root[data-look="meadow"] .card,:root[data-look="meadow"] .hero{position:relative;border-color:transparent;background:transparent;box-shadow:none;border-radius:22px;padding-top:26px;padding-left:20px;padding-right:20px}
+:root[data-look="meadow"] .hero{overflow:visible}
+.mframe{position:absolute;inset:-1.5px;pointer-events:none;z-index:0}
+.mframe svg{position:absolute;inset:0;overflow:visible}
+.mframe .bw{position:absolute;left:50%;top:-6px;width:78px;height:33px;transform:translateX(-50%);-webkit-mask-size:100% 100%;mask-size:100% 100%}
+.mframe .bl{background:var(--accent);-webkit-mask-image:url(art/bow-line.png);mask-image:url(art/bow-line.png)}
+.mframe .bf{background:var(--surface);-webkit-mask-image:url(art/bow-fill.png);mask-image:url(art/bow-fill.png)}
+:root[data-look="meadow"] .card>*:not(.mframe){position:relative;z-index:1}
+
+:root[data-look="meadow"] .hero>.mframe,:root[data-look="meadow"] .card>.mframe{position:absolute;z-index:0}
+:root[data-look="meadow"] .mframe svg{filter:drop-shadow(0 6px 10px color-mix(in srgb,var(--accent) 18%,transparent))}
+:root[data-look="meadow"] .hero::after{z-index:0;right:-6px;top:-6px}
