@@ -832,3 +832,5 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 .seal.orig .ob{background:var(--accent);-webkit-mask:url(art/sprig-wreath.png) center/contain no-repeat;mask:url(art/sprig-wreath.png) center/contain no-repeat}
 
 .seal.orig .ob.tg{-webkit-mask-image:url(art/seaglass.png);mask-image:url(art/seaglass.png)}
+
+.seal.orig .ob.md{-webkit-mask-image:url(art/meadow-emb.png);mask-image:url(art/meadow-emb.png)}
