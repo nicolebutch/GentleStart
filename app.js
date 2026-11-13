@@ -495,13 +495,13 @@
     var u=U(),c=S.care[S.careIdx%S.care.length];
     return '<div class="card"><h3>'+esc(u.charge)+'</h3><div class="sugg"><b>'+esc(c)+'</b><span class="small">'+esc(u.chargeSub)+'</span></div><div class="row"><button class="btn grow" data-a="caredid">I did this</button><button class="btn alt grow" data-a="carenext">Another one</button></div><details class="tuck"><summary>Add your own</summary><form class="add" data-a="careadd"><input type="text" id="careq" placeholder="e.g. Water the plants slowly" aria-label="Add a self care idea"><button type="submit">Add</button></form></details></div>';
   }
-  function suggBlock(pk,u,startLabel,soft){
+  function suggBlock(pk,u,startLabel,soft,bare,kick){
     var t=pk.t,fs=firstStep(t);
-    var h='<div class="sugg"><b>'+esc(t.title)+'</b><span class="small">'+esc(pk.why)+'</span>';
+    var h='<div class="sugg">'+(kick?'<span class="kick">'+kick+'</span>':'')+'<b>'+esc(t.title)+'</b>'+(bare?'':'<span class="small">'+esc(pk.why)+'</span>');
     if(S.logic==='tiny')h+='<span><b style="font-size:16px">Just:</b> '+esc(fs?fs.t:'open it and look at it for one minute.')+'</span>';
     else if(fs)h+='<span class="small">First step: '+esc(fs.t)+'</span>';
     else if(pk.partial)h+='<span class="small">First piece: open it and look at it for a minute.</span>';
-    h+=taskTags(t)+'</div><div class="row"><button class="btn'+(soft?' alt':'')+' grow" data-a="tkstart" data-v="'+esc(t.id)+'">'+esc(startLabel||u.start)+'</button><button class="btn alt grow" data-a="tkanother" data-v="'+esc(t.id)+'">'+esc(u.another)+'</button></div><div class="row"><button class="quiet" data-a="tklater" data-v="'+esc(t.id)+'">'+esc(u.later)+'</button></div>';
+    h+=taskTags(t)+'</div><div class="row"><button class="btn'+(soft?' alt':'')+' grow" data-a="tkstart" data-v="'+esc(t.id)+'">'+esc(startLabel||u.start)+'</button><button class="btn alt grow" data-a="tkanother" data-v="'+esc(t.id)+'">'+esc(u.another)+'</button></div>'+(bare?'':'<div class="row"><button class="quiet" data-a="tklater" data-v="'+esc(t.id)+'">'+esc(u.later)+'</button></div>');
     return h;
   }
 
@@ -694,7 +694,7 @@
   function parkCard(){
     if(basicsDay())return careCard();
     var u=U(),open=S.tasks.filter(function(t){return !t.done}).length;
-    var h='<div class="card"><div class="between"><h3>'+esc(u.park)+'</h3><button class="addbtn" data-a="lot">Open</button></div>';
+    var h='<div class="card"><div class="between"><h3 class="parkh">'+esc(u.park)+'</h3><button class="addbtn" data-a="lot">Open</button></div>';
     if(!open)h+='<p class="small">Nothing here yet. Add anything nebulous whenever it pops into your head.</p>';
     else if(creature()&&S.mood==='energetic'){
       var top=rank().list.slice(0,3);
@@ -706,8 +706,9 @@
     }else if(creature()&&S.mood==='dreamy'){
       var fun=pickTask(function(t){return t.fun}),hard=pickTask(function(t){return !t.fun});
       if(!fun&&!hard)h+='<p class="small">That is everything for now. They come back tomorrow.</p>';
-      if(fun)h+='<p class="small">Fun is on the menu today.</p>'+suggBlock(fun,u,'Start this one',true);
-      if(hard)h+=(fun?'<div class="orsep" aria-hidden="true"><span>or</span></div>':'<p class="small">Nothing fun is stashed yet, so here is the important one.</p>')+'<div class="sugg"><span class="kick">The important one</span><b>'+esc(hard.t.title)+'</b><span class="small">'+(fun?'Doing it first earns a little celebration. Fun first is fine too.':'Doing it first earns a little celebration.')+'</span>'+taskTags(hard.t)+'</div><div class="row"><button class="btn hot grow" data-a="tkhard" data-v="'+esc(hard.t.id)+'">Do this one first</button></div>';
+      if(fun)h+=(hard?suggBlock(fun,u,'Start this one',true,true,'The fun one'):'<p class="small">Fun is on the menu today.</p>'+suggBlock(fun,u,'Start this one',true,true));
+      if(hard)h+=(fun?'<div class="orsep" aria-hidden="true"><span>or</span></div>':'<p class="small">Nothing fun is stashed yet, so here is the important one.</p>')+'<div class="sugg"><span class="kick">The important one</span><b>'+esc(hard.t.title)+'</b><span class="small">'+(fun?'Doing it first earns a little celebration. Fun first is fine too.':'Doing it first earns a little celebration.')+'</span>'+taskTags(hard.t)+'</div><div class="row"><button class="btn hot grow" data-a="tkhard" data-v="'+esc(hard.t.id)+'">Do this one first</button></div><div class="row"><button class="quiet" data-a="tkanother" data-v="'+esc(hard.t.id)+'">Give me a different important task</button></div>';
+      if(hard)return h+'</div>';
     }else{
       var pk=pickTask();
       if(!pk)h+='<p class="small">That is all the suggestions for now. They come back tomorrow.</p>';
