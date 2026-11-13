@@ -848,3 +848,13 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 @keyframes wv2{50%{transform:translateX(28px)}}
 @keyframes wv3{50%{transform:translateX(-18px)}}
 @media (prefers-reduced-motion:reduce){.tidesvg .bub.pop circle+circle,.tidesvg.drift .wv{animation:none}}
+
+/* Meadow garland: Nicole's artwork split into layers so each colorway tints it */
+.garland{position:relative;width:100%;aspect-ratio:1100/127;margin:4px 0 2px}
+.garland i{position:absolute;inset:0;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.garland .g-ink{background:var(--ink);opacity:.9;-webkit-mask-image:url(art/mv-ink.png);mask-image:url(art/mv-ink.png)}
+.garland .g-leaf{background:color-mix(in srgb,#7FA678 70%,var(--accent));-webkit-mask-image:url(art/mv-leaf.png);mask-image:url(art/mv-leaf.png)}
+.garland .g-small{background:var(--sky);-webkit-mask-image:url(art/mv-small.png);mask-image:url(art/mv-small.png)}
+.garland .g-big{background:color-mix(in srgb,var(--accent) 22%,var(--surface));-webkit-mask-image:url(art/mv-big.png);mask-image:url(art/mv-big.png)}
+.garland .g-tl{background:#fff;opacity:.35;-webkit-mask-image:url(art/mv-tl.png);mask-image:url(art/mv-tl.png)}
+.garland .g-td{background:#000;opacity:.18;-webkit-mask-image:url(art/mv-td.png);mask-image:url(art/mv-td.png)}
