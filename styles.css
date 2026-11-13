@@ -809,3 +809,10 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 .seal .sb{background:var(--accent);-webkit-mask:url(art/seal-body.png) center/contain no-repeat;mask:url(art/seal-body.png) center/contain no-repeat;filter:drop-shadow(0 2px 2px rgba(0,0,0,.18))}
 .seal .sl{background:var(--surface);-webkit-mask:url(art/seal-lines.png) center/contain no-repeat;mask:url(art/seal-lines.png) center/contain no-repeat}
 .seal .ss{background:#fff;opacity:.55;-webkit-mask:url(art/seal-shine.png) center/contain no-repeat;mask:url(art/seal-shine.png) center/contain no-repeat}
+
+/* Meadow: the seal's flower for step markers and the hero card */
+:root[data-look="meadow"] .steps li .dot{-webkit-mask:url(art/flower-line.png) center/contain no-repeat;mask:url(art/flower-line.png) center/contain no-repeat;background:var(--ink2)}
+:root[data-look="meadow"] .steps li.now .dot{background:var(--wood)}
+:root[data-look="meadow"] .steps li.done .dot{background:var(--accent);-webkit-mask-image:url(art/flower-fill.png);mask-image:url(art/flower-fill.png)}
+:root[data-look="meadow"] .steps li.skipped .dot{background:var(--line)}
+:root[data-look="meadow"] .hero::after{-webkit-mask:url(art/flower-line.png) center/contain no-repeat;mask:url(art/flower-line.png) center/contain no-repeat;background:color-mix(in srgb,var(--accent) 22%,var(--soft))}
