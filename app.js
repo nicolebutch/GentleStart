@@ -966,7 +966,8 @@
   ];
   S.ev=null;S.evReady={};S.evHide={};
   function evDate(ev){return ev.ex?ymd(addDays(new Date(),ev.off||0)):ev.date}
-  function evsOn(k){return S.events.filter(function(ev){return evDate(ev)===k}).sort(function(a,b){return tmin(a.time)-tmin(b.time)})}
+  function repEvs(k){var p=k.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]),o=[];S.reps.forEach(function(r){if(r.as==='ev'&&repDue(r,d))o.push({id:'rv_'+r.id,rv:r.id,title:r.t,date:k,time:r.time||'09:00',dur:r.dur||60,place:'',travel:0,prep:'',withJ:false,share:'full'})});return o}
+  function evsOn(k){return S.events.filter(function(ev){return evDate(ev)===k}).concat(repEvs(k)).sort(function(a,b){return tmin(a.time)-tmin(b.time)})}
   function leaveBy(ev){return tmin(ev.time)-(ev.travel?ev.travel+10:0)}
   function urgentEv(){
     var now=SIM[S.part],tk=ymd(new Date()),best=null;
@@ -1399,7 +1400,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
   function ord(n){var s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
   function repLabel(r){
     var w=r.rep==='w'?(r.days.length===7?'Every day':'Every '+r.days.slice().sort().map(function(d){return DAYN[d]}).join(', ')):'Monthly on the '+ord(r.dom||1);
-    return w+', '+r.part+', '+(r.as==='lot'?'parking lot':'routine step');
+    return w+', '+(r.as==='ev'?(r.time?fmt(tmin(r.time)):'')+', event':r.part+', '+(r.as==='lot'?'parking lot':'routine step'));
   }
   function routineTab(){
     var h='<p class="small">Shape your day. Hide what you do not need, reorder, rename, or add your own steps. Nothing here ever turns into overdue.</p>';
@@ -1420,8 +1421,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     else h+='<p class="small">None yet.</p>';
     return h+'<button class="btn alt" data-a="renew" style="margin-top:8px">+ Add a repeating task</button></div>';
   }
-  function newRe(){return {id:null,t:'',rep:'w',days:[],dom:1,part:'afternoon',as:'step',err:''}}
-  function syncRe(){var R=S.re;if(!R)return;var t=document.getElementById('re-t'),d=document.getElementById('re-dom');if(t)R.t=t.value;if(d)R.dom=Math.max(1,Math.min(31,parseInt(d.value,10)||1))}
+  function newRe(){return {id:null,t:'',rep:'w',days:[],dom:1,part:'afternoon',as:'step',time:'',dur:60,err:''}}
+  function syncRe(){var R=S.re;if(!R)return;var t=document.getElementById('re-t'),d=document.getElementById('re-dom');var tm=document.getElementById('re-time');if(tm)R.time=tm.value;if(t)R.t=t.value;if(d)R.dom=Math.max(1,Math.min(31,parseInt(d.value,10)||1))}
   function seSheet(){
     if(!S.se)return '';
     var id=S.se.id,cu=S.cust.some(function(x){return x.id===id});
@@ -1435,8 +1436,9 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     h+='<div class="grp"><div class="lab">Repeats</div>'+evChips('retype',R.rep,[['w','Weekly'],['m','Monthly']]);
     if(R.rep==='w'){h+='<div class="chips sm" style="margin-top:8px" role="group" aria-label="Days">';DAYN.forEach(function(d,i){h+='<button data-a="reday" data-v="'+i+'" aria-pressed="'+(R.days.indexOf(i)>=0)+'">'+d+'</button>'});h+='</div>'}
     else h+='<div class="lab" style="margin-top:8px">On day of the month</div><input class="field" type="number" min="1" max="31" id="re-dom" value="'+R.dom+'" aria-label="Day of the month"><p class="small">In shorter months it lands on the last day.</p>';
-    h+='</div><div class="grp"><div class="lab">Time of day</div>'+evChips('repart',R.part,[['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']])+'</div>';
-    h+='<div class="grp"><div class="lab">Shows up as</div>'+evChips('reas',R.as,[['step','A routine step'],['lot','A parking lot task']])+'<p class="small">'+(R.as==='step'?'It joins that part of the day on its day, like any other step.':'It lands in your weekly parking lot on its day and stays until you do it.')+'</p></div>';
+    h+='</div><div class="grp"><div class="lab">Shows up as</div>'+evChips('reas',R.as,[['step','A routine step'],['lot','A parking lot task'],['ev','An event']])+'<p class="small">'+(R.as==='step'?'It joins that part of the day on its day, like any other step.':R.as==='lot'?'It lands in your weekly parking lot on its day and stays until you do it.':'It shows in your plans and on Overview on its day, at the time you set.')+'</p></div>';
+    if(R.as==='ev')h+='<div class="grp"><div class="lab">Start time</div><div class="tfield"><input class="field" type="time" id="re-time" required value="'+esc(R.time||'')+'" aria-label="Start time"></div><div class="lab" style="margin-top:10px">How long</div>'+evChips('redur',R.dur,[[30,'30 min'],[60,'1 hr'],[90,'1.5 hr'],[120,'2 hr'],[180,'3 hr']])+'</div>';
+    else h+='<div class="grp"><div class="lab">Time of day</div>'+evChips('repart',R.part,[['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']])+'</div>';
     return h+'<button class="btn" data-a="resave">Save</button>'+(R.id?'<button class="quiet" style="text-align:center" data-a="redel">Delete this repeating task</button>':'')+'<button class="quiet" style="text-align:center" data-a="recancel">Cancel</button></div></div>';
   }
   function menuSheet(){
@@ -1521,7 +1523,9 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     if(_hk&&_hk===render.lastHero){app.querySelectorAll('.hero').forEach(function(e){e.style.animation='none'})}
     render.lastHero=_hk;
     var _l=document.querySelector('.lot'),_st=_l?_l.scrollTop:0;
+    var _sc={};document.querySelectorAll('#sheetRoot .sheet[aria-label]').forEach(function(s){_sc[s.getAttribute('aria-label')]=s.scrollTop});
     document.getElementById('sheetRoot').innerHTML=fx(roughSheet()+menuSheet()+evSheet()+skipSheet()+forgotSheet()+catSheet()+seSheet()+reSheet()+nameSheet()+tkSheet()+lotSheet()+plSheet()+fab()+welcomeSheet());
+    document.querySelectorAll('#sheetRoot .sheet[aria-label]').forEach(function(s){var k=s.getAttribute('aria-label');if(_sc[k])s.scrollTop=_sc[k]});
     var _l2=document.querySelector('.lot');if(_l2)_l2.scrollTop=_st;
   }
 
@@ -1763,17 +1767,19 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     sebg:function(b,e){if(e.target===b){S.se=null;render()}},
     rtback:function(b){var id=b.dataset.v;S.rtn.hidden=S.rtn.hidden.filter(function(x){return x!==id});var p=defPart(id);if(S.rtn.parts[p].indexOf(id)<0)S.rtn.parts[p].push(id);saveRtn();keepSheet(render)},
     renew:function(){S.re=newRe();render()},
-    reedit:function(b){var r=S.reps.filter(function(x){return x.id===b.dataset.v})[0];if(!r)return;S.re={id:r.id,t:r.t,rep:r.rep,days:r.days.slice(),dom:r.dom||1,part:r.part,as:r.as,err:''};render()},
+    reedit:function(b){var r=S.reps.filter(function(x){return x.id===b.dataset.v})[0];if(!r)return;S.re={id:r.id,t:r.t,rep:r.rep,days:r.days.slice(),dom:r.dom||1,part:r.part,as:r.as,time:r.time||'',dur:r.dur||60,err:''};render()},
     retype:function(b){keepSheet(function(){syncRe();S.re.rep=b.dataset.v;render()})},
     reday:function(b){keepSheet(function(){syncRe();var d=+b.dataset.v,i=S.re.days.indexOf(d);if(i>=0)S.re.days.splice(i,1);else S.re.days.push(d);render()})},
     repart:function(b){keepSheet(function(){syncRe();S.re.part=b.dataset.v;render()})},
+    redur:function(b){keepSheet(function(){syncRe();S.re.dur=+b.dataset.v;render()})},
     reas:function(b){keepSheet(function(){syncRe();S.re.as=b.dataset.v;render()})},
     resave:function(){
       syncRe();var R=S.re;R.err='';
       if(!R.t.trim())R.err='Give it a name first.';
       else if(R.rep==='w'&&!R.days.length)R.err='Pick at least one day.';
+      else if(R.as==='ev'&&!R.time)R.err='Add a start time so it lands in the right spot.';
       if(R.err){keepSheet(render);return}
-      var rec={id:R.id||('p'+Date.now()),t:R.t.trim().slice(0,50),rep:R.rep,days:R.days.slice(),dom:R.dom,part:R.part,as:R.as};
+      var rec={id:R.id||('p'+Date.now()),t:R.t.trim().slice(0,50),rep:R.rep,days:R.days.slice(),dom:R.dom,part:R.part,as:R.as,time:R.as==='ev'?R.time:undefined,dur:R.as==='ev'?R.dur:undefined};
       var ix=-1;S.reps.forEach(function(x,i){if(x.id===rec.id)ix=i});
       if(ix>=0)S.reps[ix]=rec;else S.reps.push(rec);
       syncSteps();genReps();saveRtn();S.re=null;render();toast('Saved. It comes back on its own, never overdue.')
@@ -1823,6 +1829,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     evnew:function(){S.ev=newEv();render()},
     evnewp:function(){S.ev=newEv();S.ev.by='p';render()},
     evedit:function(b){
+      if(b.dataset.v.indexOf('rv_')===0){A.reedit({dataset:{v:b.dataset.v.slice(3)}});return}
       var ev=S.events.filter(function(x){return x.id===b.dataset.v})[0];if(!ev)return;
       var k=evDate(ev),dk=k===ymd(new Date())?'today':k===ymd(addDays(new Date(),1))?'tomorrow':'other';
       S.ev={tags:(ev.tags||[]).slice(),id:ev.id,by:ev.by||'me',title:ev.title,dk:dk,dateVal:k,time:ev.time,dur:ev.dur||0,place:ev.place||'',travel:ev.travel||0,prep:ev.prep||'',withJ:!!ev.withJ,share:ev.share||'full',err:''};
