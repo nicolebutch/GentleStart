@@ -1138,7 +1138,8 @@
       var n=L.items.filter(function(i){return !i.done}).length;
       h+='<details class="card lcard"'+(li===0?' open':'')+' data-id="'+L.id+'"><summary><span>'+esc(L.name)+'</span><span class="count">'+n+' item'+(n===1?'':'s')+'</span></summary><ul class="items">';
       L.items.forEach(function(it,ii){
-        h+='<li class="item'+(it.done?' done':'')+'"><button class="check" role="checkbox" aria-checked="'+it.done+'" aria-label="'+esc(it.t)+'" data-a="tick" data-l="'+li+'" data-i="'+ii+'">'+(it.done?'<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-7"/></svg>':'')+'</button><span class="t">'+esc(it.t)+'</span>'+(it.done?'':'<button class="lpk" aria-label="Move to the '+esc(U().lot.toLowerCase())+'" data-a="lpark" data-l="'+li+'" data-i="'+ii+'">'+esc(U().parkIt)+'</button>')+'<button class="x" aria-label="Delete item" data-a="del" data-l="'+li+'" data-i="'+ii+'">&times;</button></li>';
+        if(S.ledit&&S.ledit.l===li&&S.ledit.i===ii){h+='<li class="item"><form class="add ledit" data-a="lsave" data-l="'+li+'" data-i="'+ii+'"><input type="text" id="ledit-in" value="'+esc(it.t)+'" maxlength="120" aria-label="Edit item"><button type="submit">Save</button><button type="button" class="lcancel" data-a="lcancel">Cancel</button></form></li>';return}
+        h+='<li class="item'+(it.done?' done':'')+'"><button class="check" role="checkbox" aria-checked="'+it.done+'" aria-label="'+esc(it.t)+'" data-a="tick" data-l="'+li+'" data-i="'+ii+'">'+(it.done?'<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-7"/></svg>':'')+'</button><button class="t tbtn" data-a="ledit" data-l="'+li+'" data-i="'+ii+'" aria-label="Edit: '+esc(it.t)+'">'+esc(it.t)+'</button>'+(it.done?'':'<button class="lpk" aria-label="Move to the '+esc(U().lot.toLowerCase())+'" data-a="lpark" data-l="'+li+'" data-i="'+ii+'">'+esc(U().parkIt)+'</button>')+'<button class="x" aria-label="Delete item" data-a="del" data-l="'+li+'" data-i="'+ii+'">&times;</button></li>';
       });
       h+='</ul><form class="add" data-a="additem" data-l="'+li+'"><input type="text" id="add-'+L.id+'" placeholder="Add to '+esc(L.name)+'" aria-label="Add to '+esc(L.name)+'"><button type="submit">Add</button></form></details>';
     });
@@ -1441,7 +1442,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     if(!S.menu)return '';
     var h='<div class="backdrop" data-a="mbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="Menu"><div class="between"><h2 style="font-size:24px">Menu</h2><button class="x" data-a="mclose" aria-label="Close menu">&times;</button></div>';
     h+='<div class="subtabs" role="group" aria-label="Menu sections">';
-    [['themes','Themes'],['logic','Logic'],['routine','Routine'],['other','Other'],['data','You']].forEach(function(t){h+='<button data-a="mt" data-v="'+t[0]+'" aria-pressed="'+(S.mt===t[0])+'">'+t[1]+'</button>'});
+    [['themes','Themes'],['logic','Logic'],['settings','Settings']].forEach(function(t){h+='<button data-a="mt" data-v="'+t[0]+'" aria-pressed="'+(S.mt===t[0])+'">'+t[1]+'</button>'});
     h+='</div>';
     var paused=creature()&&S.mt!=='logic'?'<div class="note">Woodland creatures has its own storybook look, so themes and colorways are paused while it is on.</div>':'';
     if(S.mt==='themes'){
@@ -1462,7 +1463,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       h+='</div><p class="small">Colorways only change the colors, and they work with any Basic theme.</p></div>';
       }
       var wc=creature();
-      h+='<div class="grp"><div class="lab">Premium Themes</div><button class="opt" data-a="prem" aria-pressed="'+wc+'">'+SVGO.replace('class="sprig"','class="mini"')+LOGICS.mammal.icon+'</svg><span><b>'+esc(LOGICS.mammal.name)+'</b>'+(wc?'<span class="small">'+esc(LOGICS.mammal.blurb)+'</span>':'')+'</span></button>';
+      h+='<div class="grp"><div class="lab">Premium Themes</div><button class="opt" data-a="prem" aria-pressed="'+wc+'">'+SVGO.replace('class="sprig"','class="mini"')+LOGICS.mammal.icon+'</svg><span><b>'+esc(LOGICS.mammal.name)+'</b>'+(wc?'<span class="small">'+esc(LOGICS.mammal.blurb)+'</span>':'')+'</span><span class="lockic" role="img" aria-label="Premium"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></button><p class="small">Premium themes would probably be a paid feature once the app is finished. For now nothing is locked, so try them freely.</p>';
       if(wc){
         h+='<div class="lab" style="margin-top:12px">Season</div><div class="chips sm">';
         Object.keys(SEASONS).forEach(function(k){h+='<button data-a="season" data-v="'+k+'" aria-pressed="'+(S.season===k)+'">'+SEASONS[k]+'</button>'});
@@ -1470,15 +1471,15 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       }
       h+='</div>';
 
-    }else if(S.mt==='other'){
+    }else if(S.mt==='settings'){
+      h+='<div class="sethead">Routine</div>'+routineTab();
+      h+='<div class="sethead">General</div>';
       h+='<div class="grp"><div class="lab">How should chance pick for you?</div><p class="small">This is what happens when you tap the button to let chance choose from the things that fit your time. It never picks anything that is not already a good fit.</p>';
       [['plinko','Plinko','A ball drops through the pegs and lands on one of your picks.','<circle cx="10" cy="8" r="2"/><circle cx="22" cy="8" r="2"/><circle cx="16" cy="15" r="2"/><circle cx="16" cy="25" r="3"/>'],['wheel','Spin wheel','Spin once. It slows and lands on one of the things that fit.','<circle cx="16" cy="16" r="11"/><path d="M16 5v22M5 16h22M8.5 8.5l15 15M23.5 8.5l-15 15"/>'],['coin','Coin flip','Two of your things, one flip. Quick and decisive.','<circle cx="16" cy="16" r="11"/><path d="M14 12.5l2.5-1.5v10"/>']].forEach(function(o){
         h+='<button class="opt" data-a="rnd" data-v="'+o[0]+'" aria-pressed="'+(S.rnd===o[0])+'">'+SVGO.replace('class="sprig"','class="mini"')+o[3]+'</svg><span><b>'+o[1]+'</b><span class="small">'+o[2]+'</span></span></button>';
       });
-      h+='</div><div class="grp"><div class="lab">YouTube playlist</div><p class="small">The playlist button on Today opens the one I made, which you are welcome to use. Paste a link to your own playlist to swap it, or use the link to your playlists page.</p><form class="add" data-a="ytsave"><input type="text" id="ytlink" inputmode="url" placeholder="https://youtube.com/playlist?list=..." value="'+esc(S.ytl)+'" aria-label="YouTube playlist link"><button type="submit">Save</button></form><div class="chips sm"><button data-a="ytpl">Use my playlists page</button>'+(S.ytl?'<button data-a="ytreset">Back to the original</button>':'')+'</div></div><div class="grp"><div class="lab">Plan tags</div><p class="small">The tags you can pick when adding a plan. Tap one to remove it.</p><div class="chips sm">'+S.evtags.map(function(q,i){return '<button data-a="evtagdel" data-v="'+i+'" aria-label="Remove tag '+esc(q)+'">'+esc(q)+' &times;</button>'}).join('')+'</div><form class="add" data-a="evtagadd"><input type="text" id="evtagnew" maxlength="24" placeholder="New tag, e.g. Gym" aria-label="New plan tag"><button type="submit">Add</button></form></div><div class="grp"><div class="lab">Calendar</div><div class="chips sm"><button data-a="holtog" aria-pressed="'+!!S.hol+'">Show major US holidays</button></div><p class="small">They appear on Overview and at the top of Plans on the day. They are not plans, so nothing is ever due.</p></div>';
-    }else if(S.mt==='routine'){
-      h+=routineTab();
-    }else if(S.mt==='data'){
+      h+='</div><div class="grp"><div class="lab">YouTube playlist</div><p class="small">The playlist button on Today opens a playlist Nicole made, which you are welcome to use. Paste a link to your own playlist to swap it, or use the button to link to all of your youtube playlists.</p><form class="add" data-a="ytsave"><input type="text" id="ytlink" inputmode="url" placeholder="https://youtube.com/playlist?list=..." value="'+esc(S.ytl)+'" aria-label="YouTube playlist link"><button type="submit">Save</button></form><div class="chips sm"><button data-a="ytpl">Link to all my playlists</button>'+(S.ytl?'<button data-a="ytreset">Back to the original</button>':'')+'</div></div><div class="grp"><div class="lab">Plan tags</div><p class="small">The tags you can pick when adding a plan. Tap one to remove it.</p><div class="chips sm">'+S.evtags.map(function(q,i){return '<button data-a="evtagdel" data-v="'+i+'" aria-label="Remove tag '+esc(q)+'">'+esc(q)+' &times;</button>'}).join('')+'</div><form class="add" data-a="evtagadd"><input type="text" id="evtagnew" maxlength="24" placeholder="New tag, e.g. Gym" aria-label="New plan tag"><button type="submit">Add</button></form></div><div class="grp"><div class="lab">Calendar</div><div class="chips sm"><button data-a="holtog" aria-pressed="'+!!S.hol+'">Show major US holidays</button></div><p class="small">They appear on Overview and at the top of Plans on the day. They are not plans, so nothing is ever due.</p></div>';
+      h+='<div class="sethead">You</div>';
       h+='<form id="profform" class="grp" style="display:flex;flex-direction:column;gap:4px"><div class="lab">About you</div>'+nameFields(PROF)+'<button class="btn alt" type="submit" style="margin-top:10px">Save names</button></form>';
       h+='<div class="grp"><div class="lab">Back up your data</div><p class="small">Everything lives on this device only for now. A backup is one small file with your tasks, plans, lists, log and settings. Keep it somewhere safe, or use it to move to a new phone.</p><button class="btn" data-a="dexport">Save a backup</button></div>';
       h+='<div class="grp"><div class="lab">Restore from a backup</div><p class="small">This replaces what is on this device with what is in the file.</p><label class="btn alt" style="cursor:pointer">Choose a backup file<input type="file" id="dimport" accept=".json,application/json" hidden></label></div>';
@@ -1873,6 +1874,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     dellog:function(b){S.log.splice(+b.dataset.i,1);save('gs-log',S.log);render()},
     prevmo:function(){S.mo-=1;S.day=null;render()},
     nextmo:function(){if(S.mo<0){S.mo+=1;S.day=null;render()}},
+    ledit:function(b){S.ledit={l:+b.dataset.l,i:+b.dataset.i};keepOpen();var e=document.getElementById('ledit-in');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}},
+    lcancel:function(){S.ledit=null;keepOpen()},
     tick:function(b){var it=S.lists[+b.dataset.l].items[+b.dataset.i];it.done=!it.done;save('gs-lists',S.lists);keepOpen()},
     ustext:function(){sendOut(usText(),null,'Copied. Paste it anywhere.')},
     uslink:function(){sendOut('',usLink(),'Link copied.')},
@@ -1929,6 +1932,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       var fid='new-'+sc+'-'+kind;
       keepAll(function(){document.getElementById(fid).value='';render()});
       var nm=document.getElementById(fid);if(nm){nm.value='';nm.focus()}
+    }else if(f.dataset.a==='lsave'){
+      var LL=S.lists[+f.dataset.l],itm=LL&&LL.items[+f.dataset.i];if(itm){itm.t=v.slice(0,120);save('gs-lists',S.lists)}S.ledit=null;render();reopen(ids);
     }else if(f.dataset.a==='additem'){
       var L=S.lists[+f.dataset.l];L.items.push({t:v,done:false});save('gs-lists',S.lists);render();reopen(ids);
       var el=document.getElementById('add-'+L.id);if(el)el.focus();

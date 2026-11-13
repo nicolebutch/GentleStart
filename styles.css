@@ -715,3 +715,10 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 /* menu quill: always the accent-coloured ink version so it matches the other icons in dark mode too */
 .opt .mini.qm .inkart{display:block!important;background:var(--accent)}
 .opt .mini.qm .goldart,.opt .mini.qm img.goldart{display:none!important}
+
+.item .tbtn{flex:1;text-align:left;background:none;border:0;padding:6px 0;font:inherit;color:inherit;cursor:text;min-height:32px}
+.item .ledit{flex:1;margin:0}
+.item .ledit .lcancel{background:transparent;color:var(--ink2);border:1.5px solid var(--line)}
+.sethead{font-family:var(--font-display,inherit);font-size:20px;margin:22px 0 6px;padding-top:14px;border-top:1.5px solid var(--line)}
+.sethead:first-child{margin-top:4px;border-top:0;padding-top:0}
+.opt .lockic{margin-left:auto;display:inline-flex;align-items:center;color:var(--ink2);opacity:.85;padding-left:8px}
