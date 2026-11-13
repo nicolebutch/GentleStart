@@ -771,3 +771,7 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .fpill.on{background:var(--accent);color:var(--accent-ink,#fff)}
 
 .sethead.first{margin-top:6px;border-top:0;padding-top:0}
+
+.orsep{display:flex;align-items:center;gap:10px;color:var(--ink2);font-size:13px;margin:4px 0}
+.orsep::before,.orsep::after{content:"";flex:1;border-top:1.5px dashed var(--line)}
+.sugg .kick{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}

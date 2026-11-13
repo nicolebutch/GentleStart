@@ -707,7 +707,7 @@
       var fun=pickTask(function(t){return t.fun}),hard=pickTask(function(t){return !t.fun});
       if(!fun&&!hard)h+='<p class="small">That is everything for now. They come back tomorrow.</p>';
       if(fun)h+='<p class="small">Fun is on the menu today.</p>'+suggBlock(fun,u,'Start this one',true);
-      if(hard)h+='<div class="note">'+(fun?'The important one will keep: <b>'+esc(hard.t.title)+'</b>. Doing it first is worth a little celebration, and fun first is allowed too. You are never not allowed to have fun.':'Nothing fun is stashed yet. When you are ready, the important one is <b>'+esc(hard.t.title)+'</b>.')+'</div><div class="row"><button class="btn hot grow" data-a="tkhard" data-v="'+esc(hard.t.id)+'">Hard one first</button></div>';
+      if(hard)h+=(fun?'<div class="orsep" aria-hidden="true"><span>or</span></div>':'<p class="small">Nothing fun is stashed yet, so here is the important one.</p>')+'<div class="sugg"><span class="kick">The important one</span><b>'+esc(hard.t.title)+'</b><span class="small">'+(fun?'Doing it first earns a little celebration. Fun first is fine too.':'Doing it first earns a little celebration.')+'</span>'+taskTags(hard.t)+'</div><div class="row"><button class="btn hot grow" data-a="tkhard" data-v="'+esc(hard.t.id)+'">Do this one first</button></div>';
     }else{
       var pk=pickTask();
       if(!pk)h+='<p class="small">That is all the suggestions for now. They come back tomorrow.</p>';
