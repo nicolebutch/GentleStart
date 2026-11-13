@@ -1536,7 +1536,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       if(!creature()){
       h+='<div class="grp"><div class="lab mid">Theme</div>';
       Object.keys(LOOKS).forEach(function(k){
-        h+='<button class="opt" data-a="look" data-v="'+k+'" aria-pressed="'+(S.look===k)+'">'+(k==='birch'?'<span class="mini qm">'+QUILL+'</span>':SVGO.replace('class="sprig"','class="mini"')+MOTIFS[k]+'</svg>')+'<span><b>'+esc(LOOKS[k].name)+'</b>'+(S.look===k?'<span class="small">'+esc(LOOKS[k].blurb)+'</span>':'')+'</span></button>';
+        h+='<button class="opt" data-a="look" data-v="'+k+'" aria-pressed="'+(S.look===k)+'">'+(k==='birch'?'<span class="mini qm">'+QUILL+'</span>':k==='meadow'?'<span class="mini qm"><span class="flmini"></span></span>':SVGO.replace('class="sprig"','class="mini"')+MOTIFS[k]+'</svg>')+'<span><b>'+esc(LOOKS[k].name)+'</b>'+(S.look===k?'<span class="small">'+esc(LOOKS[k].blurb)+'</span>':'')+'</span></button>';
       });
       h+='</div><div class="grp"><div class="lab mid">Colorway</div><div class="cws">';
       Object.keys(CWS).forEach(function(k){
