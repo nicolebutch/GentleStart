@@ -858,3 +858,15 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 .garland .g-big{background:color-mix(in srgb,var(--accent) 22%,var(--surface));-webkit-mask-image:url(art/mv-big.png);mask-image:url(art/mv-big.png)}
 .garland .g-tl{background:#fff;opacity:.35;-webkit-mask-image:url(art/mv-tl.png);mask-image:url(art/mv-tl.png)}
 .garland .g-td{background:#000;opacity:.18;-webkit-mask-image:url(art/mv-td.png);mask-image:url(art/mv-td.png)}
+
+/* Meadow: second garland (wildflowers), alternates daily */
+.garland.g2{aspect-ratio:1100/149}
+.garland .h-leaf{background:color-mix(in srgb,#7FA678 70%,var(--accent));opacity:1;-webkit-mask-image:url(art/mv2-leaf.png);mask-image:url(art/mv2-leaf.png)}
+.garland .h-cream{background:color-mix(in srgb,var(--accent) 10%,var(--surface));opacity:1;-webkit-mask-image:url(art/mv2-cream.png);mask-image:url(art/mv2-cream.png)}
+.garland .h-purp{background:color-mix(in srgb,var(--accent) 55%,var(--surface));opacity:1;-webkit-mask-image:url(art/mv2-purp.png);mask-image:url(art/mv2-purp.png)}
+.garland .h-blue{background:var(--sky);opacity:1;-webkit-mask-image:url(art/mv2-blue.png);mask-image:url(art/mv2-blue.png)}
+.garland .h-pink{background:color-mix(in srgb,var(--wood) 45%,var(--surface));opacity:1;-webkit-mask-image:url(art/mv2-pink.png);mask-image:url(art/mv2-pink.png)}
+.garland .h-yel{background:#D8A93A;opacity:1;-webkit-mask-image:url(art/mv2-yel.png);mask-image:url(art/mv2-yel.png)}
+.garland .h-tl{background:#fff;opacity:0.35;-webkit-mask-image:url(art/mv2-tl.png);mask-image:url(art/mv2-tl.png)}
+.garland .h-td{background:#000;opacity:0.18;-webkit-mask-image:url(art/mv2-td.png);mask-image:url(art/mv2-td.png)}
+.garland .h-ink{background:var(--ink);opacity:0.9;-webkit-mask-image:url(art/mv2-ink.png);mask-image:url(art/mv2-ink.png)}

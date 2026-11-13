@@ -232,7 +232,9 @@
     nook:function(){
       return '<img class="shelf shelf-l" src="art/library-light.png" alt="" width="1200" height="373"><img class="shelf shelf-d" src="art/library-dark.png" alt="" width="1200" height="368">';
     },
-    meadow:function(){return '<div class="garland" role="presentation"><i class="g-leaf"></i><i class="g-small"></i><i class="g-big"></i><i class="g-tl"></i><i class="g-td"></i><i class="g-ink"></i></div>'},
+    meadow:function(){var d=new Date(),doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);
+      if(doy%2)return '<div class="garland g2" role="presentation"><i class="h-leaf"></i><i class="h-cream"></i><i class="h-purp"></i><i class="h-blue"></i><i class="h-pink"></i><i class="h-yel"></i><i class="h-tl"></i><i class="h-td"></i><i class="h-ink"></i></div>';
+      return '<div class="garland" role="presentation"><i class="g-leaf"></i><i class="g-small"></i><i class="g-big"></i><i class="g-tl"></i><i class="g-td"></i><i class="g-ink"></i></div>'},
     tide:function(){
       return '<svg class="tidesvg" viewBox="0 0 440 64" role="presentation">'
         +'<path class="wv w1" d="M-110 34 Q-55 12 0 34 T110 34 T220 34 T330 34 T440 34 T550 34 V64 H-110Z" style="fill:var(--sky);opacity:.55"/>'
