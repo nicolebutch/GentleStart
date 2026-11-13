@@ -1445,10 +1445,10 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     h+='</div>';
     var paused=creature()&&S.mt!=='logic'?'<div class="note">Woodland creatures has its own storybook look, so themes and colorways are paused while it is on.</div>':'';
     if(S.mt==='themes'){
-      h+='<p class="small">Picking a theme switches to its own colorway. Then try any other colorway on top, further down.</p>'+paused;
+      h+='<p class="small">Picking a theme switches to its own colorway. Then try any other colorway on top, further down.</p>';
       h+='<div class="grp"><div class="lab">Appearance</div><div class="chips sm" role="group" aria-label="Light or dark">';
       [['auto','Auto'],['light','Light'],['dark','Dark']].forEach(function(t){h+='<button data-a="appear" data-v="'+t[0]+'" aria-pressed="'+(S.appear===t[0])+'">'+t[1]+'</button>'});
-      h+='</div><p class="small">Auto follows your phone.</p></div>';
+      h+='</div><p class="small">Auto follows your phone.</p></div>'+paused;
       if(!creature()){
       h+='<div class="grp"><div class="lab">Theme</div>';
       Object.keys(LOOKS).forEach(function(k){
