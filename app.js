@@ -23,7 +23,7 @@
   };
   var SVGO='<svg class="sprig" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
   var QUILL='<span class="inkart quill"></span><img class="goldart quill" src="art/quill-gold.png" alt="" width="300" height="332">';
-  function motif(){var k=lookKey();if(k==='birch')return QUILL;return SVGO+(MOTIFS[k]||MOTIFS.original)+'</svg>'}
+  function motif(){var k=lookKey();if(k==='birch')return QUILL;if(k==='creature')return SVGO+LOGICS.mammal.icon+'</svg>';return SVGO+(MOTIFS[k]||MOTIFS.original)+'</svg>'}
 
   /* header illustrations, drawn with the colorway's own tokens */
 
