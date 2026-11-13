@@ -885,4 +885,4 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 :root[data-look="meadow"] .hero::after{z-index:0;right:-6px;top:-6px}
 /* Meadow hero: rounded all round, flower sits over the corner of the frame */
 :root[data-look="meadow"] .hero{border-radius:40px;overflow:visible}
-:root[data-look="meadow"] .hero::after{right:-19px;top:-22px;z-index:0;transform:rotate(35deg)}
+:root[data-look="meadow"] .hero::after{right:-18px;top:-23px;z-index:0;transform:rotate(35deg)}
