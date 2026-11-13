@@ -830,3 +830,5 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 
 /* Original: hand-drawn sprig wreath */
 .seal.orig .ob{background:var(--accent);-webkit-mask:url(art/sprig-wreath.png) center/contain no-repeat;mask:url(art/sprig-wreath.png) center/contain no-repeat}
+
+.seal.orig .ob.tg{-webkit-mask-image:url(art/seaglass.png);mask-image:url(art/seaglass.png)}
