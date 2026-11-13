@@ -1003,7 +1003,7 @@
     return h+'</div>';
   }
   S.evtags=load('gs-evtags',['Appointment','Hobby','Dinner out','Call','Errand']);
-  S.ytl=load('gs-ytl','');
+  S.ytl=load('gs-ytl','');S.mus=load('gs-mus',{sp:true,yt:true});
   function ytLink(){return S.ytl||'https://youtube.com/playlist?list=PLObp3SAH0hnY&si=vXpF5x_9PXO8uPWp'}
   function newEv(){return {tags:[],id:null,by:'me',title:'',dk:'today',dateVal:'',time:'',dur:60,place:'',travel:0,prep:'',withJ:false,share:'full',err:''}}
   function syncEv(){
@@ -1129,7 +1129,7 @@
     h+='</ul></div>';
     }
     if(id&&!S.doing)h+=parkCard();
-    h+='<div class="sect"><h3>'+esc(u.music)+'</h3><div class="music"><a class="btn alt" href="https://open.spotify.com" target="_blank" rel="noopener">Spotify</a><a class="btn alt" href="'+esc(ytLink())+'" target="_blank" rel="noopener">YouTube playlist</a></div>'+(S.ytl?'':'<p class="small ytnote">The YouTube playlist is one I made. Feel free to use it, or swap in your own music in settings.</p>')+'</div>';
+    if(S.mus.sp||S.mus.yt)h+='<div class="sect"><h3>'+esc(u.music)+'</h3><div class="music">'+(S.mus.sp?'<a class="btn alt" href="https://open.spotify.com" target="_blank" rel="noopener">Spotify</a>':'')+(S.mus.yt?'<a class="btn alt" href="'+esc(ytLink())+'" target="_blank" rel="noopener">YouTube playlist</a>':'')+'</div><button class="quiet linkbtn musset" data-a="musset">Change or remove music options in settings</button></div>';
     return h;
   }
 
@@ -1483,7 +1483,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       [['plinko','Plinko','A ball drops through the pegs and lands on one of your picks.','<circle cx="10" cy="8" r="2"/><circle cx="22" cy="8" r="2"/><circle cx="16" cy="15" r="2"/><circle cx="16" cy="25" r="3"/>'],['wheel','Spin wheel','Spin once. It slows and lands on one of the things that fit.','<circle cx="16" cy="16" r="11"/><path d="M16 5v22M5 16h22M8.5 8.5l15 15M23.5 8.5l-15 15"/>'],['coin','Coin flip','Two of your things, one flip. Quick and decisive.','<circle cx="16" cy="16" r="11"/><path d="M14 12.5l2.5-1.5v10"/>']].forEach(function(o){
         h+='<button class="opt" data-a="rnd" data-v="'+o[0]+'" aria-pressed="'+(S.rnd===o[0])+'">'+SVGO.replace('class="sprig"','class="mini"')+o[3]+'</svg><span><b>'+o[1]+'</b><span class="small">'+o[2]+'</span></span></button>';
       });
-      h+='</div><div class="grp"><div class="lab">YouTube playlist</div><p class="small">The playlist button on Today opens a playlist Nicole made, which you are welcome to use. Paste a link to your own playlist to swap it, or use the button to link to all of your youtube playlists.</p><form class="add" data-a="ytsave"><input type="text" id="ytlink" inputmode="url" placeholder="https://youtube.com/playlist?list=..." value="'+esc(S.ytl)+'" aria-label="YouTube playlist link"><button type="submit">Save</button></form><div class="chips sm"><button data-a="ytpl">Link to all my playlists</button>'+(S.ytl?'<button data-a="ytreset">Back to the original</button>':'')+'</div></div><div class="grp"><div class="lab">Plan tags</div><p class="small">The tags you can pick when adding a plan. Tap one to remove it.</p><div class="chips sm">'+S.evtags.map(function(q,i){return '<button data-a="evtagdel" data-v="'+i+'" aria-label="Remove tag '+esc(q)+'">'+esc(q)+' &times;</button>'}).join('')+'</div><form class="add" data-a="evtagadd"><input type="text" id="evtagnew" maxlength="24" placeholder="New tag, e.g. Gym" aria-label="New plan tag"><button type="submit">Add</button></form></div><div class="grp"><div class="lab">Calendar</div><div class="chips sm"><button data-a="holtog" aria-pressed="'+!!S.hol+'">Show major US holidays</button></div><p class="small">They appear on Overview and at the top of Plans on the day. They are not plans, so nothing is ever due.</p></div>';
+      h+='</div><div class="grp" id="musgrp"><div class="lab">Music buttons</div><p class="small">Pick which buttons show on Today. Turn both off to hide the music section.</p><div class="chips sm"><button data-a="mustog" data-v="sp" aria-pressed="'+!!S.mus.sp+'">Spotify</button><button data-a="mustog" data-v="yt" aria-pressed="'+!!S.mus.yt+'">YouTube playlist</button></div></div><div class="grp"><div class="lab">YouTube playlist</div><p class="small">The playlist button on Today opens a playlist Nicole made, which you are welcome to use. Paste a link to your own playlist to swap it, or use the button to link to all of your youtube playlists.</p><form class="add" data-a="ytsave"><input type="text" id="ytlink" inputmode="url" placeholder="https://youtube.com/playlist?list=..." value="'+esc(S.ytl)+'" aria-label="YouTube playlist link"><button type="submit">Save</button></form><div class="chips sm"><button data-a="ytpl">Link to all my playlists</button>'+(S.ytl?'<button data-a="ytreset">Back to the original</button>':'')+'</div></div><div class="grp"><div class="lab">Plan tags</div><p class="small">The tags you can pick when adding a plan. Tap one to remove it.</p><div class="chips sm">'+S.evtags.map(function(q,i){return '<button data-a="evtagdel" data-v="'+i+'" aria-label="Remove tag '+esc(q)+'">'+esc(q)+' &times;</button>'}).join('')+'</div><form class="add" data-a="evtagadd"><input type="text" id="evtagnew" maxlength="24" placeholder="New tag, e.g. Gym" aria-label="New plan tag"><button type="submit">Add</button></form></div><div class="grp"><div class="lab">Calendar</div><div class="chips sm"><button data-a="holtog" aria-pressed="'+!!S.hol+'">Show major US holidays</button></div><p class="small">They appear on Overview and at the top of Plans on the day. They are not plans, so nothing is ever due.</p></div>';
       h+='<div class="sethead">Routine</div>'+routineTab();
     }else{
       h+='<div class="grp"><div class="lab mid">What&rsquo;s your mindset today?</div><p class="small">This changes how the app thinks.</p>';
@@ -1677,6 +1677,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       }).then(function(){S.tkBusy=false;if(S.tk===T){syncTk();keepSheet(render)}});
     },
     menu:function(){S.menu=true;render()},
+    musset:function(){S.menu=true;S.mt='settings';render();var g=document.getElementById('musgrp');if(g)g.scrollIntoView({block:'start'})},
+    mustog:function(b){var k=b.dataset.v;S.mus[k]=!S.mus[k];save('gs-mus',S.mus);keepSheet(render)},
     mclose:function(){S.menu=false;render()},
     mbg:function(b,e){if(e.target===b){S.menu=false;render()}},
     look:function(b){keepSheet(function(){S.look=b.dataset.v;S.cw=LOOKS[S.look].cw;save('gs-look',S.look);save('gs-cw',S.cw);applyLook();render()})},

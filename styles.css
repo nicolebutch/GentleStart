@@ -777,3 +777,5 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .sugg .kick{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
 
 .parkh{color:var(--accent);font-weight:700}
+
+.musset{display:block;margin:6px 0 0;padding-left:0;font-size:13px;color:var(--ink2);text-align:left;align-self:flex-start}
