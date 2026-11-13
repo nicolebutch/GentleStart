@@ -1599,7 +1599,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
   }
   function meadowFrames(){
     if(lookKey()!=='meadow')return;
-    document.querySelectorAll('#app .card,#app .hero').forEach(function(el){
+    document.querySelectorAll('#app .card').forEach(function(el){
       var w=el.offsetWidth,h=el.offsetHeight;if(!w||!h)return;
       var f=el.querySelector(':scope>.mframe');if(f&&f.dataset.sz===w+'x'+h)return;
       if(!f){f=document.createElement('span');f.className='mframe';f.setAttribute('aria-hidden','true');el.insertBefore(f,el.firstChild)}
