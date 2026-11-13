@@ -232,8 +232,8 @@
     nook:function(){
       return '<img class="shelf shelf-l" src="art/library-light.png" alt="" width="1200" height="373"><img class="shelf shelf-d" src="art/library-dark.png" alt="" width="1200" height="368">';
     },
-    meadow:function(){var d=new Date(),doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);
-      if(doy%2)return '<div class="garland g2" role="presentation"><i class="h-leaf"></i><i class="h-cream"></i><i class="h-purp"></i><i class="h-blue"></i><i class="h-pink"></i><i class="h-yel"></i><i class="h-tl"></i><i class="h-td"></i><i class="h-ink"></i></div>';
+    meadow:function(){if(DECO.g2===undefined)DECO.g2=Math.random()<.5;
+      if(DECO.g2)return '<div class="garland g2" role="presentation"><i class="h-leaf"></i><i class="h-cream"></i><i class="h-purp"></i><i class="h-blue"></i><i class="h-pink"></i><i class="h-yel"></i><i class="h-tl"></i><i class="h-td"></i><i class="h-ink"></i></div>';
       return '<div class="garland" role="presentation"><i class="g-leaf"></i><i class="g-small"></i><i class="g-big"></i><i class="g-tl"></i><i class="g-td"></i><i class="g-ink"></i></div>'},
     tide:function(){
       return '<svg class="tidesvg" viewBox="0 0 440 64" role="presentation">'
