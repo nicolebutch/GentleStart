@@ -917,7 +917,7 @@
     if(S.rtn.names[id])o.t=S.rtn.names[id];
     if(id==='lunch'&&!(PROF&&PROF.partner)){o.lunch=false;o.meal=true;o.t='Lunch';o.s='Time to eat something. Whatever is easy counts.'}
     return o}
-  function nmOf(id){if(S.rtn.names[id])return S.rtn.names[id];var a=moodAlt(id)||(ALT[S.logic]&&ALT[S.logic][id]);return a?(a.t||NAMES[id]):NAMES[id]}
+  function nmOf(id){if(S.rtn.names[id])return S.rtn.names[id];if(id==='meal'&&!(PROF&&PROF.pet))return creature()?'Forage for food':'Breakfast';var a=moodAlt(id)||(ALT[S.logic]&&ALT[S.logic][id]);return a?(a.t||NAMES[id]):NAMES[id]}
   function schedOf(id){if(S.logic!=='clock'||!TIMES[id])return null;var b=TIMES[id],st=b[0]+S.shift;return {start:st,label:fmt(st)+' to '+fmt(st+b[1])}}
 
   /* ---- tile stacks ---- */
