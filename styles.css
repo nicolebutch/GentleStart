@@ -756,3 +756,5 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 @media (min-width:1280px){
   :root[data-look="original"] .wrap.wide{max-width:min(1500px,calc(100vw - 128px))}
 }
+
+.lab.big{font-size:17px;font-weight:700;color:var(--ink)}

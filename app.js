@@ -1449,8 +1449,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     h+='</div>';
     var paused=creature()&&S.mt!=='logic'?'<div class="note">Woodland creatures has its own storybook look, so themes and colorways are paused while it is on.</div>':'';
     if(S.mt==='themes'){
-      h+='<p class="small">Picking a theme switches to its own colorway. Then try any other colorway on top.</p>';
-      h+='<div class="grp"><div class="lab">Appearance</div><div class="chips sm" role="group" aria-label="Light or dark">';
+      if(!creature())h+='<p class="small">Picking a theme switches to its own colorway. Then try any other colorway on top.</p>';
+      h+='<div class="grp"><div class="lab big">Appearance</div><div class="chips sm" role="group" aria-label="Light or dark">';
       [['auto','Auto'],['light','Light'],['dark','Dark']].forEach(function(t){h+='<button data-a="appear" data-v="'+t[0]+'" aria-pressed="'+(S.appear===t[0])+'">'+t[1]+'</button>'});
       h+='</div><p class="small">Auto follows your phone.</p></div>'+paused;
       if(!creature()){
@@ -1466,11 +1466,11 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       h+='</div><p class="small">Colorways only change the colors, and they work with any Basic theme.</p></div>';
       }
       var wc=creature();
-      h+='<div class="grp"><div class="lab">Premium Themes</div><button class="opt" data-a="prem" aria-pressed="'+wc+'">'+SVGO.replace('class="sprig"','class="mini"')+LOGICS.mammal.icon+'</svg><span><b>'+esc(LOGICS.mammal.name)+'</b>'+(wc?'<span class="small">'+esc(LOGICS.mammal.blurb)+'</span>':'')+'</span><span class="lockic" role="img" aria-label="Premium"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></button><p class="small">Premium themes may be a paid feature once the app is finished. For now nothing is locked, so try them freely.</p>';
+      h+='<div class="grp"><div class="lab big">Premium Themes</div><button class="opt" data-a="prem" aria-pressed="'+wc+'">'+SVGO.replace('class="sprig"','class="mini"')+LOGICS.mammal.icon+'</svg><span><b>'+esc(LOGICS.mammal.name)+'</b>'+(wc?'<span class="small">'+esc(LOGICS.mammal.blurb)+'</span>':'')+'</span><span class="lockic" role="img" aria-label="Premium"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></button><p class="small">Premium themes may be a paid feature once the app is finished. For now nothing is locked, so try them freely.</p>';
       if(wc){
         h+='<div class="lab" style="margin-top:12px">Season</div><div class="chips sm">';
         Object.keys(SEASONS).forEach(function(k){h+='<button data-a="season" data-v="'+k+'" aria-pressed="'+(S.season===k)+'">'+SEASONS[k]+'</button>'});
-        h+='</div><p class="small">Auto follows the calendar. Pick one to preview its colors and creatures.</p><p class="small">Tap Woodland creatures again to turn it off.</p>';
+        h+='</div><p class="small">Auto follows your phone or PC\u2019s calendar.</p><p class="small">Tap Woodland creatures again to turn it off.</p>';
       }
       h+='</div>';
 
@@ -1497,7 +1497,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       h+='<p class="small">Your plans, lists and log stay exactly the same, so you can switch whenever you feel like it.</p></div>';
       if(creature())h+='<div class="note">Woodland creatures is on, and it sets its own voice. You can turn it off under Premium Themes in the Themes tab, or pick a mindset above to switch.</div>';
     }
-    h+='<p class="small">More settings will live here as we build them.</p></div></div>';
+    h+='</div></div>';
     return h;
   }
 
