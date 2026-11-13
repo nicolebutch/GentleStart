@@ -729,3 +729,20 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .lcard summary .lsedit{margin-right:8px}
 .ldel{color:var(--ink2)}
 .linkbtn{align-self:center;text-decoration:underline;background:none;border:0;color:var(--accent);padding:8px;cursor:pointer;font:inherit}
+/* Overview on wide screens: use the room. Week shows more days, month fills the same footprint */
+@media (min-width:900px){
+  .wrap.wide{max-width:min(1160px,calc(100vw - 48px))}
+  .wkday{flex:1 0 150px}
+  .cal .day{min-height:112px}
+  .cal .day .mt{font-size:11.5px;line-height:1.25;-webkit-line-clamp:2}
+  .cal .day .more{font-size:11.5px}
+}
+@media (min-width:1280px){
+  .wrap.wide{max-width:min(1500px,calc(100vw - 64px))}
+  .wkday{flex:1 0 140px;min-height:260px}
+  .cal .day{min-height:132px}
+  .cal .day .mt{font-size:12.5px}
+}
+@media (min-width:900px){.deco img.vine{max-width:640px}}
+@media (min-width:1280px){.wkday{flex:1 0 124px}}
+.card .linkbtn{align-self:flex-start;padding-left:0}
