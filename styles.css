@@ -675,3 +675,33 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 :root[data-look="creature"] .lotadd input::placeholder{color:#6B4A2C;opacity:.8}
 :root[data-look="creature"] .lotabs button[aria-pressed="true"]{background:#FBF3E4;color:#3E2210}
 :root[data-look="creature"] .lotadd input{background:rgba(255,244,225,.55)}
+
+/* stash in dark mode: the dark bark with cream text */
+:root[data-theme="dark"][data-look="creature"] .lot{background-color:#6B3A1E;background-image:url(art/bark-dark.jpg);color:#FBF3E4;box-shadow:-18px 0 40px -20px rgba(0,0,0,.5)}
+:root[data-theme="dark"][data-look="creature"] .lottitle{border-bottom-color:#E8CFA0;color:#FBF3E4}
+:root[data-theme="dark"][data-look="creature"] .lotx,:root[data-theme="dark"][data-look="creature"] .lotabs button,:root[data-theme="dark"][data-look="creature"] .lotdone,:root[data-theme="dark"][data-look="creature"] .lotdone .quiet,:root[data-theme="dark"][data-look="creature"] .bay .body{color:#FBF3E4}
+:root[data-theme="dark"][data-look="creature"] .lotabs{background:rgba(0,0,0,.25)}
+:root[data-theme="dark"][data-look="creature"] .lotabs button[aria-pressed="true"]{background:#FBF3E4;color:#4A3520}
+:root[data-theme="dark"][data-look="creature"] .lotadd input{background:transparent;border-color:#E8CFA0;color:#FBF3E4}
+:root[data-theme="dark"][data-look="creature"] .lotadd input::placeholder{color:#E8CFA0;opacity:.8}
+:root[data-theme="dark"][data-look="creature"] .lotadd button{background:#E8CFA0;border-color:#E8CFA0;color:#4A3520}
+:root[data-theme="dark"][data-look="creature"] .bay{border-color:#E8CFA0;background:rgba(0,0,0,.18)}
+:root[data-theme="dark"][data-look="creature"] .bay .check{border-color:#E8CFA0}
+:root[data-theme="dark"][data-look="creature"] .bay .check[aria-checked="true"]{background:#E8CFA0;color:#4A3520}
+:root[data-theme="dark"][data-look="creature"] .bay .tag{border-color:#E8CFA0;color:#FBF3E4}
+:root[data-theme="dark"][data-look="creature"] .bay .small,:root[data-theme="dark"][data-look="creature"] .lotnote{color:#F0E2C8;border-color:#E8CFA0}
+@media (prefers-color-scheme:dark){
+:root:not([data-theme="light"])[data-look="creature"] .lot{background-color:#6B3A1E;background-image:url(art/bark-dark.jpg);color:#FBF3E4;box-shadow:-18px 0 40px -20px rgba(0,0,0,.5)}
+:root:not([data-theme="light"])[data-look="creature"] .lottitle{border-bottom-color:#E8CFA0;color:#FBF3E4}
+:root:not([data-theme="light"])[data-look="creature"] .lotx,:root:not([data-theme="light"])[data-look="creature"] .lotabs button,:root:not([data-theme="light"])[data-look="creature"] .lotdone,:root:not([data-theme="light"])[data-look="creature"] .lotdone .quiet,:root:not([data-theme="light"])[data-look="creature"] .bay .body{color:#FBF3E4}
+:root:not([data-theme="light"])[data-look="creature"] .lotabs{background:rgba(0,0,0,.25)}
+:root:not([data-theme="light"])[data-look="creature"] .lotabs button[aria-pressed="true"]{background:#FBF3E4;color:#4A3520}
+:root:not([data-theme="light"])[data-look="creature"] .lotadd input{background:transparent;border-color:#E8CFA0;color:#FBF3E4}
+:root:not([data-theme="light"])[data-look="creature"] .lotadd input::placeholder{color:#E8CFA0;opacity:.8}
+:root:not([data-theme="light"])[data-look="creature"] .lotadd button{background:#E8CFA0;border-color:#E8CFA0;color:#4A3520}
+:root:not([data-theme="light"])[data-look="creature"] .bay{border-color:#E8CFA0;background:rgba(0,0,0,.18)}
+:root:not([data-theme="light"])[data-look="creature"] .bay .check{border-color:#E8CFA0}
+:root:not([data-theme="light"])[data-look="creature"] .bay .check[aria-checked="true"]{background:#E8CFA0;color:#4A3520}
+:root:not([data-theme="light"])[data-look="creature"] .bay .tag{border-color:#E8CFA0;color:#FBF3E4}
+:root:not([data-theme="light"])[data-look="creature"] .bay .small,:root:not([data-theme="light"])[data-look="creature"] .lotnote{color:#F0E2C8;border-color:#E8CFA0}
+}
