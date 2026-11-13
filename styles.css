@@ -827,3 +827,6 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 .seal:not(.lib) .sb{background:color-mix(in srgb,var(--accent) 26%,var(--surface));filter:none}
 .seal:not(.lib) .sl{background:var(--accent);opacity:.85}
 .seal:not(.lib) .ss{opacity:.35}
+
+/* Original: hand-drawn sprig wreath */
+.seal.orig .ob{background:var(--accent);-webkit-mask:url(art/sprig-wreath.png) center/contain no-repeat;mask:url(art/sprig-wreath.png) center/contain no-repeat}
