@@ -23,6 +23,52 @@
   };
   var SVGO='<svg class="sprig" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
   var QUILL='<span class="inkart quill"></span><img class="goldart quill" src="art/quill-gold.png" alt="" width="300" height="332">';
+
+  /* ---- menu-button emblems: a frame plus a motif from the same craft, one per theme ---- */
+  function f2(n){return Math.round(n*100)/100}
+  function blobPath(cx,cy,r,amp,bumps,seed){var d='',n=72;for(var i=0;i<=n;i++){var a=i/n*Math.PI*2,rr=r+amp*Math.sin(a*bumps+seed)+amp*.55*Math.sin(a*(bumps+3)+seed*2.3)+amp*.35*Math.sin(a*2+seed*.7);d+=(i?'L':'M')+f2(cx+rr*Math.cos(a))+' '+f2(cy+rr*Math.sin(a))}return d+'Z'}
+  function leafAt(x,y,ang,len,w,fill,stroke){return '<path transform="translate('+f2(x)+' '+f2(y)+') rotate('+f2(ang)+')" d="M0 0C'+f2(len*.3)+' '+f2(-w)+' '+f2(len*.75)+' '+f2(-w)+' '+f2(len)+' 0C'+f2(len*.75)+' '+f2(w)+' '+f2(len*.3)+' '+f2(w)+' 0 0Z" style="fill:'+fill+';stroke:'+stroke+';stroke-width:.7"/>'}
+  var EMBS={
+    original:function(){
+      var s='<circle cx="24" cy="24" r="19.5" style="fill:var(--surface)"/><circle cx="24" cy="24" r="19.5" fill="none" style="stroke:var(--accent);stroke-width:1.1;opacity:.75"/>';
+      for(var i=0;i<16;i++){var a=i/16*360-80,rad=a*Math.PI/180,x=24+19.5*Math.cos(rad),y=24+19.5*Math.sin(rad),out=i%2?1:-1;
+        s+=leafAt(x,y,a+90+out*38,6.4,2.3,i%3?'color-mix(in srgb,var(--accent) 30%,var(--surface))':'color-mix(in srgb,var(--accent) 62%,var(--surface))','var(--accent)')}
+      return s+'<g transform="translate(9.6 9.2) scale(.9)" fill="none" style="stroke:var(--accent)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+MOTIFS.original+'</g>';
+    },
+    nook:function(){
+      var s='<path d="'+blobPath(24.4,25.2,19.5,1.25,7,1.3)+'" style="fill:color-mix(in srgb,var(--accent) 70%,#000)" opacity=".55"/>';
+      s+='<path d="'+blobPath(24,24,19.5,1.25,7,1.3)+'" style="fill:var(--accent)"/>';
+      s+='<path d="M41 33c2.6 1.2 3.4 4 1.6 5.4-1.6 1.2-3.6-.4-3.2-2.6" style="fill:var(--accent)"/>';
+      s+='<circle cx="24" cy="24" r="14.2" fill="none" stroke="#000" stroke-opacity=".22" stroke-width="1.6"/><circle cx="24" cy="24" r="14.2" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width=".8" transform="translate(-.6 -.6)"/>';
+      s+='<path d="M11 15c3-5 8-7.5 13-7.5" fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="2" stroke-linecap="round"/>';
+      return s+'<g transform="translate(13.6 13.4) scale(.66)" fill="none" stroke="#000" stroke-opacity=".28" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" ><g transform="translate(.8 .8)">'+MOTIFS.nook+'</g></g><g transform="translate(13.6 13.4) scale(.66)" fill="none" style="stroke:var(--surface)" stroke-opacity=".92" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'+MOTIFS.nook+'</g>';
+    },
+    meadow:function(){
+      var s='';for(var i=0;i<8;i++){var a=i*45+10;s+='<ellipse cx="24" cy="12.6" rx="6.6" ry="10" transform="rotate('+a+' 24 24)" style="fill:color-mix(in srgb,var(--accent) 22%,var(--surface));stroke:var(--accent);stroke-width:.9"/>'}
+      for(var j=0;j<8;j++){var b=j*45+10;s+='<path d="M24 6.5v8" transform="rotate('+b+' 24 24)" style="stroke:var(--accent)" stroke-width=".6" stroke-linecap="round" opacity=".45"/>'}
+      s+='<circle cx="24" cy="24" r="7.2" style="fill:var(--accent)"/>';
+      for(var k=0;k<7;k++){var cr=k/7*Math.PI*2;s+='<circle cx="'+f2(24+3.9*Math.cos(cr))+'" cy="'+f2(24+3.9*Math.sin(cr))+'" r=".95" style="fill:var(--surface)" opacity=".85"/>'}
+      return s+'<circle cx="24" cy="24" r="1.3" style="fill:var(--surface)"/>';
+    },
+    tide:function(){
+      var s='<ellipse cx="24" cy="24" rx="22.6" ry="21.6" fill="none" style="stroke:var(--sky,var(--accent))" stroke-width=".9" opacity=".55"/>';
+      s+='<path d="'+blobPath(24,24.4,18.8,1.1,3,2.1)+'" style="fill:color-mix(in srgb,var(--sky,var(--accent)) 55%,var(--surface))" />';
+      s+='<path d="'+blobPath(24,24.4,18.8,1.1,3,2.1)+'" fill="none" style="stroke:var(--accent)" stroke-width="1" opacity=".6"/>';
+      s+='<path d="M12.5 17.5c2.5-5 7.5-8 13-8" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2.2" stroke-linecap="round"/><circle cx="33.5" cy="14.5" r="1.3" fill="#fff" fill-opacity=".65"/>';
+      return s+'<g transform="translate(13.2 12.8) scale(.68)" fill="none" style="stroke:var(--accent)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">'+MOTIFS.tide+'</g>';
+    },
+    creature:function(){
+      var se=curSeason(),s='<circle cx="24" cy="24" r="16.2" style="fill:var(--surface)"/>';
+      for(var i=0;i<10;i++){var a=i/10*Math.PI*2-Math.PI/2,x=24+20.2*Math.cos(a),y=24+20.2*Math.sin(a),deg=a*180/Math.PI;
+        if(se==='spring'){for(var p=0;p<5;p++){var pa=p/5*Math.PI*2+i;s+='<circle cx="'+f2(x+1.7*Math.cos(pa))+'" cy="'+f2(y+1.7*Math.sin(pa))+'" r="1.45" fill="#F2B8C6" stroke="#C97A8E" stroke-width=".35"/>'}s+='<circle cx="'+f2(x)+'" cy="'+f2(y)+'" r=".9" fill="#F4C95D"/>'}
+        else if(se==='summer')s+=leafAt(x-2.6*Math.cos(a+1.2),y-2.6*Math.sin(a+1.2),deg+(i%2?60:120),5.6,2.1,i%2?'#8DBF6A':'#5E9A4B','#3F6B34');
+        else if(se==='autumn'){s+='<g transform="translate('+f2(x)+' '+f2(y)+') rotate('+f2(deg+90+(i%2?18:-18))+')"><ellipse cx="0" cy="1" rx="2.3" ry="2.8" fill="#B27A40" stroke="#6E4520" stroke-width=".45"/><path d="M-2.8 -.6C-2.6 -3 2.6 -3 2.8 -.6Z" fill="#7A5230" stroke="#4E321A" stroke-width=".45"/><path d="M0 -2.6v-1.2" stroke="#4E321A" stroke-width=".6" stroke-linecap="round"/></g>'}
+        else{s+='<g transform="translate('+f2(x)+' '+f2(y)+') rotate('+(i*17)+')" stroke="#7FA6C9" stroke-width=".7" stroke-linecap="round"><path d="M0 -2.6V2.6M-2.25 -1.3L2.25 1.3M-2.25 1.3L2.25 -1.3"/></g>'}}
+      s+='<filter id="embstamp" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="1.6"/></filter>';
+      return s+'<g filter="url(#embstamp)" style="fill:var(--accent)"><ellipse cx="24" cy="28.4" rx="6.3" ry="5.2"/><ellipse cx="16.6" cy="21.2" rx="2.4" ry="2.9" transform="rotate(-18 16.6 21.2)"/><ellipse cx="21.2" cy="17" rx="2.4" ry="3" transform="rotate(-6 21.2 17)"/><ellipse cx="26.8" cy="17" rx="2.4" ry="3" transform="rotate(6 26.8 17)"/><ellipse cx="31.4" cy="21.2" rx="2.4" ry="2.9" transform="rotate(18 31.4 21.2)"/></g>';
+    }
+  };
+  function emblemSvg(k){return '<svg class="embsvg" viewBox="0 0 48 48" aria-hidden="true">'+EMBS[k]()+'</svg>'}
   function motif(){var k=lookKey();if(k==='birch')return QUILL;if(k==='creature')return SVGO+LOGICS.mammal.icon+'</svg>';return SVGO+(MOTIFS[k]||MOTIFS.original)+'</svg>'}
 
   /* header illustrations, drawn with the colorway's own tokens */
@@ -216,7 +262,7 @@
   function deco(){var f=DECO[lookKey()];return f?'<div class="deco" aria-hidden="true"'+(S.logic==='mammal'?' data-a="critter"':'')+'>'+f()+'</div>':''}
   function head(o){
     return '<header class="head"><div class="top"><div>'+(o.eyebrow?'<div class="date">'+esc(o.eyebrow)+'</div>':'')+'<h1 class="hello">'+esc(o.title)+'</h1>'+(o.sub?'<div class="date">'+esc(o.sub)+'</div>':'')+'</div>'
-      +'<button class="emblem" data-a="menu" aria-label="Open menu" aria-haspopup="dialog">'+motif()+'</button></div>'+deco()+'</header>';
+      +(EMBS[lookKey()]?'<button class="emblem fancy" data-a="menu" aria-label="Open menu" aria-haspopup="dialog">'+emblemSvg(lookKey())+'</button>':'<button class="emblem" data-a="menu" aria-label="Open menu" aria-haspopup="dialog">'+motif()+'</button>')+'</div>'+deco()+'</header>';
   }
 
   var ICON={

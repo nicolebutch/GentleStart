@@ -796,3 +796,9 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 @media (max-width:760px),(pointer:coarse){.fab{bottom:calc(91px + env(safe-area-inset-bottom,0px))}}
 body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 :root[data-look="tide"] .tabs{box-shadow:none;filter:drop-shadow(0 -3px 6px color-mix(in srgb,var(--accent) 38%,transparent))}
+
+/* fancy emblems */
+:root .emblem.fancy{background:transparent;border:0;border-radius:50%;overflow:visible;transition:transform .2s ease}
+.emblem.fancy .embsvg{width:56px;height:56px;margin:-5px;overflow:visible;display:block}
+.emblem.fancy:hover{transform:rotate(-6deg) scale(1.04)}
+@media (prefers-reduced-motion:reduce){.emblem.fancy{transition:none}.emblem.fancy:hover{transform:none}}
