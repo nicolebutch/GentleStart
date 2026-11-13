@@ -388,6 +388,8 @@
     if(ch){save('gs-repseen',S.repSeen);saveTasks()}
   }
   S.logic=load('gs-logic','gentle');if(!LOGICS[S.logic])S.logic='gentle';
+  function lowRevert(){var t=load('gs-lowtmp',null);if(!t)return;if(t.day!==ymd(new Date())){S.logic=(LOGICS[t.prev]&&t.prev)||'gentle';save('gs-logic',S.logic);try{localStorage.removeItem('gs-lowtmp')}catch(e){}return true}}
+  function clearLowTmp(){try{localStorage.removeItem('gs-lowtmp')}catch(e){}}
   S.mt='themes';S.appear=load('gs-appear','auto');if(['auto','light','dark'].indexOf(S.appear)<0)S.appear='auto';S.shift=0;S.noAI=false;
   S.chat={open:false,msgs:[],busy:false,err:'',retry:''};
 
@@ -1372,9 +1374,9 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
 
   function roughSheet(){
     if(!S.rp)return '';
-    var h='<div class="backdrop" data-a="rbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="Rough morning"><h2 style="font-size:22px">Rough morning. Migraine?</h2><p class="small">Totally optional. The rough morning gets logged either way, then we switch to floor mode. You can add symptoms and triggers later in the Log tab.</p><div class="chips"><button class="gchip" data-a="rmig" aria-pressed="'+S.rp.mig+'" aria-expanded="'+S.rp.mig+'">'+STACK+'<span>Migraine</span>'+CHEV+'</button></div>';
+    var h='<div class="backdrop" data-a="rbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="Rough morning"><h2 style="font-size:22px">Rough morning. Migraine?</h2><p class="small">Totally optional. The rough morning gets logged either way, then we switch to low battery mode for the rest of today. You can add symptoms and triggers later in the Log tab.</p><div class="chips"><button class="gchip" data-a="rmig" aria-pressed="'+S.rp.mig+'" aria-expanded="'+S.rp.mig+'">'+STACK+'<span>Migraine</span>'+CHEV+'</button></div>';
     if(S.rp.mig)h+='<div class="gpanel">'+sevUI(S.rp.sev,'rsev')+pickUI('meds','rp',S.rp.meds)+'</div>';
-    h+='<button class="btn" data-a="rgo">Switch to floor mode</button><button class="quiet" data-a="rcancel">Never mind</button></div></div>';
+    h+='<button class="btn" data-a="rgo">Switch to low battery mode</button><button class="quiet" data-a="rcancel">Never mind</button></div></div>';
     return h;
   }
 
@@ -1404,20 +1406,15 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       var ids=S.rtn.parts[p[0]].filter(function(id){return !offId(id)});
       h+='<div class="grp"><div class="lab">'+p[1]+'</div><ul class="rtl">';
       ids.forEach(function(id,i){
-        h+='<li><button class="rtn" data-a="rtedit" data-v="'+esc(id)+'"><span>'+esc(nmOf(id))+'</span>'+(isFloor(id)?'<small>always counts</small>':'')+'</button><span class="rtb"><button aria-label="Move up" data-a="rtmv" data-p="'+p[0]+'" data-v="'+esc(id)+'" data-d="-1"'+(i===0?' disabled':'')+'>&uarr;</button><button aria-label="Move down" data-a="rtmv" data-p="'+p[0]+'" data-v="'+esc(id)+'" data-d="1"'+(i===ids.length-1?' disabled':'')+'>&darr;</button></span></li>';
+        h+='<li data-id="'+esc(id)+'" data-p="'+p[0]+'"><button class="rtn" data-a="rtedit" data-v="'+esc(id)+'"><span>'+esc(nmOf(id))+'</span></button><span class="grip" role="button" tabindex="0" aria-label="Drag to reorder '+esc(nmOf(id))+'. Arrow keys also move it." data-p="'+p[0]+'" data-v="'+esc(id)+'"><svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><rect x="3" y="4" width="12" height="2" rx="1"/><rect x="3" y="8" width="12" height="2" rx="1"/><rect x="3" y="12" width="12" height="2" rx="1"/></svg></span><button class="fpill'+(isFloor(id)?' on':'')+'" data-a="flrtog" data-v="'+esc(id)+'" aria-pressed="'+isFloor(id)+'">'+(isFloor(id)?'Always counts':'Don&rsquo;t let me skip this')+'</button></li>';
       });
       h+='</ul>';
       var hid=S.rtn.hidden.filter(function(id){return defPart(id)===p[0]&&!offId(id)});
       if(hid.length){h+='<div class="chips sm" style="margin-top:6px"><span class="small">Hidden, tap to put back:</span>';hid.forEach(function(id){h+='<button data-a="rtback" data-v="'+esc(id)+'">'+esc(NAMES[id])+'</button>'});h+='</div>'}
       h+='<form class="add" data-a="rtadd" data-p="'+p[0]+'" style="margin-top:8px"><input type="text" id="rtadd-'+p[0]+'" placeholder="Add a step" aria-label="Add a step to '+p[1]+'" maxlength="50"><button type="submit">Add</button></form></div>';
     });
-    h+='<div class="grp"><div class="lab">Don&rsquo;t let me skip these</div><p class="small">Pick the things that always count. They never get a skip button, and they are what shows in floor mode and on low-battery days.</p>';
-    [['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].forEach(function(p){
-      h+='<div class="lab" style="margin-top:8px">'+p[1]+'</div><div class="chips sm" role="group" aria-label="'+p[1]+'">';
-      floorAll(p[0]).filter(function(id){return !offId(id)}).forEach(function(id){h+='<button data-a="flrtog" data-v="'+esc(id)+'" aria-pressed="'+isFloor(id)+'">'+esc(nmOf(id))+'</button>'});
-      h+='</div>';
-    });
-    h+='</div><div class="grp"><div class="lab">Repeating tasks</div><p class="small">Things that come back every week or month. If one slips by, it just resets for next time. It never piles up.</p>';
+    h+='<div class="grp"><div class="lab">Don&rsquo;t let me skip these</div><p class="small">Pick the things that always count. They never get a skip button, and they are what shows in floor mode and on low-battery days.</p><p class="small">A gentle reminder: picking too many is a lot to ask of your low battery self, so keep it to the few that truly matter.</p>';
+    h+='</div><div class="grp"><div class="lab mid">Repeating tasks</div><p class="small">Things that aren\u2019t in your daily routine, but come up every week or month. If one slips by, it just resets for next time. It never piles up.</p>';
     if(S.reps.length){h+='<div class="evlist">';S.reps.forEach(function(r){h+='<button class="ev" data-a="reedit" data-v="'+esc(r.id)+'"><span class="bd"><b>'+esc(r.t)+'</b><span class="small">'+esc(repLabel(r))+'</span></span></button>'});h+='</div>'}
     else h+='<p class="small">None yet.</p>';
     return h+'<button class="btn alt" data-a="renew" style="margin-top:8px">+ Add a repeating task</button></div>';
@@ -1475,21 +1472,21 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       h+='</div>';
 
     }else if(S.mt==='settings'){
-      h+='<div class="sethead">Routine</div>'+routineTab();
-      h+='<div class="sethead">General</div>';
-      h+='<div class="grp"><div class="lab">How should chance pick for you?</div><p class="small">This is what happens when you tap the button to let chance choose from the things that fit your time. It never picks anything that is not already a good fit.</p>';
-      [['plinko','Plinko','A ball drops through the pegs and lands on one of your picks.','<circle cx="10" cy="8" r="2"/><circle cx="22" cy="8" r="2"/><circle cx="16" cy="15" r="2"/><circle cx="16" cy="25" r="3"/>'],['wheel','Spin wheel','Spin once. It slows and lands on one of the things that fit.','<circle cx="16" cy="16" r="11"/><path d="M16 5v22M5 16h22M8.5 8.5l15 15M23.5 8.5l-15 15"/>'],['coin','Coin flip','Two of your things, one flip. Quick and decisive.','<circle cx="16" cy="16" r="11"/><path d="M14 12.5l2.5-1.5v10"/>']].forEach(function(o){
-        h+='<button class="opt" data-a="rnd" data-v="'+o[0]+'" aria-pressed="'+(S.rnd===o[0])+'">'+SVGO.replace('class="sprig"','class="mini"')+o[3]+'</svg><span><b>'+o[1]+'</b><span class="small">'+o[2]+'</span></span></button>';
-      });
-      h+='</div><div class="grp"><div class="lab">YouTube playlist</div><p class="small">The playlist button on Today opens a playlist Nicole made, which you are welcome to use. Paste a link to your own playlist to swap it, or use the button to link to all of your youtube playlists.</p><form class="add" data-a="ytsave"><input type="text" id="ytlink" inputmode="url" placeholder="https://youtube.com/playlist?list=..." value="'+esc(S.ytl)+'" aria-label="YouTube playlist link"><button type="submit">Save</button></form><div class="chips sm"><button data-a="ytpl">Link to all my playlists</button>'+(S.ytl?'<button data-a="ytreset">Back to the original</button>':'')+'</div></div><div class="grp"><div class="lab">Plan tags</div><p class="small">The tags you can pick when adding a plan. Tap one to remove it.</p><div class="chips sm">'+S.evtags.map(function(q,i){return '<button data-a="evtagdel" data-v="'+i+'" aria-label="Remove tag '+esc(q)+'">'+esc(q)+' &times;</button>'}).join('')+'</div><form class="add" data-a="evtagadd"><input type="text" id="evtagnew" maxlength="24" placeholder="New tag, e.g. Gym" aria-label="New plan tag"><button type="submit">Add</button></form></div><div class="grp"><div class="lab">Calendar</div><div class="chips sm"><button data-a="holtog" aria-pressed="'+!!S.hol+'">Show major US holidays</button></div><p class="small">They appear on Overview and at the top of Plans on the day. They are not plans, so nothing is ever due.</p></div>';
       h+='<div class="sethead">You</div>';
       h+='<form id="profform" class="grp" style="display:flex;flex-direction:column;gap:4px"><div class="lab">About you</div>'+nameFields(PROF)+'<button class="btn alt" type="submit" style="margin-top:10px">Save names</button></form>';
       h+='<div class="grp"><div class="lab">Back up your data</div><p class="small">Everything lives on this device only for now. A backup is one small file with your tasks, plans, lists, log and settings. Keep it somewhere safe, or use it to move to a new phone.</p><button class="btn" data-a="dexport">Save a backup</button></div>';
       h+='<div class="grp"><div class="lab">Restore from a backup</div><p class="small">This replaces what is on this device with what is in the file.</p><label class="btn alt" style="cursor:pointer">Choose a backup file<input type="file" id="dimport" accept=".json,application/json" hidden></label></div>';
       if(S.dataPending)h+='<div class="note" role="alert">Found a backup with '+S.dataPending.n+' saved items'+(S.dataPending.when?' from '+esc(S.dataPending.when):'')+'. Replace what is on this device with it?<div class="row" style="margin-top:10px"><button class="btn grow" data-a="dgo">Yes, restore it</button><button class="btn alt grow" data-a="dno">Cancel</button></div></div>';
       if(S.dataMsg)h+='<div class="note" role="status">'+esc(S.dataMsg)+'</div>';
+      h+='<div class="sethead">General</div>';
+      h+='<div class="grp"><div class="lab">How should chance pick for you?</div><p class="small">This is what happens when you tap the button to let chance choose from the things that fit your time. It never picks anything that is not already a good fit.</p>';
+      [['plinko','Plinko','A ball drops through the pegs and lands on one of your picks.','<circle cx="10" cy="8" r="2"/><circle cx="22" cy="8" r="2"/><circle cx="16" cy="15" r="2"/><circle cx="16" cy="25" r="3"/>'],['wheel','Spin wheel','Spin once. It slows and lands on one of the things that fit.','<circle cx="16" cy="16" r="11"/><path d="M16 5v22M5 16h22M8.5 8.5l15 15M23.5 8.5l-15 15"/>'],['coin','Coin flip','Two of your things, one flip. Quick and decisive.','<circle cx="16" cy="16" r="11"/><path d="M14 12.5l2.5-1.5v10"/>']].forEach(function(o){
+        h+='<button class="opt" data-a="rnd" data-v="'+o[0]+'" aria-pressed="'+(S.rnd===o[0])+'">'+SVGO.replace('class="sprig"','class="mini"')+o[3]+'</svg><span><b>'+o[1]+'</b><span class="small">'+o[2]+'</span></span></button>';
+      });
+      h+='</div><div class="grp"><div class="lab">YouTube playlist</div><p class="small">The playlist button on Today opens a playlist Nicole made, which you are welcome to use. Paste a link to your own playlist to swap it, or use the button to link to all of your youtube playlists.</p><form class="add" data-a="ytsave"><input type="text" id="ytlink" inputmode="url" placeholder="https://youtube.com/playlist?list=..." value="'+esc(S.ytl)+'" aria-label="YouTube playlist link"><button type="submit">Save</button></form><div class="chips sm"><button data-a="ytpl">Link to all my playlists</button>'+(S.ytl?'<button data-a="ytreset">Back to the original</button>':'')+'</div></div><div class="grp"><div class="lab">Plan tags</div><p class="small">The tags you can pick when adding a plan. Tap one to remove it.</p><div class="chips sm">'+S.evtags.map(function(q,i){return '<button data-a="evtagdel" data-v="'+i+'" aria-label="Remove tag '+esc(q)+'">'+esc(q)+' &times;</button>'}).join('')+'</div><form class="add" data-a="evtagadd"><input type="text" id="evtagnew" maxlength="24" placeholder="New tag, e.g. Gym" aria-label="New plan tag"><button type="submit">Add</button></form></div><div class="grp"><div class="lab">Calendar</div><div class="chips sm"><button data-a="holtog" aria-pressed="'+!!S.hol+'">Show major US holidays</button></div><p class="small">They appear on Overview and at the top of Plans on the day. They are not plans, so nothing is ever due.</p></div>';
+      h+='<div class="sethead">Routine</div>'+routineTab();
     }else{
-      h+='<div class="grp"><div class="lab">What&rsquo;s your mindset today?</div><p class="small">This changes how the app thinks.</p>';
+      h+='<div class="grp"><div class="lab mid">What&rsquo;s your mindset today?</div><p class="small">This changes how the app thinks.</p>';
       Object.keys(LOGICS).forEach(function(k){
         if(k==='mammal')return;
         h+='<button class="opt" data-a="logic" data-v="'+k+'" aria-pressed="'+(S.logic===k)+'">'+SVGO.replace('class="sprig"','class="mini"')+LOGICS[k].icon+'</svg><span><b>'+esc(LOGICS[k].name)+'</b>'+(S.logic===k?'<span class="small">'+esc(LOGICS[k].blurb)+'</span>':'')+'</span></button>';
@@ -1511,6 +1508,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
 
   function render(){
     if(S.pv){document.getElementById('app').innerHTML=pvHtml(S.pv);document.getElementById('tabs').innerHTML='';document.getElementById('sheetRoot').innerHTML='';return}
+    if(lowRevert()){S.shift=0;S.skipPark=[];try{applyLook()}catch(e){}}
     genReps();
     var app=document.getElementById('app');
     var _sl=document.getElementById('simslider'),keepSl=(_sl&&document.activeElement===_sl)?_sl:null;
@@ -1546,8 +1544,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
   var A={
     appear:function(b){keepSheet(function(){S.appear=b.dataset.v;save('gs-appear',S.appear);applyLook();render()})},
     mt:function(b){keepSheet(function(){S.mt=b.dataset.v;render()})},
-    prem:function(){keepSheet(function(){var was=S.logic;if(was==='mammal'){var pv=load('gs-prevlogic','gentle');S.logic=(LOGICS[pv]&&pv!=='mammal')?pv:'gentle'}else{save('gs-prevlogic',was);S.logic='mammal'}S.shift=0;S.skipPark=[];save('gs-logic',S.logic);applyLook();render()})},
-    logic:function(b){keepSheet(function(){S.logic=b.dataset.v;S.shift=0;S.skipPark=[];save('gs-logic',S.logic);applyLook();render()})},
+    prem:function(){keepSheet(function(){clearLowTmp();var was=S.logic;if(was==='mammal'){var pv=load('gs-prevlogic','gentle');S.logic=(LOGICS[pv]&&pv!=='mammal')?pv:'gentle'}else{save('gs-prevlogic',was);S.logic='mammal'}S.shift=0;S.skipPark=[];save('gs-logic',S.logic);applyLook();render()})},
+    logic:function(b){keepSheet(function(){clearLowTmp();S.logic=b.dataset.v;S.shift=0;S.skipPark=[];save('gs-logic',S.logic);applyLook();render()})},
     slide:function(){S.shift+=15;render();toast('Everything after this moved 15 minutes later.')},
     unslide:function(){S.shift=0;render()},
     stuck:function(){S.chat.open=true;render();chatRender();focusChat()},
@@ -1724,7 +1722,9 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     rgo:function(){
       logIt('Rough morning');
       if(S.rp.mig)logIt('Migraine',{sev:S.rp.sev,meds:S.rp.meds});
-      S.rp=null;S.floor=true;S.status={};render();toast('Floor mode on. Logged.');
+      S.rp=null;
+      var tmp=load('gs-lowtmp',null);var prev=(tmp&&tmp.prev)?tmp.prev:(S.logic==='low'?'gentle':S.logic);
+      save('gs-lowtmp',{prev:prev,day:ymd(new Date())});S.logic='low';save('gs-logic','low');S.shift=0;S.skipPark=[];applyLook();S.status={};render();toast('Low battery mode is on until tomorrow. Logged.');
     },
     unfloor:function(){S.floor=false;S.status={};render()},
     chip:function(b){keepAll(function(){toggleSel(b.dataset.v);render()})},
@@ -2208,5 +2208,35 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     };
     r.readAsText(f);
   });
+  /* routine reorder: drag the grab bar (or use arrow keys on it) */
+  (function(){
+    var G=null;
+    function saveOrder(ul){
+      var p=ul.firstChild&&ul.firstChild.dataset.p;if(!p)return;
+      var ids=Array.prototype.map.call(ul.children,function(li){return li.dataset.id}),a=S.rtn.parts[p],k=0;
+      for(var i=0;i<a.length;i++)if(!offId(a[i]))a[i]=ids[k++];
+      saveRtn();
+    }
+    document.addEventListener('pointerdown',function(e){
+      var g=e.target.closest&&e.target.closest('.grip');if(!g)return;
+      e.preventDefault();var li=g.closest('li'),ul=li.parentNode;
+      G={li:li,ul:ul,id:e.pointerId,g:g};try{g.setPointerCapture(e.pointerId)}catch(x){}
+      li.classList.add('gripping');
+    });
+    document.addEventListener('pointermove',function(e){
+      if(!G||e.pointerId!==G.id)return;
+      var y=e.clientY,sib=Array.prototype.slice.call(G.ul.children);
+      for(var i=0;i<sib.length;i++){var s=sib[i];if(s===G.li)continue;var r=s.getBoundingClientRect();
+        if(y>r.top&&y<r.bottom){var before=y<r.top+r.height/2;if(before)G.ul.insertBefore(G.li,s);else G.ul.insertBefore(G.li,s.nextSibling);break}}
+      var sh=document.querySelector('.sheet');if(sh){var sr=sh.getBoundingClientRect();if(y<sr.top+50)sh.scrollTop-=10;else if(y>sr.bottom-50)sh.scrollTop+=10}
+    });
+    function end(e){if(!G||(e&&e.pointerId!==G.id))return;var d=G;G=null;d.li.classList.remove('gripping');saveOrder(d.ul)}
+    document.addEventListener('pointerup',end);document.addEventListener('pointercancel',end);
+    document.addEventListener('keydown',function(e){
+      var g=e.target.classList&&e.target.classList.contains('grip')?e.target:null;if(!g||(e.key!=='ArrowUp'&&e.key!=='ArrowDown'))return;
+      e.preventDefault();var li=g.closest('li'),ul=li.parentNode,s=e.key==='ArrowUp'?li.previousElementSibling:li.nextElementSibling;if(!s)return;
+      if(e.key==='ArrowUp')ul.insertBefore(li,s);else ul.insertBefore(s,li);saveOrder(ul);g.focus();
+    });
+  })();
   getSample().then(function(f){if(!f){S.noAI=true;render()}});
 })();

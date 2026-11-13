@@ -760,3 +760,12 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .lab.big{font-size:17px;font-weight:700;color:var(--ink)}
 
 .lab.mid{font-size:15px;font-weight:600;color:var(--ink)}
+
+/* routine rows: grab bar and pills */
+.rtl li{display:grid;grid-template-columns:1fr auto;gap:6px 8px;align-items:center}
+.rtl li .fpill{grid-column:1 / -1;justify-self:start}
+.grip{display:inline-flex;align-items:center;justify-content:center;width:44px;height:40px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink2);border-radius:10px;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
+.grip:focus-visible{outline:2px solid var(--accent)}
+.rtl li.gripping{opacity:.92;box-shadow:0 6px 16px -8px rgba(0,0,0,.4);position:relative;z-index:2;background:var(--surface);border-radius:12px}
+.fpill{font:inherit;font-size:13px;padding:5px 12px;border-radius:999px;border:1.5px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer}
+.fpill.on{background:var(--accent);color:var(--accent-ink,#fff)}
