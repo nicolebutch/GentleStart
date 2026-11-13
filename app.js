@@ -763,6 +763,7 @@
     if(T.err)h+='<div class="note" role="alert">'+esc(T.err)+'</div>';
     h+='<div class="grp"><div class="lab">What is it</div><input class="field" type="text" id="tk-title" value="'+esc(T.title)+'" placeholder="e.g. Call about the bill" aria-label="What is it"></div>';
     h+='<div class="grp"><div class="lab">Where it lives</div>'+evChips('tkh',T.h,[['week','This week'],['month','This month']])+'</div>';
+    h+=rptUI('tk',T.rpt||(T.rpt=rptNew()));
     h+='<div class="grp"><div class="lab">How long might it take (optional)</div>'+evChips('tkmins',T.mins,[[0,'Not sure'],[5,'5 min'],[15,'15 min'],[30,'30 min'],[60,'1 hr'],[120,'2 hr+']])+'</div>';
     h+='<div class="grp"><div class="lab">How much it matters (optional)</div>'+evChips('tkw',T.w,[['small','A little'],['med','In between'],['big','A lot']])+'</div>';
     h+='<div class="grp"><div class="lab">A date, only if it really has one (optional)</div><input class="field" type="date" id="tk-due" value="'+esc(T.due)+'" aria-label="Date">'+(T.due?'<button class="quiet" data-a="tkclr" style="align-self:flex-start">No date</button>':'')+'</div>';
@@ -780,7 +781,7 @@
     return h;
   }
   function syncTk(){
-    var T=S.tk;if(!T)return;
+    var T=S.tk;if(!T)return;rptSync('tk',T.rpt);
     [['tk-title','title'],['tk-due','due'],['tk-step','newStep']].forEach(function(p){var e=document.getElementById(p[0]);if(e)T[p[1]]=e.value});
   }
   var STEPIDEAS=[
@@ -967,7 +968,9 @@
   S.ev=null;S.evReady={};S.evHide={};
   function evDate(ev){return ev.ex?ymd(addDays(new Date(),ev.off||0)):ev.date}
   function repEvs(k){var p=k.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]),o=[];S.reps.forEach(function(r){if(r.as==='ev'&&repDue(r,d))o.push({id:'rv_'+r.id,rv:r.id,title:r.t,date:k,time:r.time||'09:00',dur:r.dur||60,place:'',travel:0,prep:'',withJ:false,share:'full'})});return o}
-  function evsOn(k){return S.events.filter(function(ev){return evDate(ev)===k}).concat(repEvs(k)).sort(function(a,b){return tmin(a.time)-tmin(b.time)})}
+  function kDate(k){var p=k.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+  function evOccur(k){var o=[];S.events.forEach(function(ev){if(!ev.rpt){if(evDate(ev)===k)o.push(ev);return}if(k<ev.date||!repDue(ev.rpt,kDate(k)))return;var x={},q;for(q in ev)x[q]=ev[q];x.id=ev.id+'|'+k;x.date=k;o.push(x)});return o}
+  function evsOn(k){return evOccur(k).concat(repEvs(k)).sort(function(a,b){return tmin(a.time)-tmin(b.time)})}
   function leaveBy(ev){return tmin(ev.time)-(ev.travel?ev.travel+10:0)}
   function urgentEv(){
     var now=SIM[S.part],tk=ymd(new Date()),best=null;
@@ -1007,9 +1010,20 @@
   S.evtags=load('gs-evtags',['Appointment','Hobby','Dinner out','Call','Errand']);
   S.ytl=load('gs-ytl','');S.mus=load('gs-mus',{sp:true,yt:true});
   function ytLink(){return S.ytl||'https://youtube.com/playlist?list=PLObp3SAH0hnY&si=vXpF5x_9PXO8uPWp'}
-  function newEv(){return {tags:[],id:null,by:'me',title:'',dk:'today',dateVal:'',time:'',dur:60,place:'',travel:0,prep:'',withJ:false,share:'full',err:''}}
+  function rptNew(){return {rep:'none',days:[],dom:1}}
+  function rptUI(k,R){
+    var h='<div class="grp"><div class="lab">Repeats</div><div class="chips sm">';
+    [['none','Does not repeat'],['w','Weekly'],['m','Monthly']].forEach(function(o){h+='<button data-a="rpt" data-k="'+k+'" data-v="'+o[0]+'" aria-pressed="'+(R.rep===o[0])+'">'+o[1]+'</button>'});
+    h+='</div>';
+    if(R.rep==='w'){h+='<div class="chips sm" style="margin-top:8px" role="group" aria-label="Days">';DAYN.forEach(function(d,i){h+='<button data-a="rptday" data-k="'+k+'" data-v="'+i+'" aria-pressed="'+(R.days.indexOf(i)>=0)+'">'+d+'</button>'});h+='</div>'}
+    else if(R.rep==='m')h+='<div class="lab" style="margin-top:8px">On day of the month</div><input class="field" type="number" min="1" max="31" id="'+k+'-dom" value="'+R.dom+'" aria-label="Day of the month"><p class="small">In shorter months it lands on the last day.</p>';
+    if(R.rep!=='none')h+='<p class="small">It comes back on its own. If one slips by, it just resets for next time.</p>';
+    return h+'</div>';
+  }
+  function rptSync(k,R){var d=document.getElementById(k+'-dom');if(d&&R)R.dom=Math.max(1,Math.min(31,parseInt(d.value,10)||1))}
+  function newEv(){return {rpt:rptNew(),tags:[],id:null,by:'me',title:'',dk:'today',dateVal:'',time:'',dur:60,place:'',travel:0,prep:'',withJ:false,share:'full',err:''}}
   function syncEv(){
-    var E=S.ev;if(!E)return;
+    var E=S.ev;if(!E)return;rptSync('ev',E.rpt);
     [['ev-title','title'],['ev-time','time'],['ev-place','place'],['ev-prep','prep'],['ev-date','dateVal']].forEach(function(p){var e=document.getElementById(p[0]);if(e)E[p[1]]=e.value});
   }
   function evChips(act,cur,list){
@@ -1029,6 +1043,7 @@
     h+='<div class="grp"><div class="lab">When</div>'+evChips('evday',E.dk,[['today','Today'],['tomorrow','Tomorrow'],['other','Another day']]);
     if(E.dk==='other')h+='<input class="field" type="date" id="ev-date" value="'+esc(E.dateVal)+'" aria-label="Date" style="margin-top:8px">';
     h+='<div class="tfield" style="margin-top:8px"><input class="field" type="time" id="ev-time" required value="'+esc(E.time)+'" aria-label="Start time"></div></div>';
+    h+=rptUI('ev',E.rpt||(E.rpt=rptNew()));
     h+='<div class="grp"><div class="lab">How long</div>'+evChips('evdur',E.dur,[[0,'No end time'],[30,'30 min'],[60,'1 hr'],[90,'1.5 hr'],[120,'2 hr'],[180,'3 hr']])+'</div>';
     h+='<div class="grp"><div class="lab">Where (optional)</div><input class="field" type="text" id="ev-place" value="'+esc(E.place)+'" placeholder="e.g. Main Street clinic" aria-label="Where"></div>';
     if(E.by!=='p')h+='<div class="grp"><div class="lab">Travel time (optional)</div>'+evChips('evtravel',E.travel,[[0,'None'],[10,'10 min'],[20,'20 min'],[30,'30 min'],[45,'45 min'],[60,'1 hr']])+'<p class="small">Used to tell you when to start getting ready. It adds 10 minutes of buffer.</p></div>';
@@ -1417,8 +1432,10 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     });
     h+='<div class="grp"><div class="lab">'+(creature()?'Bear minimum':'Anchor it')+'</div><p class="small">Pick the things that always count. They never get a skip button, and they are what shows '+(creature()?'on bear minimum days':'in low battery mode')+'.</p><p class="small">A gentle reminder: picking too many is a lot to ask of your low battery self, so keep it to the few that truly matter.</p>';
     h+='</div><div class="grp"><div class="lab mid">Repeating tasks</div><p class="small">Things that aren\u2019t in your daily routine, but come up every week or month. If one slips by, it just resets for next time. It never piles up.</p>';
+    var rplans=S.events.filter(function(ev){return ev.rpt&&ev.by!=='p'});
+    if(rplans.length){h+='<div class="evlist">';rplans.forEach(function(ev){h+='<button class="ev" data-a="evedit" data-v="'+esc(ev.id)+'"><span class="bd"><b>'+esc(ev.title)+'</b><span class="small">'+esc(repLabel({rep:ev.rpt.rep,days:ev.rpt.days,dom:ev.rpt.dom,as:'ev',time:ev.time}))+'</span></span></button>'});h+='</div>'}
     if(S.reps.length){h+='<div class="evlist">';S.reps.forEach(function(r){h+='<button class="ev" data-a="reedit" data-v="'+esc(r.id)+'"><span class="bd"><b>'+esc(r.t)+'</b><span class="small">'+esc(repLabel(r))+'</span></span></button>'});h+='</div>'}
-    else h+='<p class="small">None yet.</p>';
+    else if(!rplans.length)h+='<p class="small">None yet.</p>';
     return h+'<button class="btn alt" data-a="renew" style="margin-top:8px">+ Add a repeating task</button></div>';
   }
   function newRe(){return {id:null,t:'',rep:'w',days:[],dom:1,part:'afternoon',as:'step',time:'',dur:60,err:''}}
@@ -1618,7 +1635,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     carenext:function(){S.careIdx=(S.careIdx+1)%S.care.length;render()},
     tkopen:function(b){
       var t=taskById(b.dataset.v);if(!t)return;
-      S.tk={id:t.id,title:t.title,h:t.h||'week',nr:!!t.nr,fun:!!t.fun,bd:!!t.bd,work:(t.work||[]).slice(),mins:t.mins||0,w:t.w||'med',due:dueOf(t),steps:t.steps.map(function(x){return {t:x.t,done:x.done}}),newStep:'',err:''};render();
+      S.tk={rpt:(function(){var r=t.rep&&S.reps.filter(function(x){return x.id===t.rep})[0];return r?{rep:r.rep,days:r.days.slice(),dom:r.dom||1}:rptNew()})(),repId:t.rep||null,id:t.id,title:t.title,h:t.h||'week',nr:!!t.nr,fun:!!t.fun,bd:!!t.bd,work:(t.work||[]).slice(),mins:t.mins||0,w:t.w||'med',due:dueOf(t),steps:t.steps.map(function(x){return {t:x.t,done:x.done}}),newStep:'',err:''};render();
     },
     tkclose:function(){S.tk=null;render()},
     tkbg:function(b,e){if(e.target===b){S.tk=null;render()}},
@@ -1640,8 +1657,13 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     tksave:function(){
       syncTk();var T=S.tk;commitStep();T.err='';
       if(!T.title.trim()){T.err='Give it a name or pick a tag first.';keepSheet(render);return}
-      var old=T.id?taskById(T.id):null;
-      var rec={id:T.id||('t'+Date.now()),title:T.title.trim(),h:T.h,nr:T.nr,fun:T.fun,bd:T.bd,mins:T.mins,w:T.w,due:T.due||'',steps:T.steps,work:old?(old.work||[]):[],done:old?old.done:false,created:old?old.created:Date.now(),doneAt:old?old.doneAt:0,snooze:old?old.snooze:''};
+      if(T.rpt&&T.rpt.rep==='w'&&!T.rpt.days.length){T.err='Pick which days it repeats.';keepSheet(render);return}
+      var old=T.id?taskById(T.id):null,repId=T.repId||null;
+      if(T.rpt&&T.rpt.rep!=='none'){
+        var rr={id:repId||('p'+Date.now()),t:T.title.trim().slice(0,50),rep:T.rpt.rep,days:T.rpt.days.slice(),dom:T.rpt.dom,part:'afternoon',as:'lot'};
+        var ri=-1;S.reps.forEach(function(x,i){if(x.id===rr.id)ri=i});if(ri>=0)S.reps[ri]=rr;else S.reps.push(rr);repId=rr.id;S.repSeen[rr.id]=ymd(new Date());save('gs-repseen',S.repSeen);syncSteps();saveRtn();
+      }else if(repId){S.reps=S.reps.filter(function(x){return x.id!==repId});repId=null;saveRtn()}
+      var rec={rep:repId||undefined,id:T.id||('t'+Date.now()),title:T.title.trim(),h:T.h,nr:T.nr,fun:T.fun,bd:T.bd,mins:T.mins,w:T.w,due:T.due||'',steps:T.steps,work:old?(old.work||[]):[],done:old?old.done:false,created:old?old.created:Date.now(),doneAt:old?old.doneAt:0,snooze:old?old.snooze:''};
       if(old){S.tasks[S.tasks.indexOf(old)]=rec}else S.tasks.unshift(rec);
       saveTasks();S.tk=null;render();toast('Saved.');
     },
@@ -1771,8 +1793,14 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     retype:function(b){keepSheet(function(){syncRe();S.re.rep=b.dataset.v;render()})},
     reday:function(b){keepSheet(function(){syncRe();var d=+b.dataset.v,i=S.re.days.indexOf(d);if(i>=0)S.re.days.splice(i,1);else S.re.days.push(d);render()})},
     repart:function(b){keepSheet(function(){syncRe();S.re.part=b.dataset.v;render()})},
+    rpt:function(b){keepSheet(function(){var o=b.dataset.k==='ev'?S.ev:S.tk;if(!o)return;if(b.dataset.k==='ev')syncEv();else syncTk();o.rpt.rep=b.dataset.v;if(b.dataset.v==='w'&&!o.rpt.days.length)o.rpt.days=[new Date().getDay()];if(b.dataset.v==='m'&&!o.rpt.domSet){o.rpt.dom=new Date().getDate();o.rpt.domSet=true}render()})},
+    rptday:function(b){keepSheet(function(){var o=b.dataset.k==='ev'?S.ev:S.tk;if(!o)return;if(b.dataset.k==='ev')syncEv();else syncTk();var a=o.rpt.days,i=a.indexOf(+b.dataset.v);if(i>=0)a.splice(i,1);else a.push(+b.dataset.v);render()})},
     redur:function(b){keepSheet(function(){syncRe();S.re.dur=+b.dataset.v;render()})},
-    reas:function(b){keepSheet(function(){syncRe();S.re.as=b.dataset.v;render()})},
+    reas:function(b){
+      if(b.dataset.v==='ev'){syncRe();var R=S.re,E=newEv();E.title=R.t||'';E.rpt={rep:R.rep,days:R.days.slice(),dom:R.dom||1};if(R.rep==='w'&&!E.rpt.days.length)E.rpt.days=[new Date().getDay()];
+        if(R.id){S.reps=S.reps.filter(function(x){return x.id!==R.id});saveRtn()}
+        S.re=null;S.ev=E;render();toast('Events are plans that repeat, so here is the plan editor.');return}
+      keepSheet(function(){syncRe();S.re.as=b.dataset.v;render()})},
     resave:function(){
       syncRe();var R=S.re;R.err='';
       if(!R.t.trim())R.err='Give it a name first.';
@@ -1830,9 +1858,10 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     evnewp:function(){S.ev=newEv();S.ev.by='p';render()},
     evedit:function(b){
       if(b.dataset.v.indexOf('rv_')===0){A.reedit({dataset:{v:b.dataset.v.slice(3)}});return}
-      var ev=S.events.filter(function(x){return x.id===b.dataset.v})[0];if(!ev)return;
+      var bid=b.dataset.v.split('|')[0];
+      var ev=S.events.filter(function(x){return x.id===bid})[0];if(!ev)return;
       var k=evDate(ev),dk=k===ymd(new Date())?'today':k===ymd(addDays(new Date(),1))?'tomorrow':'other';
-      S.ev={tags:(ev.tags||[]).slice(),id:ev.id,by:ev.by||'me',title:ev.title,dk:dk,dateVal:k,time:ev.time,dur:ev.dur||0,place:ev.place||'',travel:ev.travel||0,prep:ev.prep||'',withJ:!!ev.withJ,share:ev.share||'full',err:''};
+      S.ev={rpt:ev.rpt?{rep:ev.rpt.rep,days:(ev.rpt.days||[]).slice(),dom:ev.rpt.dom||1}:rptNew(),tags:(ev.tags||[]).slice(),id:ev.id,by:ev.by||'me',title:ev.title,dk:dk,dateVal:k,time:ev.time,dur:ev.dur||0,place:ev.place||'',travel:ev.travel||0,prep:ev.prep||'',withJ:!!ev.withJ,share:ev.share||'full',err:''};
       render();
     },
     evclose:function(){S.ev=null;render()},
@@ -1850,9 +1879,10 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       if(!E.title.trim())E.err='Give it a name first. A word or two is plenty.';
       else if(!E.time)E.err='Add a start time so it lands in the right spot.';
       else if(E.dk==='other'&&!E.dateVal)E.err='Pick the day.';
+      else if(E.rpt&&E.rpt.rep==='w'&&!E.rpt.days.length)E.err='Pick which days it repeats.';
       if(E.err){keepSheet(render);return}
       var date=E.dk==='today'?ymd(new Date()):E.dk==='tomorrow'?ymd(addDays(new Date(),1)):E.dateVal;
-      var rec={id:E.id||('e'+Date.now()),title:E.title.trim(),date:date,time:E.time,dur:E.dur,place:E.place.trim(),travel:E.travel,prep:E.prep.trim(),withJ:E.withJ,share:E.share,tags:(E.tags||[]).slice(),by:E.by==='p'?'p':undefined};
+      var rec={id:E.id||('e'+Date.now()),title:E.title.trim(),date:date,time:E.time,dur:E.dur,place:E.place.trim(),travel:E.travel,prep:E.prep.trim(),withJ:E.withJ,share:E.share,tags:(E.tags||[]).slice(),rpt:(E.rpt&&E.rpt.rep!=='none')?{rep:E.rpt.rep,days:E.rpt.days.slice(),dom:E.rpt.dom}:undefined,by:E.by==='p'?'p':undefined};
       var idx=-1;S.events.forEach(function(x,i){if(x.id===rec.id)idx=i});
       if(idx>=0)S.events[idx]=rec;else S.events.push(rec);
       save('gs-events',S.events);S.ev=null;render();toast(E.by==='p'?'Saved. It is on the schedule so you can plan around it.':'Saved. §P sees it the way you set it.');
@@ -1927,7 +1957,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       T={btn:b,id:setTimeout(function(){
         var inp=f.querySelector('input'),title=inp?inp.value.trim():'',h=f.dataset.h||'week';
         T=null;S.lpFired=true;setTimeout(function(){S.lpFired=false},600);
-        S.tk={id:null,title:title,h:h,nr:false,fun:false,bd:false,work:[],mins:0,w:'med',due:'',steps:[],newStep:'',err:''};
+        S.tk={rpt:rptNew(),repId:null,id:null,title:title,h:h,nr:false,fun:false,bd:false,work:[],mins:0,w:'med',due:'',steps:[],newStep:'',err:''};
         render();
       },600)};
     });
