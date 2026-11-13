@@ -1461,6 +1461,14 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       });
       h+='</div><p class="small">Colorways only change the colors, and they work with any theme.</p></div>';
       }
+      var wc=creature();
+      h+='<div class="grp"><div class="lab">Premium Themes</div><button class="opt" data-a="prem" aria-pressed="'+wc+'">'+SVGO.replace('class="sprig"','class="mini"')+LOGICS.mammal.icon+'</svg><span><b>'+esc(LOGICS.mammal.name)+'</b>'+(wc?'<span class="small">'+esc(LOGICS.mammal.blurb)+'</span>':'')+'</span></button>';
+      if(wc){
+        h+='<div class="lab" style="margin-top:12px">Season</div><div class="chips sm">';
+        Object.keys(SEASONS).forEach(function(k){h+='<button data-a="season" data-v="'+k+'" aria-pressed="'+(S.season===k)+'">'+SEASONS[k]+'</button>'});
+        h+='</div><p class="small">Auto follows the calendar. Pick one to preview its colors and creatures.</p><p class="small">Tap Woodland creatures again to turn it off.</p>';
+      }
+      h+='</div>';
 
     }else if(S.mt==='other'){
       h+='<div class="grp"><div class="lab">How should chance pick for you?</div><p class="small">This is what happens when you tap the button to let chance choose from the things that fit your time. It never picks anything that is not already a good fit.</p>';
@@ -1479,14 +1487,11 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     }else{
       h+='<div class="grp"><div class="lab">What&rsquo;s your mindset today?</div><p class="small">This changes how the app thinks.</p>';
       Object.keys(LOGICS).forEach(function(k){
+        if(k==='mammal')return;
         h+='<button class="opt" data-a="logic" data-v="'+k+'" aria-pressed="'+(S.logic===k)+'">'+SVGO.replace('class="sprig"','class="mini"')+LOGICS[k].icon+'</svg><span><b>'+esc(LOGICS[k].name)+'</b>'+(S.logic===k?'<span class="small">'+esc(LOGICS[k].blurb)+'</span>':'')+'</span></button>';
       });
       h+='<p class="small">Your plans, lists and log stay exactly the same, so you can switch whenever you feel like it.</p></div>';
-      if(creature()){
-        h+='<div class="grp"><div class="lab">Season</div><div class="chips sm">';
-        Object.keys(SEASONS).forEach(function(k){h+='<button data-a="season" data-v="'+k+'" aria-pressed="'+(S.season===k)+'">'+SEASONS[k]+'</button>'});
-        h+='</div><p class="small">Auto follows the calendar. Pick one to preview its colors and creatures.</p></div>';
-      }
+      if(creature())h+='<div class="note">Woodland creatures is on, and it sets its own voice. You can turn it off under Premium Themes in the Themes tab, or pick a mindset above to switch.</div>';
     }
     h+='<p class="small">More settings will live here as we build them.</p></div></div>';
     return h;
@@ -1537,6 +1542,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
   var A={
     appear:function(b){keepSheet(function(){S.appear=b.dataset.v;save('gs-appear',S.appear);applyLook();render()})},
     mt:function(b){keepSheet(function(){S.mt=b.dataset.v;render()})},
+    prem:function(){keepSheet(function(){var was=S.logic;if(was==='mammal'){var pv=load('gs-prevlogic','gentle');S.logic=(LOGICS[pv]&&pv!=='mammal')?pv:'gentle'}else{save('gs-prevlogic',was);S.logic='mammal'}S.shift=0;S.skipPark=[];save('gs-logic',S.logic);applyLook();render()})},
     logic:function(b){keepSheet(function(){S.logic=b.dataset.v;S.shift=0;S.skipPark=[];save('gs-logic',S.logic);applyLook();render()})},
     slide:function(){S.shift+=15;render();toast('Everything after this moved 15 minutes later.')},
     unslide:function(){S.shift=0;render()},
