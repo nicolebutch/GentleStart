@@ -475,7 +475,7 @@
   function taskTags(t){
     var g='',d=dueOf(t);
     if(t.ex)g+=tag('Example');
-    g+=tag(t.mins?fmtMins(t.mins):'No time guess');
+    if(t.mins)g+=tag(fmtMins(t.mins));
     if(t.w==='big')g+=tag('A lot');else if(t.w==='small')g+=tag('A little');
     if(t.bd)g+=tag('Big deal');
     if(t.fun)g+=tag('Fun');
@@ -1132,18 +1132,21 @@
   }
 
   function lists(){
-    var h=head({title:'Lists',sub:'Separate from today. Nothing here is due. Tap Park it on anything you want to actually do this week.'});
-    h+='<div class="note">Sample items are marked. Edit, check off, or delete them. They are saved in this browser only.</div>';
+    var ed=!!S.lmode;
+    var h=head({title:'Lists',sub:'Separate from today. Nothing here is due. Tap Park it on any item and I\u2019ll find space for it in your week.'});
+    h+='<div class="note">Sample items are marked. Check them off, park them, or edit them. They are saved in this browser only.</div>';
+    var CK='<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-7"/></svg>';
     S.lists.forEach(function(L,li){
       var n=L.items.filter(function(i){return !i.done}).length;
-      h+='<details class="card lcard"'+(li===0?' open':'')+' data-id="'+L.id+'"><summary><span>'+esc(L.name)+'</span><span class="count">'+n+' item'+(n===1?'':'s')+'</span></summary><ul class="items">';
+      h+='<details class="card lcard"'+(li===0||ed?' open':'')+' data-id="'+L.id+'"><summary><span>'+esc(L.name)+'</span><span class="count">'+n+' item'+(n===1?'':'s')+'</span></summary><ul class="items">'+(ed?'<li class="item"><input class="lsedit ltitle" type="text" data-l="'+li+'" value="'+esc(L.name)+'" maxlength="40" aria-label="List name"></li>':'');
       L.items.forEach(function(it,ii){
-        if(S.ledit&&S.ledit.l===li&&S.ledit.i===ii){h+='<li class="item"><form class="add ledit" data-a="lsave" data-l="'+li+'" data-i="'+ii+'"><input type="text" id="ledit-in" value="'+esc(it.t)+'" maxlength="120" aria-label="Edit item"><button type="submit">Save</button><button type="button" class="lcancel" data-a="lcancel">Cancel</button></form></li>';return}
-        h+='<li class="item'+(it.done?' done':'')+'"><button class="check" role="checkbox" aria-checked="'+it.done+'" aria-label="'+esc(it.t)+'" data-a="tick" data-l="'+li+'" data-i="'+ii+'">'+(it.done?'<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-7"/></svg>':'')+'</button><button class="t tbtn" data-a="ledit" data-l="'+li+'" data-i="'+ii+'" aria-label="Edit: '+esc(it.t)+'">'+esc(it.t)+'</button>'+(it.done?'':'<button class="lpk" aria-label="Move to the '+esc(U().lot.toLowerCase())+'" data-a="lpark" data-l="'+li+'" data-i="'+ii+'">'+esc(U().parkIt)+'</button>')+'<button class="x" aria-label="Delete item" data-a="del" data-l="'+li+'" data-i="'+ii+'">&times;</button></li>';
+        if(ed){h+='<li class="item"><input class="lsedit" type="text" data-l="'+li+'" data-i="'+ii+'" value="'+esc(it.t)+'" maxlength="120" aria-label="Item"><button class="x" aria-label="Delete item" data-a="del" data-l="'+li+'" data-i="'+ii+'">&times;</button></li>';return}
+        h+='<li class="item'+(it.done?' done':'')+'"><button class="check" role="checkbox" aria-checked="'+it.done+'" aria-label="'+esc(it.t)+'" data-a="tick" data-l="'+li+'" data-i="'+ii+'">'+(it.done?CK:'')+'</button><span class="t">'+esc(it.t)+'</span>'+(it.done?'':'<button class="lpk'+(it.parked?' on':'')+'" aria-pressed="'+!!it.parked+'" aria-label="'+(it.parked?'Parked. Tap to take it back out of the '+esc(U().lot.toLowerCase()):'Move to the '+esc(U().lot.toLowerCase()))+'" data-a="lpark" data-l="'+li+'" data-i="'+ii+'">'+(it.parked?'Parked':esc(U().parkIt))+'</button>')+'</li>';
       });
-      h+='</ul><form class="add" data-a="additem" data-l="'+li+'"><input type="text" id="add-'+L.id+'" placeholder="Add to '+esc(L.name)+'" aria-label="Add to '+esc(L.name)+'"><button type="submit">Add</button></form></details>';
+      h+='</ul>'+(ed?'<button class="quiet ldel" data-a="ldellist" data-l="'+li+'">Delete this list</button>':'<form class="add" data-a="additem" data-l="'+li+'"><input type="text" id="add-'+L.id+'" placeholder="Add to '+esc(L.name)+'" aria-label="Add to '+esc(L.name)+'"><button type="submit">Add</button></form>')+'</details>';
     });
     h+='<form class="card" data-a="newlist"><b>Start a new list</b><div class="add" style="margin-top:0"><input type="text" id="newlist" placeholder="e.g. Pet store, Gift ideas" aria-label="New list name"><button type="submit">Create</button></div></form>';
+    h+='<button class="quiet linkbtn" data-a="lmode">'+(ed?'Done editing':'Edit an existing list')+'</button>';
     return h;
   }
 
@@ -1874,12 +1877,14 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     dellog:function(b){S.log.splice(+b.dataset.i,1);save('gs-log',S.log);render()},
     prevmo:function(){S.mo-=1;S.day=null;render()},
     nextmo:function(){if(S.mo<0){S.mo+=1;S.day=null;render()}},
-    ledit:function(b){S.ledit={l:+b.dataset.l,i:+b.dataset.i};keepOpen();var e=document.getElementById('ledit-in');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}},
-    lcancel:function(){S.ledit=null;keepOpen()},
+    lmode:function(){S.lmode=!S.lmode;render()},
+    ldellist:function(b){var L=S.lists[+b.dataset.l];if(!L)return;if(L.items.length&&!confirm('Delete "'+L.name+'" and its '+L.items.length+' item'+(L.items.length===1?'':'s')+'?'))return;S.lists.splice(+b.dataset.l,1);save('gs-lists',S.lists);render()},
     tick:function(b){var it=S.lists[+b.dataset.l].items[+b.dataset.i];it.done=!it.done;save('gs-lists',S.lists);keepOpen()},
     ustext:function(){sendOut(usText(),null,'Copied. Paste it anywhere.')},
     uslink:function(){sendOut('',usLink(),'Link copied.')},
-    lpark:function(b){var L=S.lists[+b.dataset.l],it=L.items[+b.dataset.i];if(!it)return;S.tasks.unshift({id:'t'+Date.now(),title:it.t,h:'week',nr:false,fun:false,work:[],mins:0,w:'med',due:'',steps:[],done:false,created:Date.now()});L.items.splice(+b.dataset.i,1);saveTasks();save('gs-lists',S.lists);toast('Moved to the '+U().lot.toLowerCase()+'.');keepOpen()},
+    lpark:function(b){var L=S.lists[+b.dataset.l],it=L.items[+b.dataset.i];if(!it)return;
+      if(it.parked){S.tasks=S.tasks.filter(function(t){return t.id!==it.tid||t.done});it.parked=false;it.tid=null;saveTasks();save('gs-lists',S.lists);toast('Taken back out of the '+U().lot.toLowerCase()+'.');keepOpen();return}
+      var id='t'+Date.now();S.tasks.unshift({id:id,title:it.t,h:'week',nr:false,fun:false,work:[],mins:0,w:'med',due:'',steps:[],done:false,created:Date.now()});it.parked=true;it.tid=id;saveTasks();save('gs-lists',S.lists);toast('Parked in the '+U().lot.toLowerCase()+'.');keepOpen()},
     del:function(b){S.lists[+b.dataset.l].items.splice(+b.dataset.i,1);save('gs-lists',S.lists);keepOpen()}
   };
 
@@ -1932,8 +1937,6 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       var fid='new-'+sc+'-'+kind;
       keepAll(function(){document.getElementById(fid).value='';render()});
       var nm=document.getElementById(fid);if(nm){nm.value='';nm.focus()}
-    }else if(f.dataset.a==='lsave'){
-      var LL=S.lists[+f.dataset.l],itm=LL&&LL.items[+f.dataset.i];if(itm){itm.t=v.slice(0,120);save('gs-lists',S.lists)}S.ledit=null;render();reopen(ids);
     }else if(f.dataset.a==='additem'){
       var L=S.lists[+f.dataset.l];L.items.push({t:v,done:false});save('gs-lists',S.lists);render();reopen(ids);
       var el=document.getElementById('add-'+L.id);if(el)el.focus();
@@ -2186,6 +2189,11 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     if(f.id==='profform'){S.dataMsg='Saved.';keepSheet(render)}else render();
   });
   document.addEventListener('change',function(e){
+    var ls=e.target;if(ls&&ls.classList&&ls.classList.contains('lsedit')){
+      var L=S.lists[+ls.dataset.l],v=ls.value.trim();if(!L)return;
+      if(ls.dataset.i===undefined){if(v){L.name=v.slice(0,40);save('gs-lists',S.lists)}else ls.value=L.name}
+      else{var it=L.items[+ls.dataset.i];if(it){if(v){it.t=v.slice(0,120);save('gs-lists',S.lists)}else ls.value=it.t}}
+      return}
     var el=e.target;if(!el||el.id!=='dimport'||!el.files||!el.files[0])return;
     var f=el.files[0],r=new FileReader();
     r.onload=function(){

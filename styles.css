@@ -722,3 +722,10 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .sethead{font-family:var(--font-display,inherit);font-size:20px;margin:22px 0 6px;padding-top:14px;border-top:1.5px solid var(--line)}
 .sethead:first-child{margin-top:4px;border-top:0;padding-top:0}
 .opt .lockic{margin-left:auto;display:inline-flex;align-items:center;color:var(--ink2);opacity:.85;padding-left:8px}
+
+.lpk.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.lsedit{flex:1;min-width:0;font:inherit;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
+.lsedit.ltitle{font-size:17px;font-weight:600}
+.lcard summary .lsedit{margin-right:8px}
+.ldel{color:var(--ink2)}
+.linkbtn{align-self:center;text-decoration:underline;background:none;border:0;color:var(--accent);padding:8px;cursor:pointer;font:inherit}
