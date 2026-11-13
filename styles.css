@@ -746,3 +746,13 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 @media (min-width:900px){.deco img.vine{max-width:640px}}
 @media (min-width:1280px){.wkday{flex:1 0 124px}}
 .card .linkbtn{align-self:flex-start;padding-left:0}
+/* Overview header matches the other tabs on PC; parking lot clears the birch branches */
+@media (min-width:900px){
+  .wrap.wide .head{max-width:440px;margin-left:auto;margin-right:auto}
+  .wrap.wide .deco img.vine{max-width:none}
+  .ovsplit{grid-template-columns:312px minmax(0,1fr)}
+  :root[data-look="original"] .wrap.wide{max-width:min(1160px,calc(100vw - 112px))}
+}
+@media (min-width:1280px){
+  :root[data-look="original"] .wrap.wide{max-width:min(1500px,calc(100vw - 128px))}
+}
