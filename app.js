@@ -1454,11 +1454,11 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       [['auto','Auto'],['light','Light'],['dark','Dark']].forEach(function(t){h+='<button data-a="appear" data-v="'+t[0]+'" aria-pressed="'+(S.appear===t[0])+'">'+t[1]+'</button>'});
       h+='</div><p class="small">Auto follows your phone.</p></div>'+paused;
       if(!creature()){
-      h+='<div class="grp"><div class="lab">Theme</div>';
+      h+='<div class="grp"><div class="lab mid">Theme</div>';
       Object.keys(LOOKS).forEach(function(k){
         h+='<button class="opt" data-a="look" data-v="'+k+'" aria-pressed="'+(S.look===k)+'">'+(k==='birch'?'<span class="mini qm">'+QUILL+'</span>':SVGO.replace('class="sprig"','class="mini"')+MOTIFS[k]+'</svg>')+'<span><b>'+esc(LOOKS[k].name)+'</b>'+(S.look===k?'<span class="small">'+esc(LOOKS[k].blurb)+'</span>':'')+'</span></button>';
       });
-      h+='</div><div class="grp"><div class="lab">Colorway</div><div class="cws">';
+      h+='</div><div class="grp"><div class="lab mid">Colorway</div><div class="cws">';
       Object.keys(CWS).forEach(function(k){
         var sw='';CWS[k].sw.forEach(function(c){sw+='<i style="background:'+c+'"></i>'});
         h+='<button class="cw" data-a="cw" data-v="'+k+'" aria-pressed="'+(S.cw===k)+'"><span class="sws">'+sw+'</span>'+esc(CWS[k].name)+'</button>';

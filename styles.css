@@ -758,3 +758,5 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 }
 
 .lab.big{font-size:17px;font-weight:700;color:var(--ink)}
+
+.lab.mid{font-size:15px;font-weight:600;color:var(--ink)}
