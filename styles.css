@@ -499,18 +499,18 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 :root[data-look="creature"] .steps li.done .dot,:root[data-look="creature"] .steps li.now .dot{background:var(--accent);border:0}
 :root[data-look="creature"][data-mood="energetic"] .steps li .dot{-webkit-mask-image:var(--berry);mask-image:var(--berry);width:22px;height:22px}
 :root[data-look="creature"] body{background-image:radial-gradient(color-mix(in srgb,var(--accent) 12%,transparent) 1.4px,transparent 1.8px);background-size:26px 26px}
-:root[data-look="creature"] .lot{background-color:#6B3A1E;background-image:url(art/bark.jpg);background-size:cover;background-position:center;color:#FBF3E4;box-shadow:-18px 0 40px -20px rgba(0,0,0,.5)}
-:root[data-look="creature"] .lottitle{border-bottom:3px double #E8CFA0;color:#FBF3E4}
-:root[data-look="creature"] .lotx,:root[data-look="creature"] .lotabs button,:root[data-look="creature"] .lotdone,:root[data-look="creature"] .lotdone .quiet,:root[data-look="creature"] .bay .body{color:#FBF3E4}
+:root[data-look="creature"] .lot{background-color:#C98A4E;background-image:url(art/bark.jpg);background-size:cover;background-position:center;color:#3E2210;box-shadow:-18px 0 40px -20px rgba(0,0,0,.35)}
+:root[data-look="creature"] .lottitle{border-bottom:3px double #7A4A22;color:#3E2210}
+:root[data-look="creature"] .lotx,:root[data-look="creature"] .lotabs button,:root[data-look="creature"] .lotdone,:root[data-look="creature"] .lotdone .quiet,:root[data-look="creature"] .bay .body{color:#3E2210}
 :root[data-look="creature"] .lotabs button[aria-pressed="true"]{background:#FBF3E4;color:#4A3520}
-:root[data-look="creature"] .lotadd input{border-color:#E8CFA0;color:#FBF3E4}
-:root[data-look="creature"] .lotadd button{background:#E8CFA0;border-color:#E8CFA0;color:#4A3520}
-:root[data-look="creature"] .bay{border:2px solid #E8CFA0;border-radius:16px;background:rgba(0,0,0,.18)}
+:root[data-look="creature"] .lotadd input{border-color:#7A4A22;color:#3E2210}
+:root[data-look="creature"] .lotadd button{background:#5A3318;border-color:#5A3318;color:#FBF3E4}
+:root[data-look="creature"] .bay{border:2px solid #7A4A22;border-radius:16px;background:rgba(255,244,225,.32)}
 :root[data-look="creature"] .bay::before{content:""}
-:root[data-look="creature"] .bay .check{border-color:#E8CFA0}
-:root[data-look="creature"] .bay .check[aria-checked="true"]{background:#E8CFA0;color:#4A3520}
-:root[data-look="creature"] .bay .tag{border-color:#E8CFA0;color:#FBF3E4}
-:root[data-look="creature"] .bay .small,:root[data-look="creature"] .lotnote{color:#F0E2C8;border-color:#E8CFA0}
+:root[data-look="creature"] .bay .check{border-color:#7A4A22}
+:root[data-look="creature"] .bay .check[aria-checked="true"]{background:#5A3318;color:#FBF3E4}
+:root[data-look="creature"] .bay .tag{border-color:#7A4A22;color:#3E2210}
+:root[data-look="creature"] .bay .small,:root[data-look="creature"] .lotnote{color:#5A3A1E;border-color:#7A4A22}
 :root[data-look="creature"] .psign{border-radius:999px}
 
 /* plinko */
@@ -670,3 +670,8 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
   .tfield:has(input:invalid)::after{content:"Time";position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink2);opacity:.7;pointer-events:none}
 }
 .ytnote{margin:6px 0 0}
+
+:root[data-look="creature"] .lotabs{background:rgba(255,244,225,.35)}
+:root[data-look="creature"] .lotadd input::placeholder{color:#6B4A2C;opacity:.8}
+:root[data-look="creature"] .lotabs button[aria-pressed="true"]{background:#FBF3E4;color:#3E2210}
+:root[data-look="creature"] .lotadd input{background:rgba(255,244,225,.55)}
