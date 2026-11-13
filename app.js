@@ -1587,14 +1587,15 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
   function wavyPath(w,h,inset,amp,lam,r){
     var x0=inset,y0=inset,W=w-2*inset,H=h-2*inset;r=Math.min(r,W/2,H/2);
     var segs=[[x0+r,y0,1,0,W-2*r],[x0+W,y0+r,0,1,H-2*r],[x0+W-r,y0+H,-1,0,W-2*r],[x0,y0+H-r,0,-1,H-2*r]];
-    var per=2*(W-2*r)+2*(H-2*r)+2*Math.PI*r,n=Math.max(4,Math.round(per/lam)),L=per/n,pts=[],s=0,step=3;
-    function push(x,y,nx,ny){var o=amp*Math.sin(2*Math.PI*s/L);pts.push((x+nx*o).toFixed(1)+' '+(y+ny*o).toFixed(1))}
+    var base=[],step=2.5;
     segs.forEach(function(g,i){
-      for(var t=0;t<g[4];t+=step){push(g[0]+g[2]*t,g[1]+g[3]*t,g[3],-g[2]);s+=step}
-      var cx=[x0+W-r,x0+W-r,x0+r,x0+r][i],cy=[y0+r,y0+H-r,y0+H-r,y0+r][i],a0=[-Math.PI/2,0,Math.PI/2,Math.PI][i],arc=Math.PI/2*r;
-      for(var u=0;u<arc;u+=step){var a=a0+u/r;push(cx+r*Math.cos(a),cy+r*Math.sin(a),Math.cos(a),Math.sin(a));s+=step}
+      var n1=Math.max(1,Math.round(g[4]/step));for(var k=0;k<n1;k++){var t=g[4]*k/n1;base.push([g[0]+g[2]*t,g[1]+g[3]*t,g[3],-g[2]])}
+      var cx=[x0+W-r,x0+W-r,x0+r,x0+r][i],cy=[y0+r,y0+H-r,y0+H-r,y0+r][i],a0=[-Math.PI/2,0,Math.PI/2,Math.PI][i],n2=Math.max(2,Math.round(Math.PI/2*r/step));
+      for(var u=0;u<n2;u++){var ang=a0+Math.PI/2*u/n2;base.push([cx+r*Math.cos(ang),cy+r*Math.sin(ang),Math.cos(ang),Math.sin(ang)])}
     });
-    return 'M'+pts.join('L')+'Z';
+    var len=[0];for(var i=1;i<base.length;i++)len.push(len[i-1]+Math.hypot(base[i][0]-base[i-1][0],base[i][1]-base[i-1][1]));
+    var tot=len[len.length-1]+Math.hypot(base[0][0]-base[base.length-1][0],base[0][1]-base[base.length-1][1]),n=Math.max(4,Math.round(tot/lam));
+    return 'M'+base.map(function(p,i){var o=amp*Math.sin(2*Math.PI*n*len[i]/tot);return (p[0]+p[2]*o).toFixed(1)+' '+(p[1]+p[3]*o).toFixed(1)}).join('L')+'Z';
   }
   function meadowFrames(){
     if(lookKey()!=='meadow')return;
