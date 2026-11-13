@@ -895,8 +895,8 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 :root[data-theme="dark"][data-cw="creature"][data-season="summer"]{--hot:#2E7D8C;--hot-ink:#FFFFFF}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-cw="creature"][data-season="summer"]{--hot:#2E7D8C;--hot-ink:#FFFFFF}}
 :root[data-cw="creature"][data-season="autumn"]{--hot:#3D7A4F;--hot-ink:#FFFFFF}
-:root[data-theme="dark"][data-cw="creature"][data-season="autumn"]{--hot:#86C79B;--hot-ink:#0E2A16}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-cw="creature"][data-season="autumn"]{--hot:#86C79B;--hot-ink:#0E2A16}}
+:root[data-theme="dark"][data-cw="creature"][data-season="autumn"]{--hot:#3D7A4F;--hot-ink:#FFFFFF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-cw="creature"][data-season="autumn"]{--hot:#3D7A4F;--hot-ink:#FFFFFF}}
 :root[data-cw="creature"][data-season="winter"]{--hot:#9E3B4E;--hot-ink:#FFFFFF}
-:root[data-theme="dark"][data-cw="creature"][data-season="winter"]{--hot:#E58A9B;--hot-ink:#2A0A12}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-cw="creature"][data-season="winter"]{--hot:#E58A9B;--hot-ink:#2A0A12}}
+:root[data-theme="dark"][data-cw="creature"][data-season="winter"]{--hot:#9E3B4E;--hot-ink:#FFFFFF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-cw="creature"][data-season="winter"]{--hot:#9E3B4E;--hot-ink:#FFFFFF}}
