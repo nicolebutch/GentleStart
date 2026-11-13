@@ -248,7 +248,7 @@
   };
   var NAMES={dailymeds:'Morning medications',teeth:'Teeth and face',clothes:'Out of pajamas',muffin:"§C's breakfast",water:'Water',meal:'Breakfast',lunch:'Lunch',jobs:'One small project step',pt:'Stretches or exercises',archery:'Archery, 3 PM',muffinpm:"§C's dinner",dinner:'Dinner',tidy:'One small tidy',tomorrow:'Glance at tomorrow'};
   var PARTS={
-    morning:{label:'Morning',steps:['dailymeds','teeth','clothes','muffin','meal'],done:{t:'The floor is covered.',s:'Everything after this is a bonus. Pick some music, or see what the day wants.'}},
+    morning:{label:'Morning',steps:['dailymeds','teeth','clothes','muffin','meal'],done:{t:'The basics are covered.',s:'Everything after this is a bonus. Pick some music, or see what the day wants.'}},
     afternoon:{label:'Afternoon',steps:['lunch','jobs','pt'],done:{t:'Afternoon handled.',s:'Whatever happened, the afternoon is done. Evening is its own thing.'}},
     evening:{label:'Evening',steps:['muffinpm','dinner','tidy','tomorrow'],done:{t:'That is the day.',s:'Rest counts. Nothing carries over as overdue.'}}
   };
@@ -314,7 +314,7 @@
     routine:function(p){return 'Your '+p+', in order'},plans:'Plans',up:'Coming up',
     rough:'Rough morning? Tap here.',unrough:'Back to a normal morning',music:'Music, no detours',stuck:'Stuck?',skip:'I skipped this',
     food:'What should I have?',eaten:'I ate',picked:'I picked something, done',lunchBtn:'Text §P: lunch?',solo:'I will eat on my own',
-    floorNote:'Floor mode: only your medications, §C, water, and food. Everything else can wait, and nothing is overdue.',
+    floorNote:'Low battery mode: only your medications, §C, water, and food. Everything else can wait, and nothing is overdue.',
     lowNote:'Low battery mode: just the basics. Everything else can wait, and nothing is overdue.',
     win:60,hello:'Hi. What is going on? Tell me in your own words, or tap one.',ctitle:'Here to help'
   };
@@ -325,7 +325,7 @@
       routine:function(p){return 'Your '+p+' in the den, in order'},plans:'Places to be',up:'Further down the trail',
       rough:'Rough morning? Curl up here.',unrough:'Back to a regular den morning',music:'Sounds for the burrow',stuck:'Lost in the brush?',skip:'I let this one go',
       food:'What should I forage?',eaten:'I already foraged',picked:'I found something, done',lunchBtn:'Howl to §P: lunch?',solo:'I will forage alone',
-      floorNote:'Floor mode: only your medicine, §C, water, and food. Everything else can wait. The den will still be there.',
+      floorNote:'Bear minimum: only your medicine, §C, water, and food. Everything else can wait. The den will still be there.',
       lowNote:'Bear minimum: just the essentials. The den can wait. Nothing is overdue.',
       hello:'Hello, little one. What is going on in the den?',ctitle:'Lost in the brush?'
     },
@@ -1414,7 +1414,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       if(hid.length){h+='<div class="chips sm" style="margin-top:6px"><span class="small">Hidden, tap to put back:</span>';hid.forEach(function(id){h+='<button data-a="rtback" data-v="'+esc(id)+'">'+esc(NAMES[id])+'</button>'});h+='</div>'}
       h+='<form class="add" data-a="rtadd" data-p="'+p[0]+'" style="margin-top:8px"><input type="text" id="rtadd-'+p[0]+'" placeholder="Add a step" aria-label="Add a step to '+p[1]+'" maxlength="50"><button type="submit">Add</button></form></div>';
     });
-    h+='<div class="grp"><div class="lab">'+(creature()?'Bear minimum':'Anchor it')+'</div><p class="small">Pick the things that always count. They never get a skip button, and they are what shows in floor mode and on low-battery days.</p><p class="small">A gentle reminder: picking too many is a lot to ask of your low battery self, so keep it to the few that truly matter.</p>';
+    h+='<div class="grp"><div class="lab">'+(creature()?'Bear minimum':'Anchor it')+'</div><p class="small">Pick the things that always count. They never get a skip button, and they are what shows '+(creature()?'on bear minimum days':'in low battery mode')+'.</p><p class="small">A gentle reminder: picking too many is a lot to ask of your low battery self, so keep it to the few that truly matter.</p>';
     h+='</div><div class="grp"><div class="lab mid">Repeating tasks</div><p class="small">Things that aren\u2019t in your daily routine, but come up every week or month. If one slips by, it just resets for next time. It never piles up.</p>';
     if(S.reps.length){h+='<div class="evlist">';S.reps.forEach(function(r){h+='<button class="ev" data-a="reedit" data-v="'+esc(r.id)+'"><span class="bd"><b>'+esc(r.t)+'</b><span class="small">'+esc(repLabel(r))+'</span></span></button>'});h+='</div>'}
     else h+='<p class="small">None yet.</p>';
