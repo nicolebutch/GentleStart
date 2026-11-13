@@ -912,7 +912,7 @@
   function U(){var m=UIALT[S.logic];if(!m)return UI0;var o={},k;for(k in UI0)o[k]=UI0[k];for(k in m)o[k]=m[k];return o}
   function moodAlt(id){if(S.logic!=='mammal'||S.mood!=='dreamy')return null;if(id==='teeth')return {t:'Splash in the birdbath',s:'Teeth and face, before you leave the nest. A little splash and a little preening is plenty.'};if(id==='clothes')return {t:'Preen those feathers',s:'Out of pajamas and into something that feels like you. Same trip upstairs, then down you go.'};return null}
   function offId(id){return !(PROF&&PROF.pet)&&(id==='muffin'||id==='muffinpm')}
-  function stepOf(id){var b=STEPS[id],a=moodAlt(id)||(ALT[S.logic]&&ALT[S.logic][id]),o={},k;for(k in b)o[k]=b[k];if(a)for(k in a)o[k]=a[k];if(id==='meal'&&!(PROF&&PROF.pet)){if(creature()){o.t='Forage for food';o.s='The forest awaits.'}else{o.t='Breakfast';o.s='Fuel for your day.'}}
+  function stepOf(id){var b=STEPS[id],a=moodAlt(id)||(ALT[S.logic]&&ALT[S.logic][id]),o={},k;for(k in b)o[k]=b[k];if(a)for(k in a)o[k]=a[k];if(id==='meal'&&!(PROF&&PROF.pet)){if(creature()){o.t='Forage for food';o.s='The forest awaits. What is worth gathering?'}else{o.t='Breakfast';o.s='Fuel for your day. What are you having?'}}
     if(S.rtn.names[id])o.t=S.rtn.names[id];
     if(id==='lunch'&&!(PROF&&PROF.partner)){o.lunch=false;o.meal=true;o.t='Lunch';o.s='Time to eat something. Whatever is easy counts.'}
     return o}
