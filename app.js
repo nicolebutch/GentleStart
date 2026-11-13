@@ -9,7 +9,7 @@
   var CWS={
     sea:{name:'Fern',sw:['#E9EDDF','#3D754F','#A9CC9B']},
     library:{name:'Heirloom',sw:['#E9DFC9','#28496B','#A47552']},
-    peri:{name:'Wisteria',sw:['#F1E8D7','#755C9B','#C98FA0']},
+    peri:{name:'Wisteria',sw:['#F1E8D7','#755C9B','#EAB3C2']},
     ocean:{name:'Seaglass',sw:['#EDE5D8','#316E70','#A5CFC7']},
     oak:{name:'Linen',sw:['#F5F0E6','#7E6947','#B5BDB1']}
   };
