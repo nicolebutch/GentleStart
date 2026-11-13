@@ -888,9 +888,9 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 :root[data-look="meadow"] .hero::after{right:-18px;top:-23px;z-index:0;transform:rotate(35deg)}
 
 /* Woodland: the 'do this first' button follows the season */
-:root[data-cw="creature"][data-season="spring"]{--hot:#C2577A;--hot-ink:#FFFFFF}
-:root[data-theme="dark"][data-cw="creature"][data-season="spring"]{--hot:#EE9AB4;--hot-ink:#2A0C16}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-cw="creature"][data-season="spring"]{--hot:#EE9AB4;--hot-ink:#2A0C16}}
+:root[data-cw="creature"][data-season="spring"]{--hot:#EE9AB4;--hot-ink:#2A0C16}
+:root[data-theme="dark"][data-cw="creature"][data-season="spring"]{--hot:#C2577A;--hot-ink:#FFFFFF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-cw="creature"][data-season="spring"]{--hot:#C2577A;--hot-ink:#FFFFFF}}
 :root[data-cw="creature"][data-season="summer"]{--hot:#2E7D8C;--hot-ink:#FFFFFF}
 :root[data-theme="dark"][data-cw="creature"][data-season="summer"]{--hot:#7CC6D3;--hot-ink:#0C2A30}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-cw="creature"][data-season="summer"]{--hot:#7CC6D3;--hot-ink:#0C2A30}}
