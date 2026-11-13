@@ -761,6 +761,7 @@
     var ttl=T.id?'Edit task':'Add a task';
     var h='<div class="backdrop" data-a="tkbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="'+ttl+'"><div class="between"><h2 style="font-size:24px">'+ttl+'</h2><button class="x" data-a="tkclose" aria-label="Close">&times;</button></div>';
     if(T.err)h+='<div class="note" role="alert">'+esc(T.err)+'</div>';
+    if(T.ask)h+='<div class="note askseries" role="alert"><b>This task repeats.</b> '+(T.ask==='del'?'Delete just this one, or stop it repeating too?':'Change just this one, or every time it comes back?')+'<div class="row" style="margin-top:10px"><button class="btn alt grow" data-a="tkscope" data-v="one">Just this one</button><button class="btn grow" data-a="tkscope" data-v="all">'+(T.ask==='del'?'Stop repeating':'Every time')+'</button></div><button class="quiet" data-a="tkscope" data-v="cancel">Cancel</button></div>';
     h+='<div class="grp"><div class="lab">What is it</div><input class="field" type="text" id="tk-title" value="'+esc(T.title)+'" placeholder="e.g. Call about the bill" aria-label="What is it"></div>';
     h+='<div class="grp"><div class="lab">Where it lives</div>'+evChips('tkh',T.h,[['week','This week'],['month','This month']])+'</div>';
     h+=rptUI('tk',T.rpt||(T.rpt=rptNew()));
@@ -969,7 +970,7 @@
   function evDate(ev){return ev.ex?ymd(addDays(new Date(),ev.off||0)):ev.date}
   function repEvs(k){var p=k.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]),o=[];S.reps.forEach(function(r){if(r.as==='ev'&&repDue(r,d))o.push({id:'rv_'+r.id,rv:r.id,title:r.t,date:k,time:r.time||'09:00',dur:r.dur||60,place:'',travel:0,prep:'',withJ:false,share:'full'})});return o}
   function kDate(k){var p=k.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
-  function evOccur(k){var o=[];S.events.forEach(function(ev){if(!ev.rpt){if(evDate(ev)===k)o.push(ev);return}if(k<ev.date||!repDue(ev.rpt,kDate(k)))return;var x={},q;for(q in ev)x[q]=ev[q];x.id=ev.id+'|'+k;x.date=k;o.push(x)});return o}
+  function evOccur(k){var o=[];S.events.forEach(function(ev){if(!ev.rpt){if(evDate(ev)===k)o.push(ev);return}if(k<ev.date||(ev.skip&&ev.skip.indexOf(k)>=0)||!repDue(ev.rpt,kDate(k)))return;var x={},q;for(q in ev)x[q]=ev[q];x.id=ev.id+'|'+k;x.date=k;o.push(x)});return o}
   function evsOn(k){return evOccur(k).concat(repEvs(k)).sort(function(a,b){return tmin(a.time)-tmin(b.time)})}
   function leaveBy(ev){return tmin(ev.time)-(ev.travel?ev.travel+10:0)}
   function urgentEv(){
@@ -1036,6 +1037,7 @@
     var ttl=E.id?'Edit plan':(E.by==='p'?'Add to §P&rsquo;s schedule':'Add a plan');
     var h='<div class="backdrop" data-a="evbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="'+ttl+'"><div class="between"><h2 style="font-size:24px">'+ttl+'</h2><button class="x" data-a="evclose" aria-label="Close">&times;</button></div>';
     if(E.err)h+='<div class="note" role="alert">'+esc(E.err)+'</div>';
+    if(E.ask)h+='<div class="note askseries" role="alert"><b>This plan repeats.</b> '+(E.ask==='del'?'Delete':'Change')+' just this one, or every one?<div class="row" style="margin-top:10px">'+(E.occ?'<button class="btn alt grow" data-a="evscope" data-v="one">Just '+esc(dayLabel(E.occ))+'</button>':'')+'<button class="btn grow" data-a="evscope" data-v="all">Every one</button></div><button class="quiet" data-a="evscope" data-v="cancel">Cancel</button></div>';
     if(PROF&&PROF.partner)h+='<div class="grp"><div class="lab">Whose is it</div>'+evChips('evby',E.by,[['me','Mine'],['p','§P&rsquo;s']])+(E.by==='p'?'<p class="small">Something on §P&rsquo;s day you want to plan around, like a lunch break or a late shift. It shows with a tag, and it never sends you a leave-by reminder.</p>':'')+'</div>';
     h+='<div class="grp"><div class="lab">What is it</div><input class="field" type="text" id="ev-title" value="'+esc(E.title)+'" placeholder="e.g. Dentist" aria-label="What is it"><div class="chips sm" role="group" aria-label="Tags" style="margin-top:8px">';
     S.evtags.forEach(function(q){h+='<button data-a="evquick" data-v="'+esc(q)+'" aria-pressed="'+((E.tags||[]).indexOf(q)>=0)+'">'+esc(q)+'</button>'});
@@ -1433,8 +1435,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     h+='<div class="grp"><div class="lab">'+(creature()?'Bear minimum':'Anchor it')+'</div><p class="small">Pick the things that always count. They never get a skip button, and they are what shows '+(creature()?'on bear minimum days':'in low battery mode')+'.</p><p class="small">A gentle reminder: picking too many is a lot to ask of your low battery self, so keep it to the few that truly matter.</p>';
     h+='</div><div class="grp"><div class="lab mid">Repeating tasks</div><p class="small">Things that aren\u2019t in your daily routine, but come up every week or month. If one slips by, it just resets for next time. It never piles up.</p>';
     var rplans=S.events.filter(function(ev){return ev.rpt&&ev.by!=='p'});
-    if(rplans.length){h+='<div class="evlist">';rplans.forEach(function(ev){h+='<button class="ev" data-a="evedit" data-v="'+esc(ev.id)+'"><span class="bd"><b>'+esc(ev.title)+'</b><span class="small">'+esc(repLabel({rep:ev.rpt.rep,days:ev.rpt.days,dom:ev.rpt.dom,as:'ev',time:ev.time}))+'</span></span></button>'});h+='</div>'}
-    if(S.reps.length){h+='<div class="evlist">';S.reps.forEach(function(r){h+='<button class="ev" data-a="reedit" data-v="'+esc(r.id)+'"><span class="bd"><b>'+esc(r.t)+'</b><span class="small">'+esc(repLabel(r))+'</span></span></button>'});h+='</div>'}
+    if(rplans.length){h+='<div class="evlist">';rplans.forEach(function(ev){h+='<button class="ev nt" data-a="evedit" data-v="'+esc(ev.id)+'"><span class="bd"><b>'+esc(ev.title)+'</b><span class="small">'+esc(repLabel({rep:ev.rpt.rep,days:ev.rpt.days,dom:ev.rpt.dom,as:'ev',time:ev.time}))+'</span></span></button>'});h+='</div>'}
+    if(S.reps.length){h+='<div class="evlist">';S.reps.forEach(function(r){h+='<button class="ev nt" data-a="reedit" data-v="'+esc(r.id)+'"><span class="bd"><b>'+esc(r.t)+'</b><span class="small">'+esc(repLabel(r))+'</span></span></button>'});h+='</div>'}
     else if(!rplans.length)h+='<p class="small">None yet.</p>';
     return h+'<button class="btn alt" data-a="renew" style="margin-top:8px">+ Add a repeating task</button></div>';
   }
@@ -1658,6 +1660,8 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       syncTk();var T=S.tk;commitStep();T.err='';
       if(!T.title.trim()){T.err='Give it a name or pick a tag first.';keepSheet(render);return}
       if(T.rpt&&T.rpt.rep==='w'&&!T.rpt.days.length){T.err='Pick which days it repeats.';keepSheet(render);return}
+      if(T.id&&T.repId&&!T.scope){T.ask='save';keepSheet(render);var _a=document.querySelector('.askseries');if(_a)_a.scrollIntoView({block:'center'});return}
+      if(T.scope==='one'){var o1=taskById(T.id);if(o1){o1.title=T.title.trim();o1.h=T.h;o1.nr=T.nr;o1.fun=T.fun;o1.bd=T.bd;o1.mins=T.mins;o1.w=T.w;o1.due=T.due||'';o1.steps=T.steps}saveTasks();S.tk=null;render();toast('Saved for this one. The repeat stays as it was.');return}
       var old=T.id?taskById(T.id):null,repId=T.repId||null;
       if(T.rpt&&T.rpt.rep!=='none'){
         var rr={id:repId||('p'+Date.now()),t:T.title.trim().slice(0,50),rep:T.rpt.rep,days:T.rpt.days.slice(),dom:T.rpt.dom,part:'afternoon',as:'lot'};
@@ -1667,7 +1671,9 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       if(old){S.tasks[S.tasks.indexOf(old)]=rec}else S.tasks.unshift(rec);
       saveTasks();S.tk=null;render();toast('Saved.');
     },
-    tkdel:function(){var id=S.tk&&S.tk.id;S.tasks=S.tasks.filter(function(t){return t.id!==id});if(S.doing===id)S.doing=null;saveTasks();S.tk=null;render();toast('Removed. Nothing else changes.')},
+    tkdel:function(){var T=S.tk;if(T&&T.repId&&!T.scope){T.ask='del';keepSheet(render);var _a=document.querySelector('.askseries');if(_a)_a.scrollIntoView({block:'center'});return}
+      if(T&&T.scope==='all'&&T.repId){var rid=T.repId;S.reps=S.reps.filter(function(x){return x.id!==rid});saveRtn()}
+      var id=S.tk&&S.tk.id;S.tasks=S.tasks.filter(function(t){return t.id!==id});if(S.doing===id)S.doing=null;saveTasks();S.tk=null;render();toast('Removed. Nothing else changes.')},
     tkgo:function(){
       syncTk();var T=S.tk;if(!T||!T.id)return;var t=taskById(T.id);
       if(t){t.steps=T.steps;t.title=T.title.trim()||t.title;t.mins=T.mins;t.w=T.w;t.h=T.h;t.nr=T.nr;t.fun=T.fun;t.bd=T.bd;t.due=T.due||'';t.ex=false;saveTasks();S.doing=t.id;S.askMore=false}
@@ -1858,10 +1864,10 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     evnewp:function(){S.ev=newEv();S.ev.by='p';render()},
     evedit:function(b){
       if(b.dataset.v.indexOf('rv_')===0){A.reedit({dataset:{v:b.dataset.v.slice(3)}});return}
-      var bid=b.dataset.v.split('|')[0];
+      var bid=b.dataset.v.split('|')[0],occ=b.dataset.v.split('|')[1]||'';
       var ev=S.events.filter(function(x){return x.id===bid})[0];if(!ev)return;
-      var k=evDate(ev),dk=k===ymd(new Date())?'today':k===ymd(addDays(new Date(),1))?'tomorrow':'other';
-      S.ev={rpt:ev.rpt?{rep:ev.rpt.rep,days:(ev.rpt.days||[]).slice(),dom:ev.rpt.dom||1}:rptNew(),tags:(ev.tags||[]).slice(),id:ev.id,by:ev.by||'me',title:ev.title,dk:dk,dateVal:k,time:ev.time,dur:ev.dur||0,place:ev.place||'',travel:ev.travel||0,prep:ev.prep||'',withJ:!!ev.withJ,share:ev.share||'full',err:''};
+      var k=occ||evDate(ev),dk=k===ymd(new Date())?'today':k===ymd(addDays(new Date(),1))?'tomorrow':'other';
+      S.ev={occ:occ,series:!!ev.rpt,rpt:ev.rpt?{rep:ev.rpt.rep,days:(ev.rpt.days||[]).slice(),dom:ev.rpt.dom||1}:rptNew(),tags:(ev.tags||[]).slice(),id:ev.id,by:ev.by||'me',title:ev.title,dk:dk,dateVal:k,time:ev.time,dur:ev.dur||0,place:ev.place||'',travel:ev.travel||0,prep:ev.prep||'',withJ:!!ev.withJ,share:ev.share||'full',err:''};
       render();
     },
     evclose:function(){S.ev=null;render()},
@@ -1882,15 +1888,24 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       else if(E.rpt&&E.rpt.rep==='w'&&!E.rpt.days.length)E.err='Pick which days it repeats.';
       if(E.err){keepSheet(render);return}
       var date=E.dk==='today'?ymd(new Date()):E.dk==='tomorrow'?ymd(addDays(new Date(),1)):E.dateVal;
+      if(E.id&&E.series&&!E.scope){E.ask='save';keepSheet(render);var _a=document.querySelector('.askseries');if(_a)_a.scrollIntoView({block:'center'});return}
+      var base=E.id?S.events.filter(function(x){return x.id===E.id})[0]:null;
+      if(E.scope==='one'&&base&&E.occ){base.skip=(base.skip||[]).concat([E.occ]);E.id=null;E.rpt=rptNew()}
+      else if(E.scope==='all'&&base)date=base.date;
       var rec={id:E.id||('e'+Date.now()),title:E.title.trim(),date:date,time:E.time,dur:E.dur,place:E.place.trim(),travel:E.travel,prep:E.prep.trim(),withJ:E.withJ,share:E.share,tags:(E.tags||[]).slice(),rpt:(E.rpt&&E.rpt.rep!=='none')?{rep:E.rpt.rep,days:E.rpt.days.slice(),dom:E.rpt.dom}:undefined,by:E.by==='p'?'p':undefined};
-      var idx=-1;S.events.forEach(function(x,i){if(x.id===rec.id)idx=i});
+      if(base&&E.id&&base.skip)rec.skip=base.skip;var idx=-1;S.events.forEach(function(x,i){if(x.id===rec.id)idx=i});
       if(idx>=0)S.events[idx]=rec;else S.events.push(rec);
       save('gs-events',S.events);S.ev=null;render();toast(E.by==='p'?'Saved. It is on the schedule so you can plan around it.':'Saved. §P sees it the way you set it.');
     },
     evdel:function(){
-      var id=S.ev&&S.ev.id;S.events=S.events.filter(function(x){return x.id!==id});
+      var E=S.ev;if(E&&E.series&&!E.scope){E.ask='del';keepSheet(render);var _a=document.querySelector('.askseries');if(_a)_a.scrollIntoView({block:'center'});return}
+      var id=E&&E.id;
+      if(E&&E.scope==='one'&&E.occ){var bs=S.events.filter(function(x){return x.id===id})[0];if(bs)bs.skip=(bs.skip||[]).concat([E.occ]);save('gs-events',S.events);S.ev=null;render();toast('Removed just that one.');return}
+      S.events=S.events.filter(function(x){return x.id!==id});
       save('gs-events',S.events);S.ev=null;render();toast('Removed. Nothing else changes.');
     },
+    tkscope:function(b){var T=S.tk;if(!T)return;var v=b.dataset.v;if(v==='cancel'){T.ask=null;keepSheet(render);return}var what=T.ask;T.ask=null;T.scope=v;syncTk();if(what==='del')A.tkdel();else A.tksave()},
+    evscope:function(b){var E=S.ev;if(!E)return;var v=b.dataset.v;if(v==='cancel'){E.ask=null;keepSheet(render);return}var what=E.ask;E.ask=null;E.scope=v;syncEv();if(what==='del')A.evdel();else A.evsave()},
     evready:function(b){S.evReady[b.dataset.v]=true;render();toast('Good. You are all set.')},
     evhide:function(b){S.evHide[b.dataset.v]=true;render()},
     sev:function(b){keepAll(function(){S.f.sev=S.f.sev===b.dataset.v?null:b.dataset.v;render()})},

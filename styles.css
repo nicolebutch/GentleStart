@@ -786,3 +786,6 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 .rtbox{display:flex;align-items:center;gap:6px;min-width:0;border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:4px 6px 4px 0}
 .rtbox .rtn{border:0;background:transparent;padding:6px 6px 6px 12px}
 .rtbox .fpill{flex:none;font-size:12px;padding:4px 10px;white-space:nowrap}
+
+.ev.nt{grid-template-columns:minmax(0,1fr)}
+.askseries .quiet{margin-top:4px}
