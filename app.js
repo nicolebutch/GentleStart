@@ -246,13 +246,16 @@
       return '<svg viewBox="0 0 440 64" role="presentation">'+s+'</svg>';
     },
     tide:function(){
-      return '<svg viewBox="0 0 440 64" role="presentation">'
-        +'<path d="M0 34 Q55 12 110 34 T220 34 T330 34 T440 34 V64 H0Z" style="fill:var(--sky);opacity:.55"/>'
-        +'<path d="M0 44 Q55 26 110 44 T220 44 T330 44 T440 44 V64 H0Z" style="fill:var(--sky);opacity:.8"/>'
-        +'<path d="M0 54 Q55 40 110 54 T220 54 T330 54 T440 54 V64 H0Z" style="fill:var(--accent);opacity:.28"/>'
-        +'<circle cx="60" cy="18" r="4" fill="none" style="stroke:var(--accent)" stroke-width="1.4"/><circle cx="74" cy="9" r="2.4" fill="none" style="stroke:var(--accent)" stroke-width="1.2"/>'
-        +'<circle cx="250" cy="14" r="3" fill="none" style="stroke:var(--accent)" stroke-width="1.3"/><circle cx="262" cy="22" r="1.8" fill="none" style="stroke:var(--accent)" stroke-width="1.1"/>'
-        +'<circle cx="372" cy="12" r="4.5" fill="none" style="stroke:var(--accent)" stroke-width="1.4"/></svg>';
+      return '<svg class="tidesvg" viewBox="0 0 440 64" role="presentation">'
+        +'<path class="wv w1" d="M-110 34 Q-55 12 0 34 T110 34 T220 34 T330 34 T440 34 T550 34 V64 H-110Z" style="fill:var(--sky);opacity:.55"/>'
+        +'<path class="wv w2" d="M-110 44 Q-55 26 0 44 T110 44 T220 44 T330 44 T440 44 T550 44 V64 H-110Z" style="fill:var(--sky);opacity:.8"/>'
+        +'<path class="wv w3" d="M-110 54 Q-55 40 0 54 T110 54 T220 54 T330 54 T440 54 T550 54 V64 H-110Z" style="fill:var(--accent);opacity:.28"/>'
+        +'<g class="bub"><circle cx="60" cy="18" r="13" fill="none" pointer-events="all"/><circle cx="60" cy="18" r="4" fill="none" style="stroke:var(--accent)" stroke-width="1.4"/></g>'
+        +'<g class="bub"><circle cx="74" cy="9" r="13" fill="none" pointer-events="all"/><circle cx="74" cy="9" r="2.4" fill="none" style="stroke:var(--accent)" stroke-width="1.2"/></g>'
+        +'<g class="bub"><circle cx="250" cy="14" r="13" fill="none" pointer-events="all"/><circle cx="250" cy="14" r="3" fill="none" style="stroke:var(--accent)" stroke-width="1.3"/></g>'
+        +'<g class="bub"><circle cx="262" cy="22" r="13" fill="none" pointer-events="all"/><circle cx="262" cy="22" r="1.8" fill="none" style="stroke:var(--accent)" stroke-width="1.1"/></g>'
+        +'<g class="bub"><circle cx="372" cy="12" r="13" fill="none" pointer-events="all"/><circle cx="372" cy="12" r="4.5" fill="none" style="stroke:var(--accent)" stroke-width="1.4"/></g>'
+        +'</svg>';
     },
     original:function(){return '<img class="vine" src="art/vine.png" alt="" width="900" height="300">'},
     birch:function(){
@@ -2358,5 +2361,13 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       if(e.key==='ArrowUp')ul.insertBefore(li,s);else ul.insertBefore(s,li);saveOrder(ul);g.focus();
     });
   })();
+  /* Ocean header: tap a bubble to pop it, tap the water to make the waves drift */
+  document.addEventListener('click',function(e){
+    var t=e.target;if(!t.closest)return;
+    var bb=t.closest('.deco .bub');
+    if(bb){bb.classList.remove('pop');void bb.getBoundingClientRect();bb.classList.add('pop');setTimeout(function(){bb.classList.remove('pop')},2300);return}
+    var wv=t.closest('.deco .wv');
+    if(wv){var sv=wv.ownerSVGElement;sv.classList.remove('drift');void sv.getBoundingClientRect();sv.classList.add('drift');setTimeout(function(){sv.classList.remove('drift')},1700)}
+  });
   getSample().then(function(f){if(!f){S.noAI=true;render()}});
 })();

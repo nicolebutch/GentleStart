@@ -834,3 +834,17 @@ body{padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))}
 .seal.orig .ob.tg{-webkit-mask-image:url(art/seaglass.png);mask-image:url(art/seaglass.png)}
 
 .seal.orig .ob.md{-webkit-mask-image:url(art/meadow-emb.png);mask-image:url(art/meadow-emb.png)}
+
+/* Ocean header interactions */
+.tidesvg{overflow:hidden}
+.tidesvg .bub,.tidesvg .wv{cursor:pointer}
+.tidesvg .bub circle+circle,.tidesvg .wv{transform-box:fill-box;transform-origin:center}
+.tidesvg .bub.pop circle+circle{animation:bubpop 2.2s ease-out}
+@keyframes bubpop{0%{transform:scale(1);opacity:1}9%{transform:scale(1.7);opacity:0}70%{transform:translateY(10px) scale(.5);opacity:0}100%{transform:none;opacity:1}}
+.tidesvg.drift .w1{animation:wv1 1.6s ease-in-out}
+.tidesvg.drift .w2{animation:wv2 1.6s ease-in-out}
+.tidesvg.drift .w3{animation:wv3 1.6s ease-in-out}
+@keyframes wv1{50%{transform:translateX(-34px)}}
+@keyframes wv2{50%{transform:translateX(28px)}}
+@keyframes wv3{50%{transform:translateX(-18px)}}
+@media (prefers-reduced-motion:reduce){.tidesvg .bub.pop circle+circle,.tidesvg.drift .wv{animation:none}}
