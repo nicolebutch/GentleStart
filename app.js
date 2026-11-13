@@ -1447,7 +1447,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
     h+='<div class="subtabs" role="group" aria-label="Menu sections">';
     [['themes','Themes'],['logic','Logic'],['settings','Settings']].forEach(function(t){h+='<button data-a="mt" data-v="'+t[0]+'" aria-pressed="'+(S.mt===t[0])+'">'+t[1]+'</button>'});
     h+='</div>';
-    var paused=creature()&&S.mt!=='logic'?'<div class="note">Woodland creatures has its own storybook look, so themes and colorways are paused while it is on.</div>':'';
+    var paused=creature()&&S.mt!=='logic'?'<div class="note">Woodland creatures has its own storybook look, so themes and colorways are paused while it is on. Tap Woodland creatures again to turn it off.</div>':'';
     if(S.mt==='themes'){
       if(!creature())h+='<p class="small">Picking a theme switches to its own colorway. Then try any other colorway on top.</p>';
       h+='<div class="grp"><div class="lab big">Appearance</div><div class="chips sm" role="group" aria-label="Light or dark">';
@@ -1470,7 +1470,7 @@ var SUGG={meds:['Rescue med','OTC painkiller']};
       if(wc){
         h+='<div class="lab" style="margin-top:12px">Season</div><div class="chips sm">';
         Object.keys(SEASONS).forEach(function(k){h+='<button data-a="season" data-v="'+k+'" aria-pressed="'+(S.season===k)+'">'+SEASONS[k]+'</button>'});
-        h+='</div><p class="small">Auto follows your phone or PC\u2019s calendar.</p><p class="small">Tap Woodland creatures again to turn it off.</p>';
+        h+='</div><p class="small">Auto follows your phone or PC\u2019s calendar.</p>';
       }
       h+='</div>';
 
