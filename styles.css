@@ -499,7 +499,7 @@ html:root[data-look] .tabs button[data-v="today"][aria-current="page"]{backgroun
 :root[data-look="creature"] .steps li.done .dot,:root[data-look="creature"] .steps li.now .dot{background:var(--accent);border:0}
 :root[data-look="creature"][data-mood="energetic"] .steps li .dot{-webkit-mask-image:var(--berry);mask-image:var(--berry);width:22px;height:22px}
 :root[data-look="creature"] body{background-image:radial-gradient(color-mix(in srgb,var(--accent) 12%,transparent) 1.4px,transparent 1.8px);background-size:26px 26px}
-:root[data-look="creature"] .lot{background-color:#7A5A38;background-image:var(--plank);color:#FBF3E4;box-shadow:-18px 0 40px -20px rgba(0,0,0,.5)}
+:root[data-look="creature"] .lot{background-color:#6B3A1E;background-image:url(art/bark.jpg);background-size:cover;background-position:center;color:#FBF3E4;box-shadow:-18px 0 40px -20px rgba(0,0,0,.5)}
 :root[data-look="creature"] .lottitle{border-bottom:3px double #E8CFA0;color:#FBF3E4}
 :root[data-look="creature"] .lotx,:root[data-look="creature"] .lotabs button,:root[data-look="creature"] .lotdone,:root[data-look="creature"] .lotdone .quiet,:root[data-look="creature"] .bay .body{color:#FBF3E4}
 :root[data-look="creature"] .lotabs button[aria-pressed="true"]{background:#FBF3E4;color:#4A3520}
