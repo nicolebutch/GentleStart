@@ -163,9 +163,9 @@
     ],
     balanced:[
       function(f,o){ // fox with a scarf
-        return '<path d="M332 64C306 66 296 48 304 34C316 40 326 50 334 58Z" style="fill:var(--hot)" '+f+'/><path d="M304 34C309 36 313 40 315 45L305 45Z" style="fill:var(--surface)" '+f+'/>'
-          +'<ellipse cx="352" cy="64" rx="22" ry="12" style="fill:var(--hot)" '+f+'/><path d="M342 76V78M362 76V78" '+o+'/>'
-          +'<path d="M368 52L371 32L380 41L389 32L392 52C392 62 372 64 368 52Z" style="fill:var(--hot)" '+f+'/><path d="M372 52L380 62L388 52Z" style="fill:var(--surface)" '+f+'/>'
+        return '<path d="M332 64C306 66 296 48 304 34C316 40 326 50 334 58Z" style="fill:#D9773A" '+f+'/><path d="M304 34C309 36 313 40 315 45L305 45Z" style="fill:var(--surface)" '+f+'/>'
+          +'<ellipse cx="352" cy="64" rx="22" ry="12" style="fill:#D9773A" '+f+'/><path d="M342 76V78M362 76V78" '+o+'/>'
+          +'<path d="M368 52L371 32L380 41L389 32L392 52C392 62 372 64 368 52Z" style="fill:#D9773A" '+f+'/><path d="M372 52L380 62L388 52Z" style="fill:var(--surface)" '+f+'/>'
           +'<circle cx="376" cy="47" r="1.4" style="fill:var(--ink)"/><circle cx="385" cy="47" r="1.4" style="fill:var(--ink)"/><circle cx="380.5" cy="58" r="1.8" style="fill:var(--ink)"/>'
           +'<path d="M366 62Q380 70 394 62" fill="none" style="stroke:var(--accent)" stroke-width="5" stroke-linecap="round"/>';
       },
@@ -206,7 +206,8 @@
       // the animal, right side
       var f='stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"';
       var v=critterIdx();s+='<g transform="translate(440 78) scale(1.3) translate(-440 -78)" filter="url(#gWob)">';
-      if(v>0&&CRITTERS[m]&&CRITTERS[m][v-1]){s+=CRITTERS[m][v-1](f,o)}else if(m==='slow'){ // sleepy bear in a scarf
+      var artFox=(m==='balanced'&&v===1&&se==='autumn');
+      if(artFox){}else if(v>0&&CRITTERS[m]&&CRITTERS[m][v-1]){s+=CRITTERS[m][v-1](f,o)}else if(m==='slow'){ // sleepy bear in a scarf
         s+='<path d="M300 78C300 54 318 46 342 46C368 46 386 58 386 78Z" style="fill:var(--wood)" '+f+'/>';
         s+='<circle cx="364" cy="56" r="17" style="fill:var(--wood)" '+f+'/><circle cx="351" cy="42" r="6" style="fill:var(--wood)" '+f+'/><circle cx="377" cy="42" r="6" style="fill:var(--wood)" '+f+'/>';
         s+='<ellipse cx="369" cy="62" rx="9" ry="6.5" style="fill:var(--surface2)" '+f+'/><ellipse cx="371" cy="59.5" rx="2.6" ry="1.8" style="fill:var(--ink)"/>';
@@ -226,6 +227,7 @@
         s+='<path d="M296 26C290 18 282 22 286 30C290 32 294 30 296 26Z M296 26C302 18 310 22 306 30C302 32 298 30 296 26Z" style="fill:var(--accent);opacity:.85" stroke="var(--ink)" stroke-width="1.2"/><path d="M296 24V32" '+o+'/>';
       }else{ s+=HEDGEHOG(); }
       s+='</g>';
+      if(artFox)s+='<image href="art/fox-autumn.png" x="326" y="24" width="62" height="56" preserveAspectRatio="xMidYMax meet"/>';
       return '<svg viewBox="0 0 440 90" preserveAspectRatio="xMidYMax meet"><defs><linearGradient id="gBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:#B88C5E"/><stop offset=".55" style="stop-color:#8E6240"/><stop offset="1" style="stop-color:#5B3D27"/></linearGradient><linearGradient id="gAccent" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:color-mix(in srgb,var(--accent) 80%,#fff)"/><stop offset="1" style="stop-color:color-mix(in srgb,var(--accent) 78%,#000)"/></linearGradient><linearGradient id="gCream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:#F3E4C8"/><stop offset="1" style="stop-color:#D9BF98"/></linearGradient><filter id="gWob" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.7"/></filter></defs>'+s+'</svg>';
     },
 
