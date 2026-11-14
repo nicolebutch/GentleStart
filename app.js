@@ -206,7 +206,7 @@
       // the animal, right side
       var f='stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"';
       var v=critterIdx();s+='<g transform="translate(440 78) scale(1.3) translate(-440 -78)" filter="url(#gWob)">';
-      var artFox=(m==='balanced'&&v===1&&se==='autumn');
+      var artFox=(m==='balanced'&&v===1&&(se==='autumn'||se==='winter'));
       if(artFox){}else if(v>0&&CRITTERS[m]&&CRITTERS[m][v-1]){s+=CRITTERS[m][v-1](f,o)}else if(m==='slow'){ // sleepy bear in a scarf
         s+='<path d="M300 78C300 54 318 46 342 46C368 46 386 58 386 78Z" style="fill:var(--wood)" '+f+'/>';
         s+='<circle cx="364" cy="56" r="17" style="fill:var(--wood)" '+f+'/><circle cx="351" cy="42" r="6" style="fill:var(--wood)" '+f+'/><circle cx="377" cy="42" r="6" style="fill:var(--wood)" '+f+'/>';
@@ -227,7 +227,9 @@
         s+='<path d="M296 26C290 18 282 22 286 30C290 32 294 30 296 26Z M296 26C302 18 310 22 306 30C302 32 298 30 296 26Z" style="fill:var(--accent);opacity:.85" stroke="var(--ink)" stroke-width="1.2"/><path d="M296 24V32" '+o+'/>';
       }else{ s+=HEDGEHOG(); }
       s+='</g>';
-      if(artFox)s+='<image href="art/fox-autumn.png" x="326" y="24" width="62" height="56" preserveAspectRatio="xMidYMax meet"/>';
+      if(artFox){var FX='x="326" y="24" width="62" height="56" preserveAspectRatio="xMidYMax meet"';
+        if(se==='autumn')s+='<image href="art/fox-autumn.png" '+FX+'/>';
+        else s+='<defs><mask id="foxScarf" style="mask-type:alpha"><image href="art/fox-w-scarf.png" '+FX+'/></mask></defs><image href="art/fox-w-body.png" '+FX+'/><rect x="320" y="20" width="76" height="62" mask="url(#foxScarf)" style="fill:var(--hot)"/><image href="art/fox-w-shade.png" '+FX+' opacity=".55"/><image href="art/fox-w-hl.png" '+FX+' opacity=".35"/>';}
       return '<svg viewBox="0 0 440 90" preserveAspectRatio="xMidYMax meet"><defs><linearGradient id="gBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:#B88C5E"/><stop offset=".55" style="stop-color:#8E6240"/><stop offset="1" style="stop-color:#5B3D27"/></linearGradient><linearGradient id="gAccent" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:color-mix(in srgb,var(--accent) 80%,#fff)"/><stop offset="1" style="stop-color:color-mix(in srgb,var(--accent) 78%,#000)"/></linearGradient><linearGradient id="gCream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:#F3E4C8"/><stop offset="1" style="stop-color:#D9BF98"/></linearGradient><filter id="gWob" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.7"/></filter></defs>'+s+'</svg>';
     },
 
